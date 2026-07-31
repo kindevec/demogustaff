@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { User, Language, Product, SiteContent } from './types';
-import { getLocalUser, setLocalUser, getStoredProducts, getStoredSiteContent } from './lib/supabase';
+import { getLocalUser, setLocalUser, fetchProducts, getStoredSiteContent } from './lib/supabase';
 import { Navbar } from './components/Navbar';
 import { BottomNav } from './components/BottomNav';
 import { Footer } from './components/Footer';
@@ -23,7 +23,16 @@ export default function App() {
   const [lang, setLang] = useState<Language>('es');
 
   const [currentUser, setCurrentUser] = useState<User | null>(() => getLocalUser());
-  const [products] = useState<Product[]>(() => getStoredProducts());
+  const [products, setProducts] = useState<Product[]>([]);
+
+  const loadProducts = async () => {
+    const data = await fetchProducts();
+    setProducts(data);
+  };
+
+  useEffect(() => {
+    loadProducts();
+  }, []);
   const [siteContent] = useState<SiteContent>(() => getStoredSiteContent());
 
   const [authModalOpen, setAuthModalOpen] = useState(false);
@@ -116,7 +125,7 @@ export default function App() {
         )}
 
         {currentTab === 'admin' && (
-          <AdminView setCurrentTab={setCurrentTab} lang={lang} />
+          <AdminView setCurrentTab={setCurrentTab} lang={lang} refreshProducts={loadProducts} products={products} />
         )}
       </main>
 

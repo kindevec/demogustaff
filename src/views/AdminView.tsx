@@ -1,10 +1,14 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Product, Prospect, ContactSubmission, SiteContent, Language } from '../types';
 import { 
   getLocalProspects, 
   getLocalContactSubmissions, 
-  getStoredProducts, 
-  saveStoredProducts,
+  addProduct,
+  updateProduct,
+  deleteProduct,
+  adminLogin,
+  adminLogout,
+  getAdminSession,
   getStoredSiteContent,
   saveStoredSiteContent
 } from '../lib/supabase';
@@ -35,18 +39,32 @@ import {
 interface AdminViewProps {
   setCurrentTab: (tab: string) => void;
   lang?: Language;
+  products: Product[];
+  refreshProducts: () => void;
 }
 
-export const AdminView: React.FC<AdminViewProps> = ({ setCurrentTab }) => {
+export const AdminView: React.FC<AdminViewProps> = ({ setCurrentTab, products, refreshProducts }) => {
   const [authenticated, setAuthenticated] = useState(false);
-  const [adminPassword, setAdminPassword] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [authError, setAuthError] = useState('');
+  const [isCheckingAuth, setIsCheckingAuth] = useState(true);
+
+  useEffect(() => {
+    const checkSession = async () => {
+      const { session } = await getAdminSession();
+      if (session) {
+        setAuthenticated(true);
+      }
+      setIsCheckingAuth(false);
+    };
+    checkSession();
+  }, []);
 
   const [activeTab, setActiveTab] = useState<'prospects' | 'products' | 'content' | 'messages'>('prospects');
 
   const [prospects, setProspects] = useState<Prospect[]>(() => getLocalProspects());
   const [messages, setMessages] = useState<ContactSubmission[]>(() => getLocalContactSubmissions());
-  const [products, setProducts] = useState<Product[]>(() => getStoredProducts());
   const [siteContent, setSiteContent] = useState<SiteContent>(() => getStoredSiteContent());
 
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
@@ -56,14 +74,22 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentTab }) => {
   const [prospectSearch, setProspectSearch] = useState('');
   const [productSearch, setProductSearch] = useState('');
 
-  const handleAdminLogin = (e: React.FormEvent) => {
+  const handleAdminLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (adminPassword === 'gustaff2026' || adminPassword === 'admin') {
-      setAuthenticated(true);
-      setAuthError('');
+    setAuthError('');
+    const { data, error } = await adminLogin(email, password);
+    if (error || !data.session) {
+      setAuthError('Credenciales incorrectas o problema de red.');
     } else {
-      setAuthError('Contraseña incorrecta. (Clave por defecto: gustaff2026)');
+      setAuthenticated(true);
     }
+  };
+
+  const handleLogout = async () => {
+    await adminLogout();
+    setAuthenticated(false);
+    setEmail('');
+    setPassword('');
   };
 
   const handleExportCSV = () => {
@@ -91,30 +117,30 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentTab }) => {
     document.body.removeChild(link);
   };
 
-  const handleSaveProduct = (e: React.FormEvent) => {
+  const handleSaveProduct = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingProduct) return;
 
-    let updatedList: Product[];
-    const exists = products.some(p => p.id === editingProduct.id);
-
-    if (exists) {
-      updatedList = products.map(p => p.id === editingProduct.id ? editingProduct : p);
+    // Check if new or update
+    if (editingProduct.id.startsWith('prod_')) {
+      const { id, ...newProductData } = editingProduct;
+      const res = await addProduct(newProductData as any);
+      if (res.error) alert('Error: ' + res.error);
     } else {
-      updatedList = [...products, editingProduct];
+      const res = await updateProduct(editingProduct.id, editingProduct);
+      if (res.error) alert('Error: ' + res.error);
     }
 
-    setProducts(updatedList);
-    saveStoredProducts(updatedList);
+    refreshProducts();
     setEditingProduct(null);
     showNotice();
   };
 
-  const handleDeleteProduct = (id: string) => {
+  const handleDeleteProduct = async (id: string) => {
     if (confirm('¿Está seguro de eliminar este producto del catálogo?')) {
-      const updated = products.filter(p => p.id !== id);
-      setProducts(updated);
-      saveStoredProducts(updated);
+      const res = await deleteProduct(id);
+      if (res.error) alert('Error: ' + res.error);
+      refreshProducts();
       showNotice();
     }
   };
@@ -133,7 +159,7 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentTab }) => {
   const handleRefreshData = () => {
     setProspects(getLocalProspects());
     setMessages(getLocalContactSubmissions());
-    setProducts(getStoredProducts());
+    refreshProducts();
     setSiteContent(getStoredSiteContent());
     showNotice();
   };
@@ -178,14 +204,23 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentTab }) => {
 
           <div className="flex items-center gap-2 sm:gap-3">
             {authenticated && (
-              <button
-                onClick={handleRefreshData}
-                className="p-2 sm:px-3 sm:py-2 rounded-xl bg-[#2C1810] hover:bg-[#3D2314] text-stone-300 text-xs font-semibold border border-[#4A2C1D] flex items-center gap-1.5 transition-colors"
-                title="Actualizar Datos"
-              >
-                <RefreshCw className="w-4 h-4 text-amber-400" />
-                <span className="hidden sm:inline">Actualizar</span>
-              </button>
+              <>
+                <button
+                  onClick={handleRefreshData}
+                  className="p-2 sm:px-3 sm:py-2 rounded-xl bg-[#2C1810] hover:bg-[#3D2314] text-stone-300 text-xs font-semibold border border-[#4A2C1D] flex items-center gap-1.5 transition-colors"
+                  title="Actualizar Datos"
+                >
+                  <RefreshCw className="w-4 h-4 text-amber-400" />
+                  <span className="hidden sm:inline">Actualizar</span>
+                </button>
+                <button
+                  onClick={handleLogout}
+                  className="p-2 sm:px-3 sm:py-2 rounded-xl bg-red-950/40 hover:bg-red-900/60 text-red-300 text-xs font-semibold border border-red-900/40 flex items-center gap-1.5 transition-colors"
+                  title="Cerrar Sesión"
+                >
+                  <span className="hidden sm:inline">Cerrar Sesión</span>
+                </button>
+              </>
             )}
 
             <button
@@ -201,7 +236,11 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentTab }) => {
 
       {/* Main Admin Workspace */}
       <main className="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-6 lg:p-8">
-        {!authenticated ? (
+        {isCheckingAuth ? (
+          <div className="flex items-center justify-center py-20 text-stone-400 text-sm">
+            Verificando sesión segura...
+          </div>
+        ) : !authenticated ? (
           /* Authentication Form */
           <div className="max-w-md mx-auto my-12 sm:my-20 p-6 sm:p-8 bg-[#1F100A] border border-amber-800/40 rounded-3xl shadow-2xl text-center space-y-6 animate-fadeIn">
             <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-600 to-amber-800 text-stone-950 mx-auto flex items-center justify-center shadow-lg">
@@ -226,15 +265,28 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentTab }) => {
             <form onSubmit={handleAdminLogin} className="space-y-4 text-left">
               <div>
                 <label className="block text-xs font-bold text-amber-300 mb-1.5 uppercase tracking-wider">
+                  Correo Electrónico (Admin):
+                </label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="ejemplo@gustaff.ec"
+                  className="w-full bg-[#2C1810] border border-amber-900/60 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all"
+                  autoFocus
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-amber-300 mb-1.5 uppercase tracking-wider">
                   Clave de Acceso CMS:
                 </label>
                 <input
                   type="password"
-                  value={adminPassword}
-                  onChange={(e) => setAdminPassword(e.target.value)}
-                  placeholder="Escriba aquí (gustaff2026)"
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder="Escriba aquí su contraseña"
                   className="w-full bg-[#2C1810] border border-amber-900/60 rounded-xl p-3 text-sm text-white focus:outline-none focus:border-amber-500 focus:ring-1 focus:ring-amber-500 transition-all"
-                  autoFocus
                 />
               </div>
 

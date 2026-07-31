@@ -39,6 +39,24 @@ export const setLocalUser = (user: User | null): void => {
   }
 };
 
+export const adminLogin = async (email: string, password: string) => {
+  if (!supabase) return { error: 'Supabase no configurado' };
+  const { data, error } = await supabase.auth.signInWithPassword({ email, password });
+  return { data, error };
+};
+
+export const adminLogout = async () => {
+  if (!supabase) return;
+  await supabase.auth.signOut();
+};
+
+export const getAdminSession = async () => {
+  if (!supabase) return { session: null };
+  const { data, error } = await supabase.auth.getSession();
+  if (error) return { session: null, error };
+  return { session: data.session };
+};
+
 export const registerLead = async (data: {
   name: string;
   email: string;
@@ -146,17 +164,35 @@ export const getLocalContactSubmissions = (): ContactSubmission[] => {
   }
 };
 
-export const getStoredProducts = (): Product[] => {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEYS.PRODUCTS);
-    return raw ? JSON.parse(raw) : INITIAL_PRODUCTS;
-  } catch {
+export const fetchProducts = async (): Promise<Product[]> => {
+  if (!supabase) return INITIAL_PRODUCTS;
+  const { data, error } = await supabase.from('products').select('*').order('display_order', { ascending: true });
+  if (error) {
+    console.error('Error fetching products:', error);
     return INITIAL_PRODUCTS;
   }
+  return data || [];
 };
 
-export const saveStoredProducts = (products: Product[]): void => {
-  localStorage.setItem(STORAGE_KEYS.PRODUCTS, JSON.stringify(products));
+export const addProduct = async (product: Omit<Product, 'id'>): Promise<{ success: boolean; data?: Product; error?: string }> => {
+  if (!supabase) return { success: false, error: 'Supabase no configurado' };
+  const { data, error } = await supabase.from('products').insert([product]).select().single();
+  if (error) return { success: false, error: error.message };
+  return { success: true, data };
+};
+
+export const updateProduct = async (id: string, product: Partial<Product>): Promise<{ success: boolean; data?: Product; error?: string }> => {
+  if (!supabase) return { success: false, error: 'Supabase no configurado' };
+  const { data, error } = await supabase.from('products').update(product).eq('id', id).select().single();
+  if (error) return { success: false, error: error.message };
+  return { success: true, data };
+};
+
+export const deleteProduct = async (id: string): Promise<{ success: boolean; error?: string }> => {
+  if (!supabase) return { success: false, error: 'Supabase no configurado' };
+  const { error } = await supabase.from('products').delete().eq('id', id);
+  if (error) return { success: false, error: error.message };
+  return { success: true };
 };
 
 export const getStoredSiteContent = (): SiteContent => {
