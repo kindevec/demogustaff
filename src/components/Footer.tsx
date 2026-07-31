@@ -153,7 +153,7 @@ export const Footer: React.FC<FooterProps> = ({ setCurrentTab, lang }) => {
           </p>
 
           <div className="flex items-center space-x-6">
-            <span className="text-[#8d6e63]">Hostinger Infrastructure</span>
+            <span className="text-[#8d6e63]">Desarrollado por Kindev</span>
             <button
               onClick={() => {
                 setCurrentTab('about');
