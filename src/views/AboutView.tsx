@@ -97,7 +97,7 @@ export const AboutView: React.FC<AboutViewProps> = ({ siteContent, lang, setCurr
           <div className="lg:col-span-5 relative">
             <div className="relative rounded-3xl overflow-hidden shadow-xl border-2 border-[#e8dcc4]">
               <img
-                src="/images/bodegon/CHOCOBANANO.jpg"
+                src="/images/bodegon/rapichoc_chocobanano_variedad_sabores.jpg"
                 alt="Historia Gustaff S.A."
                 className="w-full h-[440px] object-cover"
               />

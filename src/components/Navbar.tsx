@@ -105,7 +105,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           className="flex items-center group text-left cursor-pointer"
         >
           <img 
-            src="/images/bodegon/logo-gustaff.png" 
+            src="/images/bodegon/logo_gustaff_oficial.png" 
             alt="Gustaff S.A." 
             className="h-12 w-auto object-contain group-hover:scale-105 transition-transform"
           />

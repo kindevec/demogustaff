@@ -101,7 +101,7 @@ export const Footer: React.FC<FooterProps> = ({ setCurrentTab, lang }) => {
             <div className="space-y-4 text-left">
               <div className="flex items-center">
                 <img 
-                  src="/images/bodegon/logo-gustaff.png" 
+                  src="/images/bodegon/logo_gustaff_oficial.png" 
                   alt="Gustaff S.A." 
                   className="h-14 w-auto object-contain"
                 />

@@ -451,7 +451,7 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentTab, products, r
                         category: 'industrial',
                         package_size: '25 Kg',
                         description: 'Descripción del producto...',
-                        image: '/images/bodegon/CHOCOBANANO.jpg',
+                        image: '/images/bodegon/rapichoc_chocobanano_variedad_sabores.jpg',
                         order: products.length + 1
                       })
                     }
