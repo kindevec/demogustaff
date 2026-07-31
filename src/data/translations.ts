@@ -1,7 +1,7 @@
 export const TRANSLATIONS = {
   es: {
     nav: {
-      home: "Home",
+      home: "INICIO",
       about: "Conócenos",
       products: "Productos",
       industrial: "Industrial",
@@ -15,18 +15,18 @@ export const TRANSLATIONS = {
       title: "Chocolates, Coberturas y Galletas de Excelencia",
       subtitle: "En Gustaff somos soñadores, creemos en los nuevos proyectos, en nuestro personal, proveedores y clientes.",
       btnCatalog: "Ver Catálogo Industrial",
-      btnContact: "Contactar Asesor B2B",
+      btnContact: "Contactar Asesor Comercial",
       btnDownloads: "Fichas Técnicas PDF"
     },
     sections: {
       aboutSummaryTitle: "Quiénes Somos",
       productsSummaryTitle: "Nuestros Productos",
-      industrialSummaryTitle: "Maquilamos tus emprendimientos",
+      industrialSummaryTitle: "Maquilamos tu emprendimiento",
       recipesTitle: "Recetas e Inspiración",
       qualityTitle: "Política de Calidad e Inocuidad"
     },
     industrialPage: {
-      title: "Maquilamos tus emprendimientos",
+      title: "Maquilamos Tu Emprendimiento Corporativo",
       subtitle: "Línea de ingredientes, materias primas y soluciones de empaque industrial para confitería, heladería, galletería y panificación.",
       downloadTechSheets: "Descargar Ficha Técnica PDF",
       requestQuote: "Solicitar Cotización",
@@ -81,10 +81,10 @@ export const TRANSLATIONS = {
   },
   en: {
     nav: {
-      home: "Home",
+      home: "HOME",
       about: "About Us",
       products: "Products",
-      industrial: "Industrial / B2B",
+      industrial: "Industrial Line",
       recipes: "Recipes",
       contact: "Contact",
       downloads: "Download Center",
@@ -95,7 +95,7 @@ export const TRANSLATIONS = {
       title: "Chocolates, Compound Coatings & Cookies of Excellence",
       subtitle: "At Gustaff we are dreamers; we believe in new projects, in our staff, suppliers, and customers.",
       btnCatalog: "View Industrial Catalog",
-      btnContact: "Contact B2B Representative",
+      btnContact: "Contact Sales Representative",
       btnDownloads: "Technical Specs PDF"
     },
     sections: {

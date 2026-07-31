@@ -52,7 +52,7 @@ export const IndustrialView: React.FC<IndustrialViewProps> = ({
       <div className="bg-[#603813] text-white p-8 sm:p-12 rounded-3xl border border-[#d4af37]/30 shadow-xl text-left space-y-4 relative overflow-hidden">
         <div className="inline-flex items-center gap-2 bg-[#d4af37] text-[#3d2516] font-extrabold px-3.5 py-1.5 rounded-full text-xs uppercase tracking-wider shadow">
           <Package className="w-4 h-4" />
-          <span>Línea Industrial B2B</span>
+          <span>Línea Industrial &amp; Granel</span>
         </div>
 
         {/* Verbatim Title Requested: "Maquilamos tus emprendimientos" */}
@@ -175,11 +175,11 @@ export const IndustrialView: React.FC<IndustrialViewProps> = ({
         ))}
       </div>
 
-      {/* B2B Quote Request Form Section */}
+      {/* Quote Request Form Section */}
       <section className="bg-[#3d2516] text-white p-8 sm:p-12 rounded-3xl border border-[#d4af37]/40 shadow-xl text-left space-y-6">
         <div className="max-w-2xl">
           <span className="text-xs font-bold text-[#d4af37] uppercase tracking-widest bg-white/10 px-3 py-1 rounded-full border border-white/20">
-            Atención Directa B2B
+            Atención Directa Corporativa
           </span>
           <h2 className="font-serif font-bold text-2xl sm:text-3xl text-white mt-2">
             Solicita Muestras o Cotizaciones de Maquila
@@ -198,7 +198,7 @@ export const IndustrialView: React.FC<IndustrialViewProps> = ({
           <form
             onSubmit={(e) => {
               e.preventDefault();
-              setQuoteSuccessMsg('¡Solicitud de cotización B2B enviada con éxito! Un asesor industrial de Gustaff S.A. te contactará en breve.');
+              setQuoteSuccessMsg('¡Solicitud de cotización enviada con éxito! Un asesor industrial de Gustaff S.A. te contactará en breve.');
             }}
             className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-3xl"
           >

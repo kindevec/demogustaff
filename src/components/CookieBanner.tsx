@@ -102,7 +102,7 @@ export const CookieBanner: React.FC = () => {
 
           <div className="bg-[#2C1810] p-3 rounded-xl border border-[#4A2C1D]">
             <div className="flex justify-between items-center mb-1">
-              <span className="font-bold text-amber-200">Gestión de Leads B2B</span>
+              <span className="font-bold text-amber-200">Gestión de Solicitudes Corporativas</span>
               <input
                 type="checkbox"
                 checked={marketing}

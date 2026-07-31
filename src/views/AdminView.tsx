@@ -353,7 +353,7 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentTab, products, r
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-[#3D2314]">
                   <div>
                     <h3 className="font-serif font-bold text-lg sm:text-xl text-amber-200">
-                      Registro de Prospectos y Clientes B2B
+                      Registro de Prospectos y Clientes
                     </h3>
                     <p className="text-xs text-stone-400">
                       Usuarios registrados para descargas de fichas técnicas y cotizaciones.
@@ -507,7 +507,7 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentTab, products, r
                           onChange={(e) => setEditingProduct({ ...editingProduct, category: e.target.value as any })}
                           className="w-full bg-[#1A0E08] border border-[#3D2314] rounded-xl p-2.5 text-white"
                         >
-                          <option value="industrial">B2B Granel / Industrial</option>
+                          <option value="industrial">Granel / Industrial</option>
                           <option value="consumer">Consumo Masivo / Retail</option>
                           <option value="coberturas">Coberturas & Gotas</option>
                           <option value="galletas">Galletas Industrial</option>

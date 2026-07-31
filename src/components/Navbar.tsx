@@ -45,7 +45,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     { id: 'home', label: t.home },
     { id: 'about', label: t.about },
     { id: 'products', label: t.products },
-    { id: 'industrial', label: t.industrial, badge: 'B2B' },
+    { id: 'industrial', label: t.industrial, badge: 'PRODUCCIÓN' },
     { id: 'recipes', label: t.recipes },
     { id: 'contact', label: t.contact }
   ];
@@ -78,7 +78,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               <Globe className="w-3 h-3 text-[#b05d2e] ml-1.5 mr-1" />
               <button
                 onClick={() => setLang('es')}
-                className={`px-2 py-0.5 text-[11px] font-bold rounded-full transition-all ${
+                className={`px-2 py-0.5 text-[11px] font-bold rounded-full transition-all cursor-pointer ${
                   lang === 'es' ? 'bg-[#603813] text-white' : 'text-[#6d4c41] hover:text-[#3d2516]'
                 }`}
               >
@@ -86,7 +86,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               </button>
               <button
                 onClick={() => setLang('en')}
-                className={`px-2 py-0.5 text-[11px] font-bold rounded-full transition-all ${
+                className={`px-2 py-0.5 text-[11px] font-bold rounded-full transition-all cursor-pointer ${
                   lang === 'en' ? 'bg-[#603813] text-white' : 'text-[#6d4c41] hover:text-[#3d2516]'
                 }`}
               >
@@ -102,7 +102,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         {/* Brand Logo */}
         <button 
           onClick={() => handleNavClick('home')}
-          className="flex items-center group text-left"
+          className="flex items-center group text-left cursor-pointer"
         >
           <img 
             src="/images/bodegon/logo-gustaff.png" 
@@ -117,7 +117,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <button
               key={item.id}
               onClick={() => handleNavClick(item.id)}
-              className={`px-3.5 py-1.5 rounded-full text-sm font-semibold transition-all flex items-center gap-1.5 ${
+              className={`px-3.5 py-1.5 rounded-full text-sm font-semibold transition-all flex items-center gap-1.5 cursor-pointer ${
                 currentTab === item.id
                   ? 'bg-[#f3ece0] text-[#3d2516] border-b-2 border-[#d4af37]'
                   : 'text-[#4a3224] hover:text-[#b05d2e] hover:bg-[#f3ece0]/60'
@@ -135,10 +135,10 @@ export const Navbar: React.FC<NavbarProps> = ({
           {/* Downloads Restricted Area */}
           <button
             onClick={() => handleNavClick('downloads')}
-            className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-all flex items-center gap-1.5 ${
+            className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-all flex items-center gap-1.5 cursor-pointer ${
               currentTab === 'downloads'
                 ? 'bg-[#603813] text-white'
-                : 'bg-[#f3ece0] text-[#603813] hover:bg-[#603813] hover:text-white border border-[#e8dcc4]'
+                : 'bg-[#f3ece0] text-[#603813] hover:bg-[#b05d2e] hover:text-white border border-[#e8dcc4]'
             }`}
           >
             <Lock className="w-3.5 h-3.5" />
@@ -161,7 +161,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               </div>
               <button
                 onClick={onLogout}
-                className="text-[#8d6e63] hover:text-[#b05d2e] ml-1 p-1"
+                className="text-[#8d6e63] hover:text-[#b05d2e] ml-1 p-1 cursor-pointer"
                 title="Cerrar Sesión"
               >
                 <LogOut className="w-3.5 h-3.5" />
@@ -170,7 +170,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           ) : (
             <button
               onClick={onOpenAuth}
-              className="flex items-center gap-1.5 bg-[#603813] hover:bg-[#3d2516] text-white font-semibold px-5 py-2 rounded-full text-sm shadow-md shadow-[#60381333] transition-all transform hover:-translate-y-0.5"
+              className="flex items-center gap-1.5 bg-[#603813] hover:bg-[#b05d2e] text-white font-semibold px-5 py-2 rounded-full text-sm shadow-md shadow-[#60381333] transition-all duration-300 transform hover:-translate-y-0.5 hover:shadow-lg cursor-pointer"
             >
               <UserIcon className="w-4 h-4 text-[#d4af37]" />
               Área Clientes
@@ -180,7 +180,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           {/* CMS Admin Button */}
           <button
             onClick={onOpenAdmin}
-            className="p-2 text-[#6d4c41] hover:text-[#3d2516] bg-[#f3ece0] hover:bg-[#e8dcc4] rounded-full border border-[#e8dcc4] transition-colors"
+            className="p-2 text-[#6d4c41] hover:text-[#3d2516] bg-[#f3ece0] hover:bg-[#e8dcc4] rounded-full border border-[#e8dcc4] transition-colors cursor-pointer"
             title="Panel de Administración (CMS)"
           >
             <Settings className="w-4 h-4" />
@@ -191,7 +191,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         <div className="lg:hidden flex items-center space-x-2">
           <button
             onClick={() => handleNavClick('downloads')}
-            className="p-2 bg-[#603813] text-white rounded-full text-xs font-bold flex items-center gap-1 shadow-sm"
+            className="p-2 bg-[#603813] hover:bg-[#b05d2e] text-white rounded-full text-xs font-bold flex items-center gap-1 shadow-sm cursor-pointer transition-colors"
             title="Descargas PDF"
           >
             <Lock className="w-3.5 h-3.5 text-[#d4af37]" />
@@ -200,7 +200,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="p-2 rounded-xl bg-[#f3ece0] text-[#3d2516] border border-[#e8dcc4] focus:outline-none hover:bg-[#e8dcc4] transition-colors"
+            className="p-2 rounded-xl bg-[#f3ece0] text-[#3d2516] border border-[#e8dcc4] focus:outline-none hover:bg-[#e8dcc4] transition-colors cursor-pointer"
             aria-label="Menú de Herramientas"
           >
             {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
@@ -235,7 +235,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                       onLogout();
                       setMobileMenuOpen(false);
                     }}
-                    className="p-1.5 text-xs text-red-700 bg-red-50 hover:bg-red-100 rounded-lg font-semibold flex items-center gap-1"
+                    className="p-1.5 text-xs text-red-700 bg-red-50 hover:bg-red-100 rounded-lg font-semibold flex items-center gap-1 cursor-pointer"
                     title="Cerrar Sesión"
                   >
                     <LogOut className="w-3.5 h-3.5" />
@@ -245,7 +245,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
                 <button
                   onClick={() => handleNavClick('downloads')}
-                  className="w-full py-2.5 bg-[#603813] text-[#f3ece0] rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow-sm"
+                  className="w-full py-2.5 bg-[#603813] hover:bg-[#b05d2e] text-[#f3ece0] rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow-sm cursor-pointer transition-colors"
                 >
                   <Lock className="w-3.5 h-3.5 text-[#d4af37]" />
                   <span>Acceso a Zona de Descargas Técnicas</span>
@@ -261,7 +261,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                     setMobileMenuOpen(false);
                     onOpenAuth();
                   }}
-                  className="w-full py-2.5 bg-[#603813] text-white font-bold rounded-xl text-center text-xs uppercase tracking-wider shadow-sm flex items-center justify-center gap-2"
+                  className="w-full py-2.5 bg-[#603813] hover:bg-[#b05d2e] text-white font-bold rounded-xl text-center text-xs uppercase tracking-wider shadow-sm flex items-center justify-center gap-2 cursor-pointer transition-colors"
                 >
                   <UserIcon className="w-4 h-4 text-[#d4af37]" />
                   <span>Ingreso / Registro Clientes</span>
@@ -278,7 +278,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
             <button
               onClick={() => handleNavClick('downloads')}
-              className="w-full text-left p-3 rounded-xl bg-white border border-[#e8dcc4] hover:bg-[#f3ece0] transition-colors flex items-center justify-between shadow-sm"
+              className="w-full text-left p-3 rounded-xl bg-white border border-[#e8dcc4] hover:bg-[#f3ece0] transition-colors flex items-center justify-between shadow-sm cursor-pointer"
             >
               <div className="flex items-center gap-2.5">
                 <div className="p-2 rounded-lg bg-[#603813] text-[#d4af37]">
@@ -297,7 +297,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 setMobileMenuOpen(false);
                 onOpenAdmin();
               }}
-              className="w-full p-2.5 bg-white border border-[#e8dcc4] rounded-xl hover:bg-[#f3ece0] text-left transition-colors flex items-center gap-2.5 shadow-sm"
+              className="w-full p-2.5 bg-white border border-[#e8dcc4] rounded-xl hover:bg-[#f3ece0] text-left transition-colors flex items-center gap-2.5 shadow-sm cursor-pointer"
             >
               <div className="p-1.5 rounded-lg bg-[#f3ece0] text-[#3d2516]">
                 <Settings className="w-4 h-4" />
@@ -320,7 +320,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               <div className="flex items-center bg-[#f3ece0] rounded-full p-1 border border-[#e8dcc4]">
                 <button
                   onClick={() => setLang('es')}
-                  className={`px-3 py-1 text-xs font-bold rounded-full transition-all ${
+                  className={`px-3 py-1 text-xs font-bold rounded-full transition-all cursor-pointer ${
                     lang === 'es' ? 'bg-[#603813] text-white' : 'text-[#6d4c41]'
                   }`}
                 >
@@ -328,7 +328,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 </button>
                 <button
                   onClick={() => setLang('en')}
-                  className={`px-3 py-1 text-xs font-bold rounded-full transition-all ${
+                  className={`px-3 py-1 text-xs font-bold rounded-full transition-all cursor-pointer ${
                     lang === 'en' ? 'bg-[#603813] text-white' : 'text-[#6d4c41]'
                   }`}
                 >

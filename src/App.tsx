@@ -87,7 +87,7 @@ export default function App() {
         )}
 
         {currentTab === 'about' && (
-          <AboutView siteContent={siteContent} lang={lang} />
+          <AboutView siteContent={siteContent} lang={lang} setCurrentTab={setCurrentTab} />
         )}
 
         {currentTab === 'products' && (

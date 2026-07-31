@@ -85,7 +85,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                 className="w-full bg-[#603813] hover:bg-[#3d2516] text-white font-bold py-2.5 px-4 rounded-xl text-xs flex items-center justify-center gap-2 shadow-md transition-colors"
               >
                 <MessageSquare className="w-4 h-4 text-[#d4af37]" />
-                Solicitar Cotización B2B / Muestras
+                Solicitar Cotización / Muestras
               </button>
 
               <button

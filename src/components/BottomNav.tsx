@@ -35,8 +35,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({
     {
       id: 'industrial',
       label: t.industrial,
-      icon: Building2,
-      badge: 'B2B'
+      icon: Building2
     },
     {
       id: 'recipes',
@@ -77,11 +76,6 @@ export const BottomNav: React.FC<BottomNavProps> = ({
 
             <div className="relative">
               <Icon className={`w-5 h-5 transition-transform ${isActive ? 'scale-110 text-[#603813]' : ''}`} />
-              {item.badge && (
-                <span className="absolute -top-1 -right-3.5 bg-[#b05d2e] text-white text-[9px] font-extrabold px-1 rounded-full leading-tight font-mono">
-                  {item.badge}
-                </span>
-              )}
             </div>
             <span className="text-[10px] tracking-tight mt-0.5 whitespace-nowrap">
               {item.label}
