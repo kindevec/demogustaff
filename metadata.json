@@ -1,0 +1,6 @@
+{
+  "name": "Gustaff S.A. - Chocolates, Coberturas y Galletas",
+  "description": "Sitio web corporativo y catálogo industrial de Gustaff S.A., fabricante de chocolates, coberturas y galletas desde 1998 en Ecuador.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
