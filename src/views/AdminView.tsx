@@ -399,7 +399,7 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentTab }) => {
                         category: 'industrial',
                         package_size: '25 Kg',
                         description: 'Descripción del producto...',
-                        image: 'https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?auto=format&fit=crop&q=80',
+                        image: '/images/bodegon/CHOCOBANANO.jpg',
                         order: products.length + 1
                       })
                     }

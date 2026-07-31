@@ -27,13 +27,12 @@ export const Footer: React.FC<FooterProps> = ({ setCurrentTab, lang }) => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10 pb-12 border-b border-[#e8dcc4]">
           {/* Col 1: About Brand */}
           <div className="space-y-4">
-            <div className="flex items-center space-x-3">
-              <div className="w-10 h-10 rounded-lg bg-[#603813] flex items-center justify-center shadow">
-                <span className="font-serif font-bold text-xl text-[#d4af37]">G</span>
-              </div>
-              <span className="font-serif font-bold text-2xl tracking-tight text-[#3d2516]">
-                GUSTAFF<span className="text-[#b05d2e] text-xs font-sans font-light ml-1">S.A.</span>
-              </span>
+            <div className="flex items-center">
+              <img 
+                src="/images/bodegon/logo-gustaff.png" 
+                alt="Gustaff S.A." 
+                className="h-14 w-auto object-contain"
+              />
             </div>
 
             <p className="text-sm text-[#6d4c41] leading-relaxed">

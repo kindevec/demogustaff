@@ -102,19 +102,13 @@ export const Navbar: React.FC<NavbarProps> = ({
         {/* Brand Logo */}
         <button 
           onClick={() => handleNavClick('home')}
-          className="flex items-center space-x-3 group text-left"
+          className="flex items-center group text-left"
         >
-          <div className="w-10 h-10 rounded-lg bg-[#603813] flex items-center justify-center shadow-md group-hover:scale-105 transition-transform">
-            <span className="font-serif font-bold text-2xl text-[#d4af37]">G</span>
-          </div>
-          <div>
-            <div className="font-serif font-bold text-xl tracking-tight text-[#3d2516] group-hover:text-[#b05d2e] transition-colors">
-              GUSTAFF <span className="font-light text-sm text-[#b05d2e]">S.A.</span>
-            </div>
-            <p className="text-[10px] text-[#b05d2e] uppercase tracking-widest font-sans -mt-0.5 font-medium">
-              Chocolates & Galletas
-            </p>
-          </div>
+          <img 
+            src="/images/bodegon/logo-gustaff.png" 
+            alt="Gustaff S.A." 
+            className="h-12 w-auto object-contain group-hover:scale-105 transition-transform"
+          />
         </button>
 
         {/* Desktop Nav Items */}

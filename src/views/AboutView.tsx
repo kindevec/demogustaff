@@ -60,7 +60,7 @@ export const AboutView: React.FC<AboutViewProps> = ({ siteContent, lang }) => {
 
         <div className="lg:col-span-5 space-y-4">
           <img
-            src="https://images.unsplash.com/photo-1541781774459-bb2af2f05b55?auto=format&fit=crop&w=800&q=80"
+            src="/images/bodegon/CHOCOBANANO.jpg"
             alt="Fábrica Gustaff S.A."
             className="rounded-2xl object-cover h-80 w-full shadow-md border border-[#e8dcc4]"
           />

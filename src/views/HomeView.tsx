@@ -106,7 +106,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
           <div className="lg:col-span-5 relative">
             <div className="relative rounded-3xl overflow-hidden border-2 border-[#e8dcc4] shadow-xl bg-white">
               <img
-                src="https://images.unsplash.com/photo-1511381939415-e44015466834?auto=format&fit=crop&w=1000&q=80"
+                src="/images/bodegon/ChatGPT Image 29 may 2026, 12_56_32 p.m.png"
                 alt="Chocolates Gustaff"
                 className="w-full h-[420px] object-cover"
               />
@@ -165,7 +165,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
             <div className="lg:col-span-5 relative">
               <img
-                src="https://images.unsplash.com/photo-1549007994-cb92caebd54b?auto=format&fit=crop&w=800&q=80"
+                src="/images/bodegon/CHOCOBANANO.jpg"
                 alt="Nuestra Fábrica"
                 className="rounded-2xl object-cover h-64 w-full shadow-md border border-[#e8dcc4]"
               />
