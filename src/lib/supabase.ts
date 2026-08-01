@@ -207,3 +207,24 @@ export const getStoredSiteContent = (): SiteContent => {
 export const saveStoredSiteContent = (content: SiteContent): void => {
   localStorage.setItem(STORAGE_KEYS.SITE_CONTENT, JSON.stringify(content));
 };
+
+export const uploadProductImage = async (file: File): Promise<{ success: boolean; url?: string; error?: string }> => {
+  if (!supabase) return { success: false, error: 'Supabase no configurado' };
+  
+  const fileExt = file.name.split('.').pop();
+  const fileName = `img-${Date.now()}-${Math.random().toString(36).substring(2, 7)}.${fileExt}`;
+  
+  const { error } = await supabase.storage
+    .from('product-images')
+    .upload(fileName, file, { cacheControl: '3600', upsert: false });
+    
+  if (error) {
+    return { success: false, error: error.message };
+  }
+  
+  const { data } = supabase.storage
+    .from('product-images')
+    .getPublicUrl(fileName);
+    
+  return { success: true, url: data.publicUrl };
+};

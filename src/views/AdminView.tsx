@@ -10,7 +10,8 @@ import {
   adminLogout,
   getAdminSession,
   getStoredSiteContent,
-  saveStoredSiteContent
+  saveStoredSiteContent,
+  uploadProductImage
 } from '../lib/supabase';
 import { 
   Lock, 
@@ -69,6 +70,7 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentTab, products, r
 
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [isSavedNotice, setIsSavedNotice] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
 
   // Search & Filter state
   const [prospectSearch, setProspectSearch] = useState('');
@@ -115,6 +117,20 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentTab, products, r
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !editingProduct) return;
+    
+    setIsUploading(true);
+    const res = await uploadProductImage(file);
+    if (res.success && res.url) {
+      setEditingProduct({ ...editingProduct, image: res.url });
+    } else {
+      alert('Error al subir imagen: ' + res.error);
+    }
+    setIsUploading(false);
   };
 
   const handleSaveProduct = async (e: React.FormEvent) => {
@@ -527,14 +543,33 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentTab, products, r
                       </div>
 
                       <div className="sm:col-span-2">
-                        <label className="block text-stone-300 font-bold mb-1">URL de Imagen (HTTPS):</label>
-                        <input
-                          type="text"
-                          value={editingProduct.image}
-                          onChange={(e) => setEditingProduct({ ...editingProduct, image: e.target.value })}
-                          className="w-full bg-[#1A0E08] border border-[#3D2314] rounded-xl p-2.5 text-white font-mono text-[11px]"
-                          required
-                        />
+                        <label className="block text-stone-300 font-bold mb-1">Imagen del Producto:</label>
+                        <div className="flex items-center gap-3">
+                          {editingProduct.image && (
+                            <img src={editingProduct.image} alt="Preview" className="w-12 h-12 rounded object-cover border border-[#3D2314] bg-amber-950" />
+                          )}
+                          <div className="flex-1">
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={handleImageUpload}
+                              disabled={isUploading}
+                              className="w-full bg-[#1A0E08] border border-[#3D2314] rounded-xl p-2 text-stone-300 text-xs file:mr-4 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-amber-600 file:text-stone-950 hover:file:bg-amber-500 cursor-pointer"
+                            />
+                            {isUploading && <p className="text-amber-500 text-[10px] mt-1 font-bold animate-pulse">Subiendo imagen a Supabase Storage...</p>}
+                            <div className="mt-2 flex items-center gap-2">
+                               <p className="text-stone-500 text-[10px] whitespace-nowrap">URL (opcional):</p>
+                               <input
+                                 type="text"
+                                 value={editingProduct.image}
+                                 onChange={(e) => setEditingProduct({ ...editingProduct, image: e.target.value })}
+                                 disabled={isUploading}
+                                 className="w-full bg-[#1A0E08] border border-[#3D2314] rounded p-1 text-white font-mono text-[10px]"
+                                 required
+                               />
+                            </div>
+                          </div>
+                        </div>
                       </div>
 
                       <div className="sm:col-span-2">
