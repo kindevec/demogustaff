@@ -236,8 +236,8 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentTab, products, r
         </button>
 
         <div className="w-full max-w-md bg-white rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 p-8 sm:p-10 relative z-10 animate-fadeIn">
-          <div className="w-16 h-16 rounded-2xl bg-amber-100 text-amber-700 mx-auto flex items-center justify-center mb-6">
-            <ShieldCheck className="w-8 h-8" />
+          <div className="mx-auto flex items-center justify-center mb-8">
+            <img src="/images/bodegon/logo_gustaff_oficial.png" alt="Logo Gustaff S.A." className="h-20 w-auto object-contain drop-shadow-sm" />
           </div>
           
           <div className="text-center mb-8">
