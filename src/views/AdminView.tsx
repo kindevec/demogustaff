@@ -11,7 +11,9 @@ import {
   getAdminSession,
   getStoredSiteContent,
   saveStoredSiteContent,
-  uploadProductImage
+  uploadProductImage,
+  fetchProspects,
+  fetchMessages
 } from '../lib/supabase';
 import { 
   Lock, 
@@ -61,6 +63,16 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentTab, products, r
     };
     checkSession();
   }, []);
+
+  useEffect(() => {
+    const loadData = async () => {
+      if (authenticated) {
+        setProspects(await fetchProspects());
+        setMessages(await fetchMessages());
+      }
+    };
+    loadData();
+  }, [authenticated]);
 
   const [activeTab, setActiveTab] = useState<'prospects' | 'products' | 'content' | 'messages'>('prospects');
 
@@ -168,9 +180,9 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentTab, products, r
     setTimeout(() => setIsSavedNotice(false), 3000);
   };
 
-  const handleRefreshData = () => {
-    setProspects(getLocalProspects());
-    setMessages(getLocalContactSubmissions());
+  const handleRefreshData = async () => {
+    setProspects(await fetchProspects());
+    setMessages(await fetchMessages());
     refreshProducts();
     setSiteContent(getStoredSiteContent());
     showNotice();

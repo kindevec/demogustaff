@@ -164,6 +164,26 @@ export const getLocalContactSubmissions = (): ContactSubmission[] => {
   }
 };
 
+export const fetchProspects = async (): Promise<Prospect[]> => {
+  if (!supabase) return getLocalProspects();
+  const { data, error } = await supabase.from('prospects').select('*').order('created_at', { ascending: false });
+  if (error) {
+    console.error('Error fetching prospects:', error);
+    return getLocalProspects();
+  }
+  return data || [];
+};
+
+export const fetchMessages = async (): Promise<ContactSubmission[]> => {
+  if (!supabase) return getLocalContactSubmissions();
+  const { data, error } = await supabase.from('contact_submissions').select('*').order('created_at', { ascending: false });
+  if (error) {
+    console.error('Error fetching messages:', error);
+    return getLocalContactSubmissions();
+  }
+  return data || [];
+};
+
 export const fetchProducts = async (): Promise<Product[]> => {
   if (!supabase) return INITIAL_PRODUCTS;
   const { data, error } = await supabase.from('products').select('*').order('display_order', { ascending: true });
