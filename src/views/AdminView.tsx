@@ -369,9 +369,6 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentTab, products, r
         {/* Mobile Header */}
         <header className="md:hidden bg-white border-b border-slate-200 p-4 flex items-center justify-between shadow-sm sticky top-0 z-30">
           <div className="flex items-center gap-3">
-            <button onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)} className="p-2 -ml-2 text-slate-600 rounded-lg hover:bg-slate-50">
-              <Menu className="w-5 h-5" />
-            </button>
             <div className="flex items-center gap-2">
               <div className="p-1.5 bg-amber-100 text-amber-700 rounded-lg">
                 <Lock className="w-4 h-4" />
@@ -384,44 +381,8 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentTab, products, r
           </button>
         </header>
 
-        {/* Mobile Nav Overlay */}
-        {isMobileMenuOpen && (
-          <div className="md:hidden fixed inset-0 z-40 bg-slate-900/50 backdrop-blur-sm animate-fadeIn" onClick={() => setIsMobileMenuOpen(false)}>
-            <div className="absolute top-16 left-4 right-4 bg-white rounded-2xl shadow-xl border border-slate-200 overflow-hidden" onClick={e => e.stopPropagation()}>
-               <div className="p-2 space-y-1">
-                {tabs.map(t => {
-                  const Icon = t.icon;
-                  const isActive = activeTab === t.id;
-                  return (
-                    <button
-                      key={t.id}
-                      onClick={() => { setActiveTab(t.id as any); setIsMobileMenuOpen(false); }}
-                      className={`w-full flex items-center justify-between px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
-                        isActive ? 'bg-amber-50 text-amber-700' : 'text-slate-600 hover:bg-slate-50'
-                      }`}
-                    >
-                      <div className="flex items-center gap-3">
-                        <Icon className={`w-5 h-5 ${isActive ? 'text-amber-600' : 'text-slate-400'}`} />
-                        {t.label}
-                      </div>
-                    </button>
-                  );
-                })}
-               </div>
-               <div className="p-2 border-t border-slate-100 grid grid-cols-2 gap-2 bg-slate-50">
-                 <button onClick={handleRefreshData} className="flex flex-col items-center justify-center p-3 text-xs font-medium text-slate-600 bg-white rounded-xl border border-slate-200 shadow-sm">
-                   <RefreshCw className="w-4 h-4 mb-1" /> Actualizar
-                 </button>
-                 <button onClick={handleLogout} className="flex flex-col items-center justify-center p-3 text-xs font-medium text-red-600 bg-white rounded-xl border border-slate-200 shadow-sm">
-                   <LogOut className="w-4 h-4 mb-1" /> Salir
-                 </button>
-               </div>
-            </div>
-          </div>
-        )}
-
-        {/* Scrollable Content */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 w-full max-w-6xl mx-auto">
+        {/* Scrollable Content (Add pb-20 to avoid content being hidden by bottom nav) */}
+        <div className="flex-1 overflow-y-auto p-4 sm:p-6 lg:p-8 w-full max-w-6xl mx-auto pb-24 md:pb-8">
           
           {/* Global Toast */}
           {isSavedNotice && (
@@ -804,6 +765,32 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentTab, products, r
             </div>
           )}
           
+        </div>
+
+        {/* Mobile Bottom Navigation Bar */}
+        <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 flex items-center justify-around pb-safe pt-2 px-2 shadow-[0_-4px_6px_-1px_rgba(0,0,0,0.05)] z-40">
+          {tabs.map(t => {
+            const Icon = t.icon;
+            const isActive = activeTab === t.id;
+            return (
+              <button
+                key={t.id}
+                onClick={() => setActiveTab(t.id as any)}
+                className={`flex flex-col items-center justify-center w-16 h-14 rounded-xl transition-colors ${
+                  isActive ? 'text-amber-600' : 'text-slate-400 hover:text-slate-600'
+                }`}
+              >
+                <div className={`p-1.5 rounded-full ${isActive ? 'bg-amber-50' : 'bg-transparent'}`}>
+                  <Icon className="w-5 h-5" />
+                </div>
+                <span className={`text-[10px] mt-0.5 font-medium truncate w-full text-center px-1 ${
+                  isActive ? 'text-amber-700' : 'text-slate-500'
+                }`}>
+                  {t.id === 'prospects' ? 'Leads' : t.id === 'products' ? 'Catálogo' : t.id === 'content' ? 'Textos' : 'Buzón'}
+                </span>
+              </button>
+            );
+          })}
         </div>
       </main>
     </div>
