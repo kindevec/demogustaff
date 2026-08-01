@@ -544,11 +544,15 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentTab, products, r
 
                       <div className="sm:col-span-2">
                         <label className="block text-stone-300 font-bold mb-1">Imagen del Producto:</label>
-                        <div className="flex items-center gap-3">
-                          {editingProduct.image && (
-                            <img src={editingProduct.image} alt="Preview" className="w-12 h-12 rounded object-cover border border-[#3D2314] bg-amber-950" />
+                        <div className="flex flex-col sm:flex-row items-center gap-4">
+                          {editingProduct.image ? (
+                            <img src={editingProduct.image} alt="Preview" className="w-16 h-16 rounded-xl object-cover border border-amber-600/40 bg-[#1A0E08]" />
+                          ) : (
+                            <div className="w-16 h-16 rounded-xl border border-dashed border-[#3D2314] flex items-center justify-center text-[10px] text-stone-500 text-center">
+                              Sin imagen
+                            </div>
                           )}
-                          <div className="flex-1">
+                          <div className="flex-1 w-full">
                             <input
                               type="file"
                               accept="image/*"
@@ -556,18 +560,11 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentTab, products, r
                               disabled={isUploading}
                               className="w-full bg-[#1A0E08] border border-[#3D2314] rounded-xl p-2 text-stone-300 text-xs file:mr-4 file:py-1 file:px-3 file:rounded-lg file:border-0 file:text-xs file:font-bold file:bg-amber-600 file:text-stone-950 hover:file:bg-amber-500 cursor-pointer"
                             />
-                            {isUploading && <p className="text-amber-500 text-[10px] mt-1 font-bold animate-pulse">Subiendo imagen a Supabase Storage...</p>}
-                            <div className="mt-2 flex items-center gap-2">
-                               <p className="text-stone-500 text-[10px] whitespace-nowrap">URL (opcional):</p>
-                               <input
-                                 type="text"
-                                 value={editingProduct.image}
-                                 onChange={(e) => setEditingProduct({ ...editingProduct, image: e.target.value })}
-                                 disabled={isUploading}
-                                 className="w-full bg-[#1A0E08] border border-[#3D2314] rounded p-1 text-white font-mono text-[10px]"
-                                 required
-                               />
-                            </div>
+                            {isUploading && (
+                              <p className="text-amber-500 text-[10px] mt-2 font-bold animate-pulse">
+                                Subiendo imagen...
+                              </p>
+                            )}
                           </div>
                         </div>
                       </div>

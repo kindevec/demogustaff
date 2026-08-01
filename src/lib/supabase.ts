@@ -216,7 +216,7 @@ export const uploadProductImage = async (file: File): Promise<{ success: boolean
   
   const { error } = await supabase.storage
     .from('product-images')
-    .upload(fileName, file, { cacheControl: '3600', upsert: false });
+    .upload(fileName, file, { cacheControl: '3600', upsert: false, contentType: file.type || 'image/jpeg' });
     
   if (error) {
     return { success: false, error: error.message };
