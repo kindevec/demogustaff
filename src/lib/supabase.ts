@@ -171,19 +171,33 @@ export const fetchProducts = async (): Promise<Product[]> => {
     console.error('Error fetching products:', error);
     return INITIAL_PRODUCTS;
   }
-  return data || [];
+  return (data || []).map(p => {
+    const { display_order, ...rest } = p;
+    return { ...rest, order: display_order } as Product;
+  });
 };
 
 export const addProduct = async (product: Omit<Product, 'id'>): Promise<{ success: boolean; data?: Product; error?: string }> => {
   if (!supabase) return { success: false, error: 'Supabase no configurado' };
-  const { data, error } = await supabase.from('products').insert([product]).select().single();
+  
+  const { order, ...rest } = product as any;
+  const dbProduct = { ...rest, display_order: order };
+  
+  const { data, error } = await supabase.from('products').insert([dbProduct]).select().single();
   if (error) return { success: false, error: error.message };
   return { success: true, data };
 };
 
 export const updateProduct = async (id: string, product: Partial<Product>): Promise<{ success: boolean; data?: Product; error?: string }> => {
   if (!supabase) return { success: false, error: 'Supabase no configurado' };
-  const { data, error } = await supabase.from('products').update(product).eq('id', id).select().single();
+  
+  const { order, ...rest } = product as any;
+  const dbProduct = { ...rest };
+  if (order !== undefined) {
+    dbProduct.display_order = order;
+  }
+
+  const { data, error } = await supabase.from('products').update(dbProduct).eq('id', id).select().single();
   if (error) return { success: false, error: error.message };
   return { success: true, data };
 };
