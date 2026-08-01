@@ -402,7 +402,7 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentTab, products, r
                 </div>
                 <button
                   onClick={handleExportCSV}
-                  className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl text-sm font-medium transition-colors shadow-sm"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl text-sm font-medium transition-colors shadow-sm"
                 >
                   <Download className="w-4 h-4" />
                   Exportar CSV
@@ -411,8 +411,8 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentTab, products, r
 
               <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
                 <div className="p-4 border-b border-slate-100 bg-slate-50/50">
-                  <div className="relative max-w-md">
-                    <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+                  <div className="relative w-full sm:max-w-md">
+                    <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
                     <input
                       type="text"
                       value={prospectSearch}
@@ -423,7 +423,46 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentTab, products, r
                   </div>
                 </div>
 
-                <div className="overflow-x-auto">
+                {/* Mobile View: Cards */}
+                <div className="block sm:hidden divide-y divide-slate-100">
+                  {filteredProspects.length === 0 ? (
+                    <div className="p-8 text-center text-slate-500 text-sm bg-slate-50/50">
+                      No se encontraron resultados.
+                    </div>
+                  ) : (
+                    filteredProspects.map((p) => (
+                      <div key={p.id} className="p-4 bg-white space-y-3">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center font-bold text-sm shrink-0">
+                              {p.name.charAt(0).toUpperCase()}
+                            </div>
+                            <div>
+                              <h4 className="font-bold text-slate-900">{p.name}</h4>
+                              <p className="text-xs text-slate-500">{new Date(p.created_at).toLocaleDateString('es-EC')}</p>
+                            </div>
+                          </div>
+                          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700 border border-emerald-200">
+                            Nuevo
+                          </span>
+                        </div>
+                        <div className="bg-slate-50 rounded-xl p-3 space-y-2 border border-slate-100">
+                           <div className="flex justify-between items-center text-sm">
+                             <span className="text-slate-500 text-xs font-semibold">Correo:</span>
+                             <span className="text-slate-800 text-xs truncate max-w-[180px]">{p.email}</span>
+                           </div>
+                           <div className="flex justify-between items-center text-sm">
+                             <span className="text-slate-500 text-xs font-semibold">Teléfono:</span>
+                             <span className="text-slate-800 text-xs">{p.company_phone || '-'}</span>
+                           </div>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+
+                {/* Desktop View: Table */}
+                <div className="hidden sm:block overflow-x-auto">
                   <table className="w-full text-left text-sm text-slate-600">
                     <thead className="bg-slate-50 text-slate-500 font-semibold uppercase text-[10px] tracking-wider border-b border-slate-200">
                       <tr>
@@ -489,7 +528,7 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentTab, products, r
                       order: products.length + 1
                     })
                   }
-                  className="inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-sm font-bold transition-all shadow-sm shadow-amber-500/20"
+                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-sm font-bold transition-all shadow-sm shadow-amber-500/20"
                 >
                   <Plus className="w-4 h-4" />
                   Nuevo Producto
@@ -572,11 +611,11 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentTab, products, r
                       </div>
                     </div>
 
-                    <div className="mt-6 pt-6 border-t border-slate-100 flex items-center justify-end gap-3">
-                      <button type="button" onClick={() => setEditingProduct(null)} className="px-5 py-2.5 text-slate-600 bg-white hover:bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium transition-colors">
+                    <div className="mt-6 pt-6 border-t border-slate-100 flex flex-col-reverse sm:flex-row items-center justify-end gap-3">
+                      <button type="button" onClick={() => setEditingProduct(null)} className="w-full sm:w-auto px-5 py-2.5 text-slate-600 bg-white hover:bg-slate-50 border border-slate-200 rounded-xl text-sm font-medium transition-colors">
                         Cancelar
                       </button>
-                      <button type="submit" className="px-6 py-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-sm font-bold flex items-center gap-2 shadow-sm transition-colors">
+                      <button type="submit" className="w-full sm:w-auto justify-center px-6 py-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-sm font-bold flex items-center gap-2 shadow-sm transition-colors">
                         <Save className="w-4 h-4" />
                         Guardar Cambios
                       </button>
@@ -701,7 +740,7 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentTab, products, r
                 </div>
                 
                 <div className="p-6 bg-slate-50 border-t border-slate-100 flex justify-end">
-                  <button type="submit" className="px-6 py-2.5 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl flex items-center gap-2 shadow-sm shadow-amber-500/20 transition-all">
+                  <button type="submit" className="w-full sm:w-auto justify-center px-6 py-2.5 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-xl flex items-center gap-2 shadow-sm shadow-amber-500/20 transition-all">
                     <Save className="w-4 h-4" />
                     Publicar Contenidos
                   </button>
