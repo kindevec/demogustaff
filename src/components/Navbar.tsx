@@ -26,6 +26,7 @@ interface NavbarProps {
   onOpenAuth: () => void;
   onLogout: () => void;
   onOpenAdmin: () => void;
+  themeColor?: string;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -36,7 +37,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   currentUser,
   onOpenAuth,
   onLogout,
-  onOpenAdmin
+  onOpenAdmin,
+  themeColor
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const t = TRANSLATIONS[lang].nav;
@@ -57,9 +59,16 @@ export const Navbar: React.FC<NavbarProps> = ({
   };
 
   return (
-    <header className="sticky top-0 z-40 bg-white/95 backdrop-blur-md text-[#3d2516] shadow-sm border-b border-[#e8dcc4]">
+    <header
+      className={`sticky top-0 z-40 backdrop-blur-md shadow-sm border-b transition-colors duration-500 ease-in-out ${
+        themeColor
+          ? 'text-white border-white/10'
+          : 'bg-white/95 text-[#3d2516] border-[#e8dcc4]'
+      }`}
+      style={themeColor ? { backgroundColor: themeColor } : {}}
+    >
       {/* Top Banner (Hidden on Mobile) */}
-      <div className="hidden md:block bg-[#3d2516] text-xs py-1.5 px-4 text-[#f3ece0] border-b border-[#603813]">
+      <div className={`hidden md:block text-xs py-1.5 px-4 text-[#f3ece0] border-b transition-colors duration-500 ${themeColor ? 'bg-black/20 border-white/10' : 'bg-[#3d2516] border-[#603813]'}`}>
         <div className="max-w-7xl mx-auto flex justify-between items-center">
           <div className="flex items-center space-x-4">
             <span className="flex items-center gap-1 font-medium text-[#f3ece0]">
@@ -119,8 +128,8 @@ export const Navbar: React.FC<NavbarProps> = ({
               onClick={() => handleNavClick(item.id)}
               className={`px-3.5 py-1.5 rounded-full text-sm font-semibold transition-all flex items-center gap-1.5 cursor-pointer ${
                 currentTab === item.id
-                  ? 'bg-[#f3ece0] text-[#3d2516] border-b-2 border-[#d4af37]'
-                  : 'text-[#4a3224] hover:text-[#b05d2e] hover:bg-[#f3ece0]/60'
+                  ? (themeColor ? 'bg-white/20 text-white border-b-2 border-white/60' : 'bg-[#f3ece0] text-[#3d2516] border-b-2 border-[#d4af37]')
+                  : (themeColor ? 'text-white/80 hover:text-white hover:bg-white/10' : 'text-[#4a3224] hover:text-[#b05d2e] hover:bg-[#f3ece0]/60')
               }`}
             >
               {item.label}
@@ -133,13 +142,13 @@ export const Navbar: React.FC<NavbarProps> = ({
           ))}
 
           {/* Downloads Restricted Area */}
-          <button
-            onClick={() => handleNavClick('downloads')}
-            className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-all flex items-center gap-1.5 cursor-pointer ${
-              currentTab === 'downloads'
-                ? 'bg-[#603813] text-white'
-                : 'bg-[#f3ece0] text-[#603813] hover:bg-[#b05d2e] hover:text-white border border-[#e8dcc4]'
-            }`}
+            <button
+              onClick={() => handleNavClick('downloads')}
+              className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-all flex items-center gap-1.5 cursor-pointer ${
+                currentTab === 'downloads'
+                  ? (themeColor ? 'bg-white text-[#3d2516]' : 'bg-[#603813] text-white')
+                  : (themeColor ? 'bg-white/15 text-white hover:bg-white/25 border border-white/20' : 'bg-[#f3ece0] text-[#603813] hover:bg-[#b05d2e] hover:text-white border border-[#e8dcc4]')
+              }`}
           >
             <Lock className="w-3.5 h-3.5" />
             {t.downloads}
@@ -170,7 +179,9 @@ export const Navbar: React.FC<NavbarProps> = ({
           ) : (
             <button
               onClick={onOpenAuth}
-              className="flex items-center gap-1.5 bg-[#603813] hover:bg-[#b05d2e] text-white font-semibold px-5 py-2 rounded-full text-sm shadow-md shadow-[#60381333] transition-all duration-300 transform hover:-translate-y-0.5 hover:shadow-lg cursor-pointer"
+              className={`flex items-center gap-1.5 font-semibold px-5 py-2 rounded-full text-sm shadow-md transition-all duration-300 transform hover:-translate-y-0.5 hover:shadow-lg cursor-pointer ${
+                themeColor ? 'bg-white/20 hover:bg-white/30 text-white border border-white/20' : 'bg-[#603813] hover:bg-[#b05d2e] text-white shadow-[#60381333]'
+              }`}
             >
               <UserIcon className="w-4 h-4 text-[#d4af37]" />
               Área Clientes

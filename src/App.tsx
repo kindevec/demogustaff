@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { User, Language, Product, SiteContent } from './types';
 import { getLocalUser, setLocalUser, fetchProducts, getStoredSiteContent } from './lib/supabase';
 import { Navbar } from './components/Navbar';
@@ -37,6 +37,7 @@ export default function App() {
 
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [productsThemeColor, setProductsThemeColor] = useState('');
 
   // Sync scroll top on view changes
   useEffect(() => {
@@ -70,6 +71,7 @@ export default function App() {
           onOpenAuth={() => setAuthModalOpen(true)}
           onLogout={handleLogout}
           onOpenAdmin={() => setCurrentTab('admin')}
+          themeColor={currentTab === 'products' ? productsThemeColor : ''}
         />
       )}
 
@@ -96,6 +98,7 @@ export default function App() {
             lang={lang}
             onSelectProduct={(p) => setSelectedProduct(p)}
             onOpenAuth={() => setAuthModalOpen(true)}
+            onThemeColorChange={setProductsThemeColor}
           />
         )}
 
