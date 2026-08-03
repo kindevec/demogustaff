@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Recipe, Language } from '../types';
 import { INITIAL_RECIPES } from '../data/initialData';
+import { TRANSLATIONS } from '../data/translations';
 import { ChefHat, Clock, Users, BookOpen, Sparkles, CheckCircle2 } from 'lucide-react';
 
 interface RecipesViewProps {
@@ -8,6 +9,7 @@ interface RecipesViewProps {
 }
 
 export const RecipesView: React.FC<RecipesViewProps> = ({ lang }) => {
+  const t = TRANSLATIONS[lang].recipesPage;
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(INITIAL_RECIPES[0]);
 
   return (
@@ -16,15 +18,15 @@ export const RecipesView: React.FC<RecipesViewProps> = ({ lang }) => {
       <div className="bg-[#603813] text-white p-8 sm:p-12 rounded-3xl border border-[#d4af37]/30 shadow-xl text-left space-y-3">
         <span className="text-xs font-bold text-[#d4af37] uppercase tracking-widest bg-white/10 px-3.5 py-1 rounded-full border border-white/20 inline-flex items-center gap-1.5">
           <ChefHat className="w-4 h-4 text-[#d4af37]" />
-          <span>Inspiración Pastelera</span>
+          <span>{t.badge}</span>
         </span>
 
         <h1 className="font-serif font-bold text-3xl sm:text-4xl text-white">
-          Recetas Elaboradas con Productos Gustaff
+          {t.title}
         </h1>
 
         <p className="text-xs sm:text-sm text-[#f3ece0] max-w-2xl">
-          Descubre fórmulas probadas en nuestra cocina de aplicaciones usando Cocoa Alcalina, Gotas Termoestables y Galletas Sanduche Gustaff.
+          {t.subtitle}
         </p>
       </div>
 
@@ -32,7 +34,7 @@ export const RecipesView: React.FC<RecipesViewProps> = ({ lang }) => {
         {/* Left Column: Recipe Selector */}
         <div className="lg:col-span-5 space-y-4">
           <h3 className="font-serif font-bold text-lg text-[#3d2516]">
-            Recetas Destacadas
+            {t.featuredHeading}
           </h3>
 
           <div className="space-y-3">
@@ -86,7 +88,7 @@ export const RecipesView: React.FC<RecipesViewProps> = ({ lang }) => {
                 className="w-full h-full object-cover"
               />
               <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-md p-3 rounded-xl border border-[#e8dcc4] shadow-sm">
-                <span className="text-[10px] uppercase font-bold text-[#b05d2e]">Ingrediente Clave:</span>
+                <span className="text-[10px] uppercase font-bold text-[#b05d2e]">{t.keyIngredient}</span>
                 <p className="text-xs font-bold text-[#3d2516]">{selectedRecipe.featured_product_name}</p>
               </div>
             </div>
@@ -103,7 +105,7 @@ export const RecipesView: React.FC<RecipesViewProps> = ({ lang }) => {
             {/* Ingredients */}
             <div className="space-y-2">
               <h4 className="font-bold text-xs uppercase text-[#b05d2e] tracking-wider">
-                Ingredientes Necesarios:
+                {t.ingredientsRequired}
               </h4>
               <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-[#4a3224]">
                 {selectedRecipe.ingredients.map((ing, idx) => (
@@ -118,7 +120,7 @@ export const RecipesView: React.FC<RecipesViewProps> = ({ lang }) => {
             {/* Preparation Steps */}
             <div className="space-y-2 pt-2 border-t border-[#e8dcc4]">
               <h4 className="font-bold text-xs uppercase text-[#b05d2e] tracking-wider">
-                Paso a Paso de Preparación:
+                {t.stepByStep}
               </h4>
               <ol className="space-y-2 text-xs text-[#4a3224]">
                 {selectedRecipe.instructions.map((inst, idx) => (

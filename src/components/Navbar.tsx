@@ -47,7 +47,7 @@ export const Navbar: React.FC<NavbarProps> = ({
     { id: 'home', label: t.home },
     { id: 'about', label: t.about },
     { id: 'products', label: t.products },
-    { id: 'industrial', label: t.industrial, badge: 'PRODUCCIÓN' },
+    { id: 'industrial', label: t.industrial, badge: t.productionBadge },
     { id: 'recipes', label: t.recipes },
     { id: 'contact', label: t.contact }
   ];
@@ -73,11 +73,11 @@ export const Navbar: React.FC<NavbarProps> = ({
           <div className="flex items-center space-x-4">
             <span className="flex items-center gap-1 font-medium text-[#f3ece0]">
               <Sparkles className="w-3.5 h-3.5 text-[#d4af37]" />
-              GUSTAFF S.A. | Fábrica de Chocolates, Coberturas y Galletas desde 1998
+              {t.topBarTagline}
             </span>
             <span className="hidden md:inline text-[#a88c78]">|</span>
             <span className="hidden md:flex items-center gap-1 text-[#d4af37]">
-              <PhoneCall className="w-3 h-3" /> Guayaquil: 042255773 / WhatsApp: +593 96 971 8045
+              <PhoneCall className="w-3 h-3" /> {t.topBarPhones}
             </span>
           </div>
 
@@ -166,12 +166,12 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <p className="text-xs font-semibold text-[#3d2516] truncate max-w-[100px]">
                   {currentUser.name}
                 </p>
-                <p className="text-[10px] text-[#8d6e63]">Cliente Registrado</p>
+                <p className="text-[10px] text-[#8d6e63]">{t.registeredClient}</p>
               </div>
               <button
                 onClick={onLogout}
                 className="text-[#8d6e63] hover:text-[#b05d2e] ml-1 p-1 cursor-pointer"
-                title="Cerrar Sesión"
+                title={t.logout}
               >
                 <LogOut className="w-3.5 h-3.5" />
               </button>
@@ -184,7 +184,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               }`}
             >
               <UserIcon className="w-4 h-4 text-[#d4af37]" />
-              Área Clientes
+              {t.clientArea}
             </button>
           )}
 
@@ -192,10 +192,10 @@ export const Navbar: React.FC<NavbarProps> = ({
           <button
             onClick={onOpenAdmin}
             className="flex items-center gap-1.5 bg-[#f3ece0] hover:bg-[#e8dcc4] text-[#603813] font-semibold px-4 py-2 rounded-full text-sm border border-[#e8dcc4] transition-all duration-300 cursor-pointer"
-            title="Panel de Administración (CMS)"
+            title={t.adminPanel}
           >
             <Settings className="w-4 h-4 text-[#b05d2e]" />
-            Panel Admin
+            {t.adminPanel}
           </button>
         </div>
 
@@ -204,7 +204,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           <button
             onClick={() => handleNavClick('downloads')}
             className="p-2 bg-[#603813] hover:bg-[#b05d2e] text-white rounded-full text-xs font-bold flex items-center gap-1 shadow-sm cursor-pointer transition-colors"
-            title="Descargas PDF"
+            title={t.pdfDownloads}
           >
             <Lock className="w-3.5 h-3.5 text-[#d4af37]" />
             <span className="text-[10px] uppercase tracking-wider font-extrabold pr-1">PDFs</span>
@@ -213,7 +213,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             className="p-2 rounded-xl bg-[#f3ece0] text-[#3d2516] border border-[#e8dcc4] focus:outline-none hover:bg-[#e8dcc4] transition-colors cursor-pointer"
-            aria-label="Menú de Herramientas"
+            aria-label={t.siteTools}
           >
             {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
           </button>
@@ -227,7 +227,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           <div className="bg-white p-3.5 rounded-2xl border border-[#e8dcc4] shadow-sm">
             <div className="text-xs font-bold text-[#b05d2e] uppercase tracking-wider mb-2 flex items-center gap-1.5">
               <UserIcon className="w-3.5 h-3.5" />
-              <span>Portal de Clientes & Leads</span>
+              <span>{t.portalHeader}</span>
             </div>
 
             {currentUser ? (
@@ -239,7 +239,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                     </div>
                     <div>
                       <p className="text-xs font-bold text-[#3d2516]">{currentUser.name}</p>
-                      <p className="text-[10px] text-[#8d6e63]">{currentUser.company || 'Cliente Registrado'}</p>
+                      <p className="text-[10px] text-[#8d6e63]">{currentUser.company || t.registeredClient}</p>
                     </div>
                   </div>
                   <button
@@ -248,10 +248,10 @@ export const Navbar: React.FC<NavbarProps> = ({
                       setMobileMenuOpen(false);
                     }}
                     className="p-1.5 text-xs text-red-700 bg-red-50 hover:bg-red-100 rounded-lg font-semibold flex items-center gap-1 cursor-pointer"
-                    title="Cerrar Sesión"
+                    title={t.logout}
                   >
                     <LogOut className="w-3.5 h-3.5" />
-                    <span>Salir</span>
+                    <span>{t.exit}</span>
                   </button>
                 </div>
 
@@ -260,13 +260,13 @@ export const Navbar: React.FC<NavbarProps> = ({
                   className="w-full py-2.5 bg-[#603813] hover:bg-[#b05d2e] text-[#f3ece0] rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow-sm cursor-pointer transition-colors"
                 >
                   <Lock className="w-3.5 h-3.5 text-[#d4af37]" />
-                  <span>Acceso a Zona de Descargas Técnicas</span>
+                  <span>{t.downloadZoneAccess}</span>
                 </button>
               </div>
             ) : (
               <div className="space-y-2">
                 <p className="text-[11px] text-[#6d4c41] leading-tight">
-                  Regístrese como cliente o prospecto para descargar fichas técnicas de uso industrial.
+                  {t.registerPrompt}
                 </p>
                 <button
                   onClick={() => {
@@ -276,7 +276,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   className="w-full py-2.5 bg-[#603813] hover:bg-[#b05d2e] text-white font-bold rounded-xl text-center text-xs uppercase tracking-wider shadow-sm flex items-center justify-center gap-2 cursor-pointer transition-colors"
                 >
                   <UserIcon className="w-4 h-4 text-[#d4af37]" />
-                  <span>Ingreso / Registro Clientes</span>
+                  <span>{t.loginRegisterCTA}</span>
                 </button>
               </div>
             )}
@@ -285,7 +285,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           {/* Section 2: Zona de Descargas & Herramientas */}
           <div className="space-y-2">
             <p className="text-[11px] font-bold text-[#8d6e63] uppercase tracking-wider px-1">
-              Herramientas del Sitio
+              {t.siteTools}
             </p>
 
             <button
@@ -298,7 +298,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                 </div>
                 <div>
                   <span className="text-xs font-bold text-[#3d2516] block">{t.downloads}</span>
-                  <span className="text-[10px] text-[#8d6e63]">Catálogo PDF, Fichas Técnicas & Certificaciones</span>
+                  <span className="text-[10px] text-[#8d6e63]">{t.catalogSubtext}</span>
                 </div>
               </div>
               <ChevronRight className="w-4 h-4 text-[#b05d2e]" />
@@ -315,8 +315,8 @@ export const Navbar: React.FC<NavbarProps> = ({
                 <Settings className="w-4 h-4" />
               </div>
               <div>
-                <span className="text-xs font-bold text-[#3d2516] block">Panel CMS Admin</span>
-                <span className="text-[10px] text-[#8d6e63]">Administración de catálogo y mensajes</span>
+                <span className="text-xs font-bold text-[#3d2516] block">{t.adminPanel}</span>
+                <span className="text-[10px] text-[#8d6e63]">{t.adminSubtext}</span>
               </div>
             </button>
           </div>
@@ -326,7 +326,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold text-[#3d2516] flex items-center gap-1.5">
                 <Globe className="w-3.5 h-3.5 text-[#b05d2e]" />
-                <span>Idioma / Language</span>
+                <span>{t.languageLabel}</span>
               </span>
 
               <div className="flex items-center bg-[#f3ece0] rounded-full p-1 border border-[#e8dcc4]">
@@ -336,7 +336,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                     lang === 'es' ? 'bg-[#603813] text-white' : 'text-[#6d4c41]'
                   }`}
                 >
-                  Español
+                  {t.spanish}
                 </button>
                 <button
                   onClick={() => setLang('en')}
@@ -344,7 +344,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                     lang === 'en' ? 'bg-[#603813] text-white' : 'text-[#6d4c41]'
                   }`}
                 >
-                  English
+                  {t.english}
                 </button>
               </div>
             </div>

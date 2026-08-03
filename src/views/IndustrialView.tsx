@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { translateProduct } from '../lib/translateProduct';
 import { Product, Language } from '../types';
 import { TRANSLATIONS } from '../data/translations';
 import { 
@@ -30,11 +31,18 @@ export const IndustrialView: React.FC<IndustrialViewProps> = ({
   onOpenAuth
 }) => {
   const t = TRANSLATIONS[lang].industrialPage;
-  const industrialProds = products.filter(p => p.category === 'industrial' || p.category === 'coberturas' || p.category === 'galletas' || p.category === 'cocoa');
+  const industrialProds = products.map(p => translateProduct(p, lang)).filter(p => p.category === 'industrial' || p.category === 'coberturas' || p.category === 'galletas' || p.category === 'cocoa');
 
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedPackaging, setSelectedPackaging] = useState<string>('all');
   const [quoteSuccessMsg, setQuoteSuccessMsg] = useState('');
+
+  const packagingFilters = [
+    { id: 'all', label: t.pkgFilterAll },
+    { id: 'Sacos', label: t.pkgSacos },
+    { id: 'Cajas', label: t.pkgCajas },
+    { id: 'Pomas', label: t.pkgPomas }
+  ];
 
   // Filtering
   const filteredProducts = industrialProds.filter(p => {
@@ -43,7 +51,13 @@ export const IndustrialView: React.FC<IndustrialViewProps> = ({
                           p.package_size.toLowerCase().includes(searchTerm.toLowerCase());
     
     if (selectedPackaging === 'all') return matchesSearch;
-    return matchesSearch && p.package_size.toLowerCase().includes(selectedPackaging.toLowerCase());
+    let pkgKeyword = selectedPackaging.toLowerCase();
+    if (lang === 'en') {
+      if (pkgKeyword === 'sacos') pkgKeyword = 'bags';
+      if (pkgKeyword === 'cajas') pkgKeyword = 'boxes';
+      if (pkgKeyword === 'pomas') pkgKeyword = 'pails';
+    }
+    return matchesSearch && p.package_size.toLowerCase().includes(pkgKeyword);
   });
 
   return (
@@ -52,16 +66,15 @@ export const IndustrialView: React.FC<IndustrialViewProps> = ({
       <div className="bg-[#603813] text-white p-8 sm:p-12 rounded-3xl border border-[#d4af37]/30 shadow-xl text-left space-y-4 relative overflow-hidden">
         <div className="inline-flex items-center gap-2 bg-[#d4af37] text-[#3d2516] font-extrabold px-3.5 py-1.5 rounded-full text-xs uppercase tracking-wider shadow">
           <Package className="w-4 h-4" />
-          <span>Línea Industrial &amp; Granel</span>
+          <span>{t.bannerBadge}</span>
         </div>
 
-        {/* Verbatim Title Requested: "Maquilamos tus emprendimientos" */}
         <h1 className="font-serif font-bold text-3xl sm:text-4xl lg:text-5xl text-white">
-          Maquilamos tus emprendimientos
+          {t.bannerTitle}
         </h1>
 
         <p className="text-xs sm:text-sm text-[#f3ece0] max-w-3xl leading-relaxed">
-          {t.subtitle} Suministro continuo de insumos a granel para la industria alimentaria, confitería, heladería y pastelería industrial en Ecuador y Latinoamérica.
+          {t.subtitle}
         </p>
 
         <div className="pt-2 flex flex-wrap gap-3">
@@ -70,7 +83,7 @@ export const IndustrialView: React.FC<IndustrialViewProps> = ({
             className="bg-[#d4af37] hover:bg-amber-400 text-[#3d2516] font-bold px-6 py-2.5 rounded-full text-xs flex items-center gap-2 transition-colors shadow-lg"
           >
             <Lock className="w-4 h-4" />
-            Descargar Fichas Técnicas PDF (Acceso Clientes)
+            {t.downloadPdfClient}
           </button>
         </div>
       </div>
@@ -83,32 +96,32 @@ export const IndustrialView: React.FC<IndustrialViewProps> = ({
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Buscar por producto, código o saco/caja..."
+            placeholder={t.searchPlaceholder}
             className="w-full bg-[#fdfaf5] border border-[#e8dcc4] rounded-xl py-2 pl-9 pr-3 text-xs text-[#3d2516] placeholder-[#8d6e63] focus:outline-none focus:border-[#b05d2e]"
           />
         </div>
 
         <div className="flex items-center gap-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
           <span className="text-xs text-[#6d4c41] font-bold flex items-center gap-1 shrink-0">
-            <Filter className="w-3.5 h-3.5 text-[#b05d2e]" /> Empaque:
+            <Filter className="w-3.5 h-3.5 text-[#b05d2e]" /> {t.pkgFilterLabel}
           </span>
-          {['all', 'Sacos', 'Cajas', 'Pomas'].map((pkg) => (
+          {packagingFilters.map((pkg) => (
             <button
-              key={pkg}
-              onClick={() => setSelectedPackaging(pkg)}
+              key={pkg.id}
+              onClick={() => setSelectedPackaging(pkg.id)}
               className={`px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-colors ${
-                selectedPackaging === pkg
+                selectedPackaging === pkg.id
                   ? 'bg-[#603813] text-white font-bold'
                   : 'bg-[#f3ece0] text-[#4a3224] hover:bg-[#e8dcc4]'
               }`}
             >
-              {pkg === 'all' ? 'Todos los Empaques' : pkg}
+              {pkg.label}
             </button>
           ))}
         </div>
       </div>
 
-      {/* Grid of 12 Exact Industrial Products */}
+      {/* Grid of Industrial Products */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         {filteredProducts.map((p) => (
           <div
@@ -159,7 +172,7 @@ export const IndustrialView: React.FC<IndustrialViewProps> = ({
                   className="w-full bg-[#f3ece0] hover:bg-[#e8dcc4] text-[#603813] border border-[#e8dcc4] font-semibold py-2 px-3 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-colors"
                 >
                   <FileText className="w-3.5 h-3.5 text-[#b05d2e]" />
-                  Ver Especificaciones Técnicas
+                  {t.viewTechSpecs}
                 </button>
 
                 <button
@@ -167,7 +180,7 @@ export const IndustrialView: React.FC<IndustrialViewProps> = ({
                   className="w-full bg-[#603813] hover:bg-[#3d2516] text-white font-bold py-2.5 px-3 rounded-xl text-xs flex items-center justify-center gap-1.5 shadow-sm"
                 >
                   <Download className="w-3.5 h-3.5 text-[#d4af37]" />
-                  Descargar Ficha Técnica PDF
+                  {t.downloadTechPdf}
                 </button>
               </div>
             </div>
@@ -179,13 +192,13 @@ export const IndustrialView: React.FC<IndustrialViewProps> = ({
       <section className="bg-[#3d2516] text-white p-8 sm:p-12 rounded-3xl border border-[#d4af37]/40 shadow-xl text-left space-y-6">
         <div className="max-w-2xl">
           <span className="text-xs font-bold text-[#d4af37] uppercase tracking-widest bg-white/10 px-3 py-1 rounded-full border border-white/20">
-            Atención Directa Corporativa
+            {t.quoteBadge}
           </span>
           <h2 className="font-serif font-bold text-2xl sm:text-3xl text-white mt-2">
-            Solicita Muestras o Cotizaciones de Maquila
+            {t.quoteTitle}
           </h2>
           <p className="text-xs sm:text-sm text-[#f3ece0] mt-1">
-            Nuestro equipo técnico y de ventas en Vía a Daule Guayaquil atenderá tus especificaciones industriales de empaque y formulación.
+            {t.quoteDesc}
           </p>
         </div>
 
@@ -198,38 +211,38 @@ export const IndustrialView: React.FC<IndustrialViewProps> = ({
           <form
             onSubmit={(e) => {
               e.preventDefault();
-              setQuoteSuccessMsg('¡Solicitud de cotización enviada con éxito! Un asesor industrial de Gustaff S.A. te contactará en breve.');
+              setQuoteSuccessMsg(t.quoteSuccess);
             }}
             className="grid grid-cols-1 sm:grid-cols-2 gap-4 max-w-3xl"
           >
             <input
               type="text"
               required
-              placeholder="Nombre del Solicitante"
+              placeholder={t.applicantName}
               className="bg-white/10 border border-white/20 rounded-xl p-3 text-xs text-white placeholder-[#f3ece0]/60 focus:outline-none focus:border-[#d4af37]"
             />
             <input
               type="email"
               required
-              placeholder="Correo Corporativo"
+              placeholder={t.corporateEmail}
               className="bg-white/10 border border-white/20 rounded-xl p-3 text-xs text-white placeholder-[#f3ece0]/60 focus:outline-none focus:border-[#d4af37]"
             />
             <input
               type="text"
               required
-              placeholder="Nombre de la Empresa / Teléfono"
+              placeholder={t.companyPhone}
               className="bg-white/10 border border-white/20 rounded-xl p-3 text-xs text-white placeholder-[#f3ece0]/60 focus:outline-none focus:border-[#d4af37]"
             />
             <select
               className="bg-white/10 border border-white/20 rounded-xl p-3 text-xs text-white focus:outline-none focus:border-[#d4af37]"
             >
-              <option value="" className="text-[#3d2516]">Seleccione Producto de Interés...</option>
+              <option value="" className="text-[#3d2516]">{t.selectProduct}</option>
               {industrialProds.map(p => (
                 <option key={p.id} value={p.name} className="text-[#3d2516]">{p.name} ({p.package_size})</option>
               ))}
             </select>
             <textarea
-              placeholder="Especifique volúmenes estimados o requerimientos técnicos de maquila..."
+              placeholder={t.specifyRequirements}
               className="sm:col-span-2 bg-white/10 border border-white/20 rounded-xl p-3 text-xs text-white placeholder-[#f3ece0]/60 focus:outline-none focus:border-[#d4af37] h-24 resize-none"
             />
             <button
@@ -237,7 +250,7 @@ export const IndustrialView: React.FC<IndustrialViewProps> = ({
               className="sm:col-span-2 bg-[#d4af37] hover:bg-amber-400 text-[#3d2516] font-bold py-3.5 rounded-full text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg transition-colors"
             >
               <Send className="w-4 h-4" />
-              Enviar Solicitud de Cotización
+              {t.sendQuoteBtn}
             </button>
           </form>
         )}

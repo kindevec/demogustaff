@@ -1,11 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { Shield, Check, Settings, X, Cookie } from 'lucide-react';
+import { Language } from '../types';
+import { TRANSLATIONS } from '../data/translations';
 
-export const CookieBanner: React.FC = () => {
+interface CookieBannerProps {
+  lang?: Language;
+}
+
+export const CookieBanner: React.FC<CookieBannerProps> = ({ lang = 'es' }) => {
   const [visible, setVisible] = useState(false);
   const [showSettings, setShowSettings] = useState(false);
   const [analytical, setAnalytical] = useState(true);
   const [marketing, setMarketing] = useState(true);
+  const t = TRANSLATIONS[lang].cookieBanner;
 
   useEffect(() => {
     const consent = localStorage.getItem('gustaff_cookies_consent');
@@ -46,10 +53,10 @@ export const CookieBanner: React.FC = () => {
           </div>
           <div>
             <h4 className="font-serif font-bold text-sm sm:text-base text-[#d4af37] flex items-center gap-2">
-              Privacidad y Tratamiento de Datos - Gustaff S.A.
+              {t.title}
             </h4>
             <p className="text-[11px] sm:text-xs text-[#f3ece0] leading-relaxed mt-1">
-              Utilizamos cookies para optimizar la navegación en nuestro catálogo industrial, gestionar la descarga segura de fichas técnicas y analizar el uso del sitio de acuerdo con la Ley Orgánica de Protección de Datos Personales del Ecuador.
+              {t.body}
             </p>
           </div>
         </div>
@@ -60,14 +67,14 @@ export const CookieBanner: React.FC = () => {
             className="flex-1 sm:flex-initial px-3 py-2 text-xs font-semibold rounded-lg bg-white/10 text-white hover:bg-white/20 border border-white/20 transition-colors flex items-center justify-center gap-1.5"
           >
             <Settings className="w-3.5 h-3.5" />
-            Configurar
+            {t.configure}
           </button>
           <button
             onClick={handleAcceptAll}
             className="flex-1 sm:flex-initial px-4 py-2 text-xs font-bold rounded-lg bg-[#d4af37] text-[#3d2516] hover:bg-amber-400 transition-all shadow-md flex items-center justify-center gap-1.5"
           >
             <Check className="w-4 h-4" />
-            Aceptar Todas
+            {t.acceptAll}
           </button>
         </div>
       </div>
@@ -77,17 +84,17 @@ export const CookieBanner: React.FC = () => {
         <div className="mt-4 pt-4 border-t border-[#3D2314] max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
           <div className="bg-[#2C1810] p-3 rounded-xl border border-[#4A2C1D]">
             <div className="flex justify-between items-center mb-1">
-              <span className="font-bold text-amber-200">Cookies Necesarias</span>
-              <span className="text-[10px] bg-amber-900/80 text-amber-300 px-2 py-0.5 rounded">Obligatorias</span>
+              <span className="font-bold text-amber-200">{t.catNecessaryTitle}</span>
+              <span className="text-[10px] bg-amber-900/80 text-amber-300 px-2 py-0.5 rounded">{t.catNecessaryBadge}</span>
             </div>
             <p className="text-[11px] text-stone-400">
-              Permiten el funcionamiento básico del sitio, la autenticación para la zona de descargas de fichas técnicas y la seguridad en formularios.
+              {t.catNecessaryDesc}
             </p>
           </div>
 
           <div className="bg-[#2C1810] p-3 rounded-xl border border-[#4A2C1D]">
             <div className="flex justify-between items-center mb-1">
-              <span className="font-bold text-amber-200">Cookies Analíticas</span>
+              <span className="font-bold text-amber-200">{t.catAnalyticalTitle}</span>
               <input
                 type="checkbox"
                 checked={analytical}
@@ -96,13 +103,13 @@ export const CookieBanner: React.FC = () => {
               />
             </div>
             <p className="text-[11px] text-stone-400">
-              Nos ayudan a medir el flujo de visitantes en las secciones de productos industriales y recetas.
+              {t.catAnalyticalDesc}
             </p>
           </div>
 
           <div className="bg-[#2C1810] p-3 rounded-xl border border-[#4A2C1D]">
             <div className="flex justify-between items-center mb-1">
-              <span className="font-bold text-amber-200">Gestión de Solicitudes Corporativas</span>
+              <span className="font-bold text-amber-200">{t.catMarketingTitle}</span>
               <input
                 type="checkbox"
                 checked={marketing}
@@ -111,7 +118,7 @@ export const CookieBanner: React.FC = () => {
               />
             </div>
             <p className="text-[11px] text-stone-400">
-              Permiten enviarte novedades de catálogo y muestras de productos de maquila según tu solicitud.
+              {t.catMarketingDesc}
             </p>
           </div>
 
@@ -120,7 +127,7 @@ export const CookieBanner: React.FC = () => {
               onClick={handleSavePreferences}
               className="bg-amber-600 hover:bg-amber-500 text-stone-950 font-bold px-4 py-1.5 rounded-lg text-xs"
             >
-              Guardar Preferencias
+              {t.savePreferences}
             </button>
           </div>
         </div>
