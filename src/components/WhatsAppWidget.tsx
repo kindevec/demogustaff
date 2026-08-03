@@ -1,16 +1,23 @@
 import React, { useState } from 'react';
 import { X, Send, Sparkles } from 'lucide-react';
 import { WhatsAppIcon } from './SocialIcons';
+import { Language } from '../types';
+import { TRANSLATIONS } from '../data/translations';
 
-export const WhatsAppWidget: React.FC = () => {
+interface WhatsAppWidgetProps {
+  lang?: Language;
+}
+
+export const WhatsAppWidget: React.FC<WhatsAppWidgetProps> = ({ lang = 'es' }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [userMsg, setUserMsg] = useState('');
+  const t = TRANSLATIONS[lang].whatsappWidget;
 
   const defaultPhone = '593969718045'; // +593 96 971 8045
 
   const handleSend = (e: React.FormEvent) => {
     e.preventDefault();
-    const textToSend = userMsg.trim() || 'Hola Gustaff S.A., me gustaría solicitar información sobre sus productos industriales y coberturas.';
+    const textToSend = userMsg.trim() || t.defaultText;
     const encoded = encodeURIComponent(textToSend);
     window.open(`https://wa.me/${defaultPhone}?text=${encoded}`, '_blank');
     setIsOpen(false);
@@ -28,10 +35,10 @@ export const WhatsAppWidget: React.FC = () => {
                 <WhatsAppIcon size={24} className="text-white" />
               </div>
               <div>
-                <h4 className="font-bold text-sm">Atención al Cliente Gustaff</h4>
+                <h4 className="font-bold text-sm">{t.title}</h4>
                 <p className="text-[11px] text-green-100 flex items-center gap-1">
                   <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
-                  En línea (+593 96 971 8045)
+                  {t.onlineStatus}
                 </p>
               </div>
             </div>
@@ -47,10 +54,10 @@ export const WhatsAppWidget: React.FC = () => {
             <div className="bg-white p-3 rounded-xl border border-[#e8dcc4] text-xs text-[#4a3224]">
               <p className="font-bold text-[#3d2516] mb-1 flex items-center gap-1">
                 <Sparkles className="w-3.5 h-3.5 text-[#b05d2e]" />
-                ¡Hola! Bienvenido a Gustaff S.A.
+                {t.greetingTitle}
               </p>
               <p>
-                ¿En qué podemos ayudarte hoy? Solicita fichas técnicas, cotizaciones para maquila o muestras de coberturas.
+                {t.greetingBody}
               </p>
             </div>
 
@@ -58,7 +65,7 @@ export const WhatsAppWidget: React.FC = () => {
               <textarea
                 value={userMsg}
                 onChange={(e) => setUserMsg(e.target.value)}
-                placeholder="Escribe tu mensaje o consulta..."
+                placeholder={t.placeholder}
                 className="w-full bg-white border border-[#e8dcc4] rounded-xl p-3 text-xs text-[#3d2516] placeholder-[#8d6e63] focus:outline-none focus:border-green-500 resize-none h-20"
               />
               <button
@@ -66,7 +73,7 @@ export const WhatsAppWidget: React.FC = () => {
                 className="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2.5 px-4 rounded-xl text-xs flex items-center justify-center gap-2 shadow-lg transition-colors"
               >
                 <Send className="w-4 h-4" />
-                Iniciar Chat en WhatsApp
+                {t.sendBtn}
               </button>
             </form>
           </div>
@@ -77,7 +84,7 @@ export const WhatsAppWidget: React.FC = () => {
       <button
         onClick={() => setIsOpen(!isOpen)}
         className="group relative bg-emerald-600 hover:bg-emerald-500 text-white p-4 rounded-full shadow-2xl transition-all transform hover:scale-110 flex items-center justify-center border-2 border-emerald-300"
-        aria-label="Contactar por WhatsApp"
+        aria-label={t.ariaLabel}
       >
         <span className="absolute -top-1 -right-1 flex h-3.5 w-3.5">
           <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-300 opacity-75"></span>

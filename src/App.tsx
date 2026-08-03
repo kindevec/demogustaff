@@ -19,7 +19,25 @@ import { RestrictedZoneView } from './views/RestrictedZoneView';
 import { AdminView } from './views/AdminView';
 
 export default function App() {
-  const [currentTab, setCurrentTab] = useState<string>('home');
+  const getHashTab = () => {
+    const hash = window.location.hash.replace('#', '');
+    return hash.split('/')[0] || 'home';
+  };
+
+  const [currentTab, setCurrentTabState] = useState<string>(getHashTab());
+
+  useEffect(() => {
+    const handleHashChange = () => {
+      setCurrentTabState(getHashTab());
+      window.scrollTo(0, 0); // Reset scroll to top on tab change
+    };
+    window.addEventListener('hashchange', handleHashChange);
+    return () => window.removeEventListener('hashchange', handleHashChange);
+  }, []);
+
+  const setCurrentTab = (tab: string) => {
+    window.location.hash = tab;
+  };
   const [lang, setLang] = useState<Language>('es');
 
   const [currentUser, setCurrentUser] = useState<User | null>(() => getLocalUser());
@@ -144,10 +162,12 @@ export default function App() {
       )}
 
       {/* Interactive Floating WhatsApp Widget (+593 96 971 8045) */}
-      <WhatsAppWidget />
+      {currentTab !== 'admin' && (
+        <WhatsAppWidget lang={lang} />
+      )}
 
       {/* Cookie Privacy Consent Banner */}
-      <CookieBanner />
+      <CookieBanner lang={lang} />
 
       {/* Auth / Lead Registration Modal */}
       <AuthModal

@@ -37,10 +37,10 @@ export const Footer: React.FC<FooterProps> = ({ setCurrentTab, lang }) => {
             </div>
             <div>
               <h5 className="font-bold text-xs uppercase tracking-wider text-white">
-                NUESTRA PLANTA
+                {t.ourPlant}
               </h5>
               <p className="text-xs text-white/90 font-medium mt-0.5">
-                Km 8.5 Vía a Daule, Guayaquil
+                {t.plantSub}
               </p>
             </div>
           </div>
@@ -52,10 +52,10 @@ export const Footer: React.FC<FooterProps> = ({ setCurrentTab, lang }) => {
             </div>
             <div>
               <h5 className="font-bold text-xs uppercase tracking-wider text-white">
-                HORARIO ATENCIÓN
+                {t.openingHours}
               </h5>
               <p className="text-xs text-white/90 font-medium mt-0.5">
-                Lun - Vie: 08:00 AM - 17:00 PM
+                {t.hoursSub}
               </p>
             </div>
           </div>
@@ -67,10 +67,10 @@ export const Footer: React.FC<FooterProps> = ({ setCurrentTab, lang }) => {
             </div>
             <div>
               <h5 className="font-bold text-xs uppercase tracking-wider text-white">
-                LÍNEAS DIRECTAS
+                {t.directLines}
               </h5>
               <p className="text-xs text-white/90 font-medium mt-0.5">
-                +593 96 971 8045 / 042255773
+                {t.directPhones}
               </p>
             </div>
           </div>
@@ -82,10 +82,10 @@ export const Footer: React.FC<FooterProps> = ({ setCurrentTab, lang }) => {
             </div>
             <div>
               <h5 className="font-bold text-xs uppercase tracking-wider text-white">
-                DESPACHOS NACIONALES
+                {t.nationalShipping}
               </h5>
               <p className="text-xs text-white/90 font-medium mt-0.5">
-                Envíos a nivel nacional para maquila
+                {t.shippingSub}
               </p>
             </div>
           </div>
@@ -108,7 +108,7 @@ export const Footer: React.FC<FooterProps> = ({ setCurrentTab, lang }) => {
               </div>
 
               <p className="text-sm text-[#6d4c41] leading-relaxed">
-                En Gustaff somos soñadores, creemos en los nuevos proyectos, en nuestro personal, proveedores y clientes. Fabricando chocolates, coberturas y galletas desde 1998 en Guayaquil, Ecuador.
+                {t.aboutBrandText}
               </p>
 
               <div className="flex items-center space-x-3 pt-2">
@@ -136,17 +136,17 @@ export const Footer: React.FC<FooterProps> = ({ setCurrentTab, lang }) => {
             {/* Col 2: Navigation Links */}
             <div className="space-y-3 text-left">
               <h3 className="text-base font-serif font-bold text-[#3d2516] tracking-wide uppercase text-xs">
-                Navegación Principal
+                {t.mainNavHeader}
               </h3>
               <ul className="space-y-2 text-sm">
                 {[
-                  { id: 'home', label: 'Inicio' },
-                  { id: 'about', label: 'Conócenos (Historia 1998)' },
-                  { id: 'products', label: 'Productos de Consumo' },
-                  { id: 'industrial', label: 'Catálogo Industrial' },
-                  { id: 'recipes', label: 'Recetas e Inspiración' },
-                  { id: 'contact', label: 'Contacto y Cotizaciones' },
-                  { id: 'downloads', label: 'Área Restringida de Descargas' }
+                  { id: 'home', label: t.navHome },
+                  { id: 'about', label: t.navAbout },
+                  { id: 'products', label: t.navProducts },
+                  { id: 'industrial', label: t.navIndustrial },
+                  { id: 'recipes', label: t.navRecipes },
+                  { id: 'contact', label: t.navContact },
+                  { id: 'downloads', label: t.navDownloads }
                 ].map((link) => (
                   <li key={link.id}>
                     <button
@@ -167,15 +167,15 @@ export const Footer: React.FC<FooterProps> = ({ setCurrentTab, lang }) => {
             {/* Col 3: Quality & Safety Certifications */}
             <div className="space-y-3 text-left">
               <h3 className="text-base font-serif font-bold text-[#3d2516] tracking-wide uppercase text-xs">
-                Sistema de Inocuidad &amp; Calidad
+                {t.qualitySafetyHeader}
               </h3>
               <div className="bg-[#fdf5e6] p-4 rounded-xl border border-[#e8dcc4] space-y-3">
                 <div className="flex items-start gap-2.5">
                   <ShieldCheck className="w-5 h-5 text-[#b05d2e] shrink-0 mt-0.5" />
                   <div>
-                    <h4 className="text-xs font-bold text-[#3d2516]">Normas HACCP &amp; BPM</h4>
+                    <h4 className="text-xs font-bold text-[#3d2516]">{t.haccpTitle}</h4>
                     <p className="text-[11px] text-[#6d4c41]">
-                      Procesos certificados de seguridad alimentaria e inocuidad en planta.
+                      {t.haccpDesc}
                     </p>
                   </div>
                 </div>
@@ -183,9 +183,9 @@ export const Footer: React.FC<FooterProps> = ({ setCurrentTab, lang }) => {
                 <div className="flex items-start gap-2.5">
                   <Award className="w-5 h-5 text-[#b05d2e] shrink-0 mt-0.5" />
                   <div>
-                    <h4 className="text-xs font-bold text-[#3d2516]">Estándares Internacionales</h4>
+                    <h4 className="text-xs font-bold text-[#3d2516]">{t.intlTitle}</h4>
                     <p className="text-[11px] text-[#6d4c41]">
-                      Aptos para exportación y maquilas a gran escala.
+                      {t.intlDesc}
                     </p>
                   </div>
                 </div>
@@ -195,24 +195,24 @@ export const Footer: React.FC<FooterProps> = ({ setCurrentTab, lang }) => {
             {/* Col 4: Contact & Plant Address */}
             <div className="space-y-3 text-left">
               <h3 className="text-base font-serif font-bold text-[#3d2516] tracking-wide uppercase text-xs">
-                Planta Industrial &amp; Contacto
+                {t.plantContactHeader}
               </h3>
               <ul className="space-y-3 text-xs text-[#6d4c41]">
                 <li className="flex items-start gap-2.5">
                   <MapPin className="w-4 h-4 text-[#b05d2e] shrink-0 mt-0.5" />
                   <span>
-                    Km 8.5 Vía a Daule, Lotización San Francisco Av. Camilo Ponce Mz. 7 Solar 3 (Anterior Mz. 2 Solar 3), Guayaquil, Ecuador
+                    {t.plantAddressFull}
                   </span>
                 </li>
 
                 <li className="flex items-center gap-2.5">
                   <Phone className="w-4 h-4 text-[#b05d2e] shrink-0" />
-                  <span>Call Center: 042255773 / 2264756</span>
+                  <span>{t.callCenter}</span>
                 </li>
 
                 <li className="flex items-center gap-2.5">
                   <Mail className="w-4 h-4 text-[#b05d2e] shrink-0" />
-                  <span>contacto@gustaff.com.ec</span>
+                  <span>{t.contactEmail}</span>
                 </li>
               </ul>
             </div>
@@ -221,11 +221,11 @@ export const Footer: React.FC<FooterProps> = ({ setCurrentTab, lang }) => {
           {/* Bottom Legal Copyright */}
           <div className="pt-8 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs text-[#8d6e63]">
             <p className="font-medium text-[#8d6e63]">
-              Gustaff 2026, todos los derechos reservados.
+              {t.rights}
             </p>
 
             <div className="flex items-center space-x-6">
-              <span className="text-[#8d6e63]">Desarrollado por Kindev</span>
+              <span className="text-[#8d6e63]">{t.developedBy}</span>
               <button
                 onClick={() => {
                   setCurrentTab('about');
@@ -233,7 +233,7 @@ export const Footer: React.FC<FooterProps> = ({ setCurrentTab, lang }) => {
                 }}
                 className="hover:text-[#b05d2e] transition-colors cursor-pointer"
               >
-                Política de Calidad
+                {t.qualityPolicy}
               </button>
             </div>
           </div>

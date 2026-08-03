@@ -1,13 +1,17 @@
 import React, { useState } from 'react';
 import { ShieldCheck, CheckCircle2, RotateCw } from 'lucide-react';
+import { Language } from '../types';
+import { TRANSLATIONS } from '../data/translations';
 
 interface ReCaptchaWidgetProps {
   onVerify: (verified: boolean) => void;
   verified: boolean;
+  lang?: Language;
 }
 
-export const ReCaptchaWidget: React.FC<ReCaptchaWidgetProps> = ({ onVerify, verified }) => {
+export const ReCaptchaWidget: React.FC<ReCaptchaWidgetProps> = ({ onVerify, verified, lang = 'es' }) => {
   const [loading, setLoading] = useState(false);
+  const t = TRANSLATIONS[lang].common;
 
   const handleCheckboxChange = () => {
     if (verified) return;
@@ -35,14 +39,14 @@ export const ReCaptchaWidget: React.FC<ReCaptchaWidgetProps> = ({ onVerify, veri
           {verified && <CheckCircle2 className="w-5 h-5 text-white" />}
         </button>
         <span className="text-xs font-medium text-[#4a3224]">
-          {verified ? 'No soy un robot (Verificado)' : 'No soy un robot'}
+          {verified ? t.recaptchaVerified : t.recaptchaNotVerified}
         </span>
       </div>
 
       <div className="flex flex-col items-center justify-center text-[9px] text-[#8d6e63] pl-2 border-l border-[#e8dcc4]">
         <ShieldCheck className="w-4 h-4 text-[#b05d2e] mb-0.5" />
         <span className="font-bold tracking-tighter text-[#6d4c41]">reCAPTCHA</span>
-        <span>Privacidad - Términos</span>
+        <span>{t.recaptchaTerms}</span>
       </div>
     </div>
   );

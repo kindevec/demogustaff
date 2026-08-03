@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { translateProduct } from '../lib/translateProduct';
 import { Product, Language } from '../types';
 import { TRANSLATIONS } from '../data/translations';
 import { Search, Filter, Package, Check, ChevronRight, FileText, Lock } from 'lucide-react';
@@ -18,16 +19,17 @@ export const ProductsView: React.FC<ProductsViewProps> = ({
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
+  const t = TRANSLATIONS[lang].productsPage;
 
   const categories = [
-    { id: 'all', label: 'Todos los Productos' },
-    { id: 'industrial', label: 'Insumos Industriales' },
-    { id: 'coberturas', label: 'Coberturas de Chocolate' },
-    { id: 'cocoa', label: 'Polvos de Cacao' },
-    { id: 'galletas', label: 'Galletería' }
+    { id: 'all', label: t.catAll },
+    { id: 'industrial', label: t.catIndustrial },
+    { id: 'coberturas', label: t.catCoberturas },
+    { id: 'cocoa', label: t.catCocoa },
+    { id: 'galletas', label: t.catGalletas }
   ];
 
-  const filteredProducts = products.filter(p => {
+  const filteredProducts = products.map(p => translateProduct(p, lang)).filter(p => {
     const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                           p.code.toLowerCase().includes(searchTerm.toLowerCase());
     if (selectedCategory === 'all') return matchesSearch;
@@ -39,15 +41,15 @@ export const ProductsView: React.FC<ProductsViewProps> = ({
       {/* Page Header */}
       <div className="bg-[#603813] text-white p-8 sm:p-12 rounded-3xl border border-[#d4af37]/30 shadow-xl text-left space-y-3">
         <span className="text-xs font-bold text-[#d4af37] uppercase tracking-widest bg-white/10 px-3.5 py-1 rounded-full border border-white/20">
-          Catálogo General Gustaff S.A.
+          {t.catalogBadge}
         </span>
 
         <h1 className="font-serif font-bold text-3xl sm:text-4xl text-white">
-          Nuestras Líneas de Chocolates, Coberturas y Galletas
+          {t.catalogTitle}
         </h1>
 
         <p className="text-xs sm:text-sm text-[#f3ece0] max-w-2xl">
-          Contamos con un portafolio variado de productos para consumo y elaboración artesanal e industrial.
+          {t.catalogSubtitle}
         </p>
       </div>
 
@@ -59,7 +61,7 @@ export const ProductsView: React.FC<ProductsViewProps> = ({
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Buscar en el catálogo..."
+            placeholder={t.searchPlaceholder}
             className="w-full bg-[#fdfaf5] border border-[#e8dcc4] rounded-xl py-2 pl-9 pr-3 text-xs text-[#3d2516] placeholder-[#8d6e63] focus:outline-none focus:border-[#b05d2e]"
           />
         </div>
@@ -114,7 +116,7 @@ export const ProductsView: React.FC<ProductsViewProps> = ({
               </div>
 
               <div className="pt-3 border-t border-[#e8dcc4] flex items-center justify-between text-xs text-[#b05d2e] font-bold">
-                <span>Ver Ficha Técnica</span>
+                <span>{t.viewSpecSheet}</span>
                 <ChevronRight className="w-4 h-4 text-[#b05d2e]" />
               </div>
             </div>

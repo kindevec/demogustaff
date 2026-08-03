@@ -66,7 +66,7 @@ export const RestrictedZoneView: React.FC<RestrictedZoneViewProps> = ({
       <div className="bg-[#603813] text-white p-8 sm:p-12 rounded-3xl border border-[#d4af37]/30 shadow-xl text-left space-y-4 relative overflow-hidden">
         <div className="inline-flex items-center gap-2 bg-[#d4af37] text-[#3d2516] font-extrabold px-3.5 py-1.5 rounded-full text-xs uppercase tracking-wider shadow">
           {currentUser ? <Unlock className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
-          <span>Área Restringida de Descargas Técnicas</span>
+          <span>{t.headerBadge}</span>
         </div>
 
         <h1 className="font-serif font-bold text-3xl sm:text-4xl text-white">
@@ -74,7 +74,7 @@ export const RestrictedZoneView: React.FC<RestrictedZoneViewProps> = ({
         </h1>
 
         <p className="text-xs sm:text-sm text-[#f3ece0] max-w-3xl leading-relaxed">
-          {t.subtitle} Descargue en formato PDF las fichas técnicas con parámetros fisicoquímicos, microbiológicos, vida útil y tablas nutricionales.
+          {t.subtitle} {t.subtitleDesc}
         </p>
 
         {!currentUser ? (
@@ -87,7 +87,7 @@ export const RestrictedZoneView: React.FC<RestrictedZoneViewProps> = ({
             </div>
             <button
               onClick={onOpenAuth}
-              className="shrink-0 bg-[#d4af37] hover:bg-amber-400 text-[#3d2516] font-bold px-6 py-2.5 rounded-full text-xs uppercase tracking-wider shadow transition-colors"
+              className="shrink-0 bg-[#d4af37] hover:bg-amber-400 text-[#3d2516] font-bold px-6 py-2.5 rounded-full text-xs uppercase tracking-wider shadow transition-colors cursor-pointer"
             >
               {t.btnLoginRegister}
             </button>
@@ -98,10 +98,10 @@ export const RestrictedZoneView: React.FC<RestrictedZoneViewProps> = ({
               <UserCheck className="w-6 h-6 text-emerald-400 shrink-0" />
               <div>
                 <p className="text-xs font-bold text-white">
-                  Sesión Activa: {currentUser.name} ({currentUser.email})
+                  {t.activeSession} {currentUser.name} ({currentUser.email})
                 </p>
                 <p className="text-[11px] text-emerald-200">
-                  Empresa: {currentUser.company || 'Cliente Registrado'} | Acceso habilitado a todas las descargas.
+                  {t.companyLabel} {currentUser.company || t.registeredClient} {t.accessEnabled}
                 </p>
               </div>
             </div>
@@ -112,7 +112,7 @@ export const RestrictedZoneView: React.FC<RestrictedZoneViewProps> = ({
       {downloadSuccessItem && (
         <div className="p-4 bg-emerald-50 text-emerald-800 border border-emerald-200 rounded-2xl text-xs font-bold flex items-center gap-2">
           <FileCheck className="w-5 h-5 text-emerald-600" />
-          <span>¡Descarga iniciada exitosamente para: "{downloadSuccessItem}"!</span>
+          <span>{t.downloadStarted} "{downloadSuccessItem}"!</span>
         </div>
       )}
 
@@ -124,13 +124,13 @@ export const RestrictedZoneView: React.FC<RestrictedZoneViewProps> = ({
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Buscar ficha técnica, catálogo o brochure..."
+            placeholder={t.searchPlaceholder}
             className="w-full bg-[#fdfaf5] border border-[#e8dcc4] rounded-xl py-2 pl-9 pr-3 text-xs text-[#3d2516] placeholder-[#8d6e63] focus:outline-none focus:border-[#b05d2e]"
           />
         </div>
 
         <div className="text-xs text-[#b05d2e] font-bold">
-          {filteredDownloads.length} Documentos Técnicos Disponibles
+          {filteredDownloads.length} {t.docsAvailable}
         </div>
       </div>
 
@@ -144,7 +144,7 @@ export const RestrictedZoneView: React.FC<RestrictedZoneViewProps> = ({
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <span className="text-[10px] font-bold uppercase tracking-wider bg-[#f3ece0] text-[#b05d2e] px-2.5 py-1 rounded-md border border-[#e8dcc4]">
-                  {item.category === 'ficha_tecnica' ? 'Ficha Técnica PDF' : 'Documento Institucional'}
+                  {item.category === 'ficha_tecnica' ? t.specSheetPdf : t.institutionalDoc}
                 </span>
                 <span className="text-xs font-mono font-bold text-[#8d6e63]">
                   {item.file_size}
@@ -164,18 +164,18 @@ export const RestrictedZoneView: React.FC<RestrictedZoneViewProps> = ({
               {currentUser ? (
                 <button
                   onClick={() => handleDownload(item)}
-                  className="w-full bg-[#603813] hover:bg-[#3d2516] text-white font-bold py-2.5 px-4 rounded-xl text-xs flex items-center justify-center gap-2 shadow-sm transition-colors"
+                  className="w-full bg-[#603813] hover:bg-[#3d2516] text-white font-bold py-2.5 px-4 rounded-xl text-xs flex items-center justify-center gap-2 shadow-sm transition-colors cursor-pointer"
                 >
                   <Download className="w-4 h-4 text-[#d4af37]" />
-                  Descargar Documento PDF
+                  {t.downloadPdfBtn}
                 </button>
               ) : (
                 <button
                   onClick={onOpenAuth}
-                  className="w-full bg-[#f3ece0] hover:bg-[#e8dcc4] text-[#603813] border border-[#e8dcc4] font-bold py-2.5 px-4 rounded-xl text-xs flex items-center justify-center gap-2 transition-colors"
+                  className="w-full bg-[#f3ece0] hover:bg-[#e8dcc4] text-[#603813] border border-[#e8dcc4] font-bold py-2.5 px-4 rounded-xl text-xs flex items-center justify-center gap-2 transition-colors cursor-pointer"
                 >
                   <Lock className="w-4 h-4 text-[#b05d2e]" />
-                  Registrarse para Descargar
+                  {t.registerToDownload}
                 </button>
               )}
             </div>

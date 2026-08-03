@@ -31,12 +31,12 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
     setErrorMsg('');
 
     if (!captchaVerified) {
-      setErrorMsg('Por favor confirme que no es un robot activando el reCAPTCHA.');
+      setErrorMsg(t.recaptchaError);
       return;
     }
 
     if (!email.includes('@')) {
-      setErrorMsg('Por favor ingrese un correo electrónico válido.');
+      setErrorMsg(t.validEmailError);
       return;
     }
 
@@ -49,7 +49,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
           id: `usr-${Date.now()}`,
           name: name || email.split('@')[0],
           email: email,
-          company: companyPhone || 'Cliente Gustaff',
+          company: companyPhone || t.defaultCompany,
           phone: companyPhone,
           role: 'user',
           created_at: new Date().toISOString()
@@ -59,7 +59,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
         onClose();
       } else {
         if (!name || !companyPhone) {
-          setErrorMsg('Por favor complete todos los campos requeridos para el registro.');
+          setErrorMsg(t.requiredFieldsError);
           setIsSubmitting(false);
           return;
         }
@@ -79,7 +79,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
         }
       }
     } catch (e) {
-      setErrorMsg('Ocurrió un error al procesar su solicitud. Intente nuevamente.');
+      setErrorMsg(t.processingError);
     } finally {
       setIsSubmitting(false);
     }
@@ -92,8 +92,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
         <div className="bg-[#603813] text-white p-4 sm:p-6 text-center relative shrink-0">
           <button
             onClick={onClose}
-            className="absolute top-3.5 right-3.5 sm:top-4 sm:right-4 p-2 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors focus:outline-none"
-            aria-label="Cerrar"
+            className="absolute top-3.5 right-3.5 sm:top-4 sm:right-4 p-2 rounded-full bg-white/10 text-white hover:bg-white/20 transition-colors focus:outline-none cursor-pointer"
+            aria-label={t.close || 'Cerrar'}
           >
             <X className="w-5 h-5" />
           </button>
@@ -106,7 +106,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
             {isLogin ? t.loginTitle : t.registerTitle}
           </h3>
           <p className="text-[11px] sm:text-xs text-[#f3ece0] mt-0.5 sm:mt-1">
-            Gustaff S.A. | Zona Restringida de Descargas Técnicas
+            {t.headerSubtitle}
           </p>
         </div>
 
@@ -130,7 +130,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
                   required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  placeholder="Ej: Ing. Carlos Mendoza"
+                  placeholder={t.placeholderName}
                   className="w-full bg-[#fdfaf5] border border-[#e8dcc4] rounded-xl py-2.5 pl-9 pr-3 text-xs text-[#3d2516] placeholder-[#8d6e63] focus:outline-none focus:border-[#b05d2e]"
                 />
               </div>
@@ -148,7 +148,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                placeholder="ejemplo@empresa.com"
+                placeholder={t.placeholderEmail}
                 className="w-full bg-[#fdfaf5] border border-[#e8dcc4] rounded-xl py-2.5 pl-9 pr-3 text-xs text-[#3d2516] placeholder-[#8d6e63] focus:outline-none focus:border-[#b05d2e]"
               />
             </div>
@@ -166,7 +166,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
                   required
                   value={companyPhone}
                   onChange={(e) => setCompanyPhone(e.target.value)}
-                  placeholder="Ej: Panificadora Central / 0991234567"
+                  placeholder={t.placeholderCompanyPhone}
                   className="w-full bg-[#fdfaf5] border border-[#e8dcc4] rounded-xl py-2.5 pl-9 pr-3 text-xs text-[#3d2516] placeholder-[#8d6e63] focus:outline-none focus:border-[#b05d2e]"
                 />
               </div>
@@ -192,15 +192,15 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
 
           {/* reCAPTCHA Protection */}
           <div className="pt-2">
-            <ReCaptchaWidget verified={captchaVerified} onVerify={setCaptchaVerified} />
+            <ReCaptchaWidget verified={captchaVerified} onVerify={setCaptchaVerified} lang={lang} />
           </div>
 
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full bg-[#603813] hover:bg-[#3d2516] text-white font-bold py-3 rounded-full text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-md transition-all"
+            className="w-full bg-[#603813] hover:bg-[#3d2516] text-white font-bold py-3 rounded-full text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-md transition-all cursor-pointer"
           >
-            {isSubmitting ? 'Procesando...' : (isLogin ? t.submitLogin : t.submitRegister)}
+            {isSubmitting ? t.processing : (isLogin ? t.submitLogin : t.submitRegister)}
             <ArrowRight className="w-4 h-4 text-[#d4af37]" />
           </button>
 
@@ -211,7 +211,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
                 setIsLogin(!isLogin);
                 setErrorMsg('');
               }}
-              className="text-xs text-[#b05d2e] hover:underline font-bold"
+              className="text-xs text-[#b05d2e] hover:underline font-bold cursor-pointer"
             >
               {isLogin ? t.noAccount : t.hasAccount}
             </button>

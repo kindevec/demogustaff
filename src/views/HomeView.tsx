@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { translateProduct } from '../lib/translateProduct';
 import { Language, Product, SiteContent } from '../types';
 import { TRANSLATIONS } from '../data/translations';
 import { AnimatedSection } from '../components/AnimatedSection';
@@ -35,7 +36,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
   onSelectProduct
 }) => {
   const t = TRANSLATIONS[lang];
-  const featuredProducts = products.filter(p => p.is_featured).slice(0, 4);
+  const hp = t.homePage;
+  const featuredProducts = products.map(p => translateProduct(p, lang)).filter(p => p.is_featured).slice(0, 4);
 
   // Slider State
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -45,10 +47,10 @@ export const HomeView: React.FC<HomeViewProps> = ({
   const slides = [
     {
       id: 1,
-      tagline: "✦ DESDE 1998 EN ECUADOR",
-      titleLine1: "COBERTURAS DE CHOCOLATE",
-      titleAccent: "& GOTAS TERMOESTABLES",
-      description: siteContent.home_headline || "Formuladas para resistir altas temperaturas de horneado y congelación sin perder su sabor, brillo ni textura excepcional.",
+      tagline: hp.slide1Tagline,
+      titleLine1: hp.slide1Title,
+      titleAccent: hp.slide1Accent,
+      description: lang === 'es' ? (siteContent.home_headline || hp.slide1Desc) : t.cmsFallback.home_headline,
       image: "/images/Slider de publicidad/COBERTURAS DE CHOCOLATE.webp",
       objectFit: "object-cover object-center sm:object-right",
       textColor: "text-white",
@@ -65,10 +67,10 @@ export const HomeView: React.FC<HomeViewProps> = ({
     },
     {
       id: 2,
-      tagline: "✦ ALTA SOLUBILIDAD & RENDIMIENTO",
-      titleLine1: "CACAO EN POLVO",
-      titleAccent: "ALCALINO & EDULCORADO",
-      description: "Extracción pura de cacao 100% ecuatoriano con máximo perfil aromático, ideal para bebidas, repostería y heladería industrial.",
+      tagline: hp.slide2Tagline,
+      titleLine1: hp.slide2Title,
+      titleAccent: hp.slide2Accent,
+      description: hp.slide2Desc,
       image: "/images/Slider de publicidad/CACAO EN POLVO.webp",
       objectFit: "object-cover object-center sm:object-right",
       textColor: "text-white",
@@ -80,15 +82,15 @@ export const HomeView: React.FC<HomeViewProps> = ({
       btnPrimary: "bg-gradient-to-r from-[#e86014] to-[#d9530f] hover:from-[#d9530f] hover:to-[#c4470b] text-white shadow-xl shadow-[#e8601444]",
       btnSecondary: "bg-black/40 hover:bg-black/60 text-white border border-white/30 backdrop-blur-md",
       gradientMask: "from-[#170a04]/85 via-[#170a04]/60 via-45% to-transparent",
-      primaryBtnText: "Explorar Cacaos",
+      primaryBtnText: hp.slide2Btn,
       primaryTab: "products"
     },
     {
       id: 3,
-      tagline: "✦ HELADERÍA & REPOSTERÍA",
-      titleLine1: "GALLETAS & CONOS",
-      titleAccent: "PARA HELADO INDUSTRIAL",
-      description: "Crujientes, sabrosas y diseñadas con la máxima resistencia a la humedad en presentaciones para alta producción.",
+      tagline: hp.slide3Tagline,
+      titleLine1: hp.slide3Title,
+      titleAccent: hp.slide3Accent,
+      description: hp.slide3Desc,
       image: "/images/Slider de publicidad/GALLETAS Y CONOS.webp",
       objectFit: "object-cover object-center sm:object-right",
       textColor: "text-white",
@@ -100,15 +102,15 @@ export const HomeView: React.FC<HomeViewProps> = ({
       btnPrimary: "bg-gradient-to-r from-[#e86014] to-[#d9530f] hover:from-[#d9530f] hover:to-[#c4470b] text-white shadow-xl shadow-[#e8601444]",
       btnSecondary: "bg-black/40 hover:bg-black/60 text-white border border-white/30 backdrop-blur-md",
       gradientMask: "from-[#1c0c05]/85 via-[#1c0c05]/60 via-45% to-transparent",
-      primaryBtnText: "Ver Galletería",
+      primaryBtnText: hp.slide3Btn,
       primaryTab: "products"
     },
     {
       id: 4,
-      tagline: "✦ SOLUCIONES A LA MEDIDA",
-      titleLine1: "MAQUILA INDUSTRIAL",
-      titleAccent: "& SIROPE DE CACAO",
-      description: "Desarrollamos recetas exclusivas y empaques en sacos de 25 kg, cajas y pomas de 6 kg adaptadas a tu proceso productivo.",
+      tagline: hp.slide4Tagline,
+      titleLine1: hp.slide4Title,
+      titleAccent: hp.slide4Accent,
+      description: hp.slide4Desc,
       image: "/images/Slider de publicidad/MAQUILA INDUSTRIAL.webp",
       objectFit: "object-cover object-center sm:object-right",
       textColor: "text-white",
@@ -120,7 +122,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
       btnPrimary: "bg-gradient-to-r from-[#e86014] to-[#d9530f] hover:from-[#d9530f] hover:to-[#c4470b] text-white shadow-xl shadow-[#e8601444]",
       btnSecondary: "bg-black/40 hover:bg-black/60 text-white border border-white/30 backdrop-blur-md",
       gradientMask: "from-[#150903]/85 via-[#150903]/60 via-45% to-transparent",
-      primaryBtnText: "Solicitar Maquila",
+      primaryBtnText: hp.slide4Btn,
       primaryTab: "industrial"
     }
   ];
@@ -238,7 +240,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
           <button
             onClick={prevSlide}
             className="absolute left-4 top-1/2 -translate-y-1/2 z-30 w-11 h-11 rounded-full bg-black/50 hover:bg-[#e86014] text-white backdrop-blur-md border border-white/20 flex items-center justify-center cursor-pointer transition-all shadow-lg hover:scale-110"
-            aria-label="Anterior Slide"
+            aria-label={hp.prevSlide}
           >
             <ChevronLeft className="w-6 h-6" />
           </button>
@@ -246,7 +248,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
           <button
             onClick={nextSlide}
             className="absolute right-4 top-1/2 -translate-y-1/2 z-30 w-11 h-11 rounded-full bg-black/50 hover:bg-[#e86014] text-white backdrop-blur-md border border-white/20 flex items-center justify-center cursor-pointer transition-all shadow-lg hover:scale-110"
-            aria-label="Siguiente Slide"
+            aria-label={hp.nextSlide}
           >
             <ChevronRight className="w-6 h-6" />
           </button>
@@ -260,7 +262,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 className={`h-2.5 rounded-full cursor-pointer transition-all duration-300 ${
                   idx === currentSlide ? 'w-8 bg-[#e86014]' : 'w-2.5 bg-white/40 hover:bg-white/70'
                 }`}
-                aria-label={`Ir a la diapositiva ${idx + 1}`}
+                aria-label={`${hp.goToSlide} ${idx + 1}`}
               />
             ))}
           </div>
@@ -281,10 +283,10 @@ export const HomeView: React.FC<HomeViewProps> = ({
             </div>
             <div>
               <h4 className="font-bold text-sm uppercase tracking-wider text-[#3d2516]">
-                Ingredientes Puros
+                {hp.feature1Title}
               </h4>
               <p className="text-xs text-[#6d4c41] mt-1 leading-relaxed">
-                Cacao 100% de origen ecuatoriano con máximo rendimiento y aroma.
+                {hp.feature1Desc}
               </p>
             </div>
           </div>
@@ -296,10 +298,10 @@ export const HomeView: React.FC<HomeViewProps> = ({
             </div>
             <div>
               <h4 className="font-bold text-sm uppercase tracking-wider text-[#3d2516]">
-                Maquila Industrial
+                {hp.feature2Title}
               </h4>
               <p className="text-xs text-[#6d4c41] mt-1 leading-relaxed">
-                Desarrollo de fórmulas a medida para industrias y emprendimientos.
+                {hp.feature2Desc}
               </p>
             </div>
           </div>
@@ -311,10 +313,10 @@ export const HomeView: React.FC<HomeViewProps> = ({
             </div>
             <div>
               <h4 className="font-bold text-sm uppercase tracking-wider text-[#3d2516]">
-                Normas HACCP &amp; BPM
+                {hp.feature3Title}
               </h4>
               <p className="text-xs text-[#6d4c41] mt-1 leading-relaxed">
-                Estándares rigurosos de inocuidad y control de calidad industrial.
+                {hp.feature3Desc}
               </p>
             </div>
           </div>
@@ -326,10 +328,10 @@ export const HomeView: React.FC<HomeViewProps> = ({
             </div>
             <div>
               <h4 className="font-bold text-sm uppercase tracking-wider text-[#3d2516]">
-                Hecho con Pasión
+                {hp.feature4Title}
               </h4>
               <p className="text-xs text-[#6d4c41] mt-1 leading-relaxed">
-                Más de 25 años perfeccionando coberturas y chocobocados.
+                {hp.feature4Desc}
               </p>
             </div>
           </div>
@@ -345,10 +347,10 @@ export const HomeView: React.FC<HomeViewProps> = ({
         {/* Section Header */}
         <div className="text-center space-y-3">
           <div className="inline-flex items-center gap-2 text-[#b05d2e] font-bold text-xs uppercase tracking-widest bg-[#f3ece0] px-4 py-1 rounded-full border border-[#e8dcc4]">
-            <span>Selección Especial de Materia Prima</span>
+            <span>{hp.featuredBadge}</span>
           </div>
           <h2 className="font-serif font-extrabold text-3xl sm:text-4xl text-[#3d2516]">
-            Nuestras Coberturas &amp; Cacaos Estrella
+            {hp.featuredTitle}
           </h2>
           <div className="flex justify-center items-center gap-2 text-[#b05d2e] text-sm pt-1">
             <span className="w-12 h-[1px] bg-[#b05d2e]/40" />
@@ -414,7 +416,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 </div>
 
                 <div className="pt-3 border-t border-[#e8dcc4] flex items-center justify-between text-xs text-[#b05d2e] font-bold">
-                  <span>Ver Detalles &amp; Ficha</span>
+                  <span>{hp.viewDetails}</span>
                   <ChevronRight className="w-4 h-4 text-[#b05d2e] group-hover:translate-x-1 transition-transform" />
                 </div>
               </div>
@@ -429,7 +431,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
             onClick={() => setCurrentTab('products')}
             className="inline-flex items-center gap-2 bg-[#603813] hover:bg-[#b05d2e] text-white font-bold px-8 py-3.5 rounded-full text-xs uppercase tracking-wider transition-all duration-300 shadow-md hover:shadow-xl hover:scale-105 cursor-pointer"
           >
-            <span>Ver Catálogo Completo de Productos</span>
+            <span>{hp.viewFullCatalog}</span>
             <ArrowRight className="w-4 h-4" />
           </button>
         </div>
@@ -455,10 +457,10 @@ export const HomeView: React.FC<HomeViewProps> = ({
             {/* Floating Orange Experience Badge */}
             <div className="absolute -bottom-6 -left-4 sm:left-4 bg-gradient-to-br from-[#b05d2e] to-[#994d23] text-white p-6 rounded-3xl shadow-2xl border-2 border-white max-w-[220px]">
               <span className="block text-4xl sm:text-5xl font-black font-serif leading-none">
-                25+
+                {hp.yearsExpNumber}
               </span>
               <span className="text-xs uppercase font-extrabold tracking-wider mt-1 block opacity-95">
-                Años de Experiencia Industrial
+                {hp.yearsExpBadge}
               </span>
             </div>
           </div>
@@ -468,19 +470,19 @@ export const HomeView: React.FC<HomeViewProps> = ({
             
             <div className="space-y-3">
               <h2 className="font-serif font-extrabold text-3xl sm:text-4xl text-[#3d2516] leading-tight">
-                Un Lugar Donde la Calidad e Innovación Se Unen desde 1998
+                {hp.aboutHeading}
               </h2>
               <div className="inline-flex items-center gap-2 text-[#b05d2e] font-bold text-xs uppercase tracking-wider bg-[#f3ece0] px-3.5 py-1 rounded-full border border-[#e8dcc4]">
-                <span>SOBRE GUSTAFF S.A.</span>
+                <span>{hp.aboutBadge}</span>
               </div>
             </div>
 
             <p className="text-base text-[#603813] font-serif italic bg-[#f3ece0]/80 p-5 rounded-2xl border-l-4 border-[#b05d2e] border-y border-r border-[#e8dcc4] shadow-sm">
-              "{siteContent.home_quienes_somos}"
+              "{lang === 'es' ? siteContent.home_quienes_somos : t.cmsFallback.home_quienes_somos}"
             </p>
 
             <p className="text-sm text-[#4a3224] leading-relaxed">
-              GUSTAFF S.A. inició sus operaciones industriales en Guayaquil, generando empleos y aplicando estrategias técnicas de vanguardia para brindar chocolates y coberturas de excelencia para cada necesidad del mercado.
+              {hp.aboutHistoryBody}
             </p>
 
             <div className="pt-2 flex items-center justify-between flex-wrap gap-4">
@@ -488,7 +490,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 onClick={() => setCurrentTab('about')}
                 className="bg-[#603813] hover:bg-[#b05d2e] text-white font-bold px-8 py-3.5 rounded-full text-xs uppercase tracking-wider flex items-center gap-2 shadow-md hover:shadow-xl transition-all duration-300 cursor-pointer transform hover:-translate-y-0.5"
               >
-                <span>Conocer Nuestra Historia Completa</span>
+                <span>{hp.fullHistoryBtn}</span>
                 <ChevronRight className="w-4 h-4" />
               </button>
 
@@ -513,19 +515,19 @@ export const HomeView: React.FC<HomeViewProps> = ({
             
             <div className="space-y-3">
               <h2 className="font-serif font-extrabold text-3xl sm:text-4xl text-[#3d2516] leading-tight">
-                Maquilamos Tu Emprendimiento Corporativo
+                {hp.industrialHeading}
               </h2>
               <div className="inline-flex items-center gap-2 text-[#b05d2e] font-bold text-xs uppercase tracking-wider bg-[#f3ece0] px-3.5 py-1 rounded-full border border-[#e8dcc4]">
-                <span>MAQUILAMOS TU EMPRENDIMIENTO</span>
+                <span>{hp.industrialBadge}</span>
               </div>
             </div>
 
             <p className="text-base text-[#603813] font-serif italic bg-[#f3ece0]/80 p-5 rounded-2xl border-l-4 border-[#b05d2e] border-y border-r border-[#e8dcc4] shadow-sm">
-              "{siteContent.home_industrial_summary}"
+              "{lang === 'es' ? siteContent.home_industrial_summary : t.cmsFallback.home_industrial_summary}"
             </p>
 
             <p className="text-sm text-[#4a3224] leading-relaxed">
-              Suministramos sacos de 25 kg de Cacao Edulcorado y Alcalino, cajas de 5 kg y 10 kg de gotas, botones y palillos, pomas de 6 kg de sirope y cajas de galletas industriales adaptadas a tu proceso productivo.
+              {hp.industrialBody}
             </p>
 
             <div className="pt-2">
@@ -534,7 +536,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 className="bg-[#603813] hover:bg-[#b05d2e] text-white font-bold px-7 py-3.5 rounded-full text-xs uppercase tracking-wider flex items-center gap-2 shadow-md hover:shadow-xl transition-all duration-300 cursor-pointer transform hover:-translate-y-0.5"
               >
                 <Package className="w-4 h-4 text-[#d4af37]" />
-                <span>Explorar Productos Industriales</span>
+                <span>{hp.exploreIndustrialBtn}</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             </div>
@@ -554,10 +556,10 @@ export const HomeView: React.FC<HomeViewProps> = ({
             {/* Floating Industrial Maquila Badge */}
             <div className="absolute -bottom-6 -right-4 sm:right-4 bg-gradient-to-br from-[#603813] to-[#3d2516] text-white p-6 rounded-3xl shadow-2xl border-2 border-white max-w-[230px]">
               <span className="block text-3xl sm:text-4xl font-black font-serif text-[#d4af37] leading-none">
-                Sacos de 25 kg
+                {hp.bulkBadgeTitle}
               </span>
               <span className="text-xs uppercase font-extrabold tracking-wider mt-1 block opacity-95 text-[#f3ece0]">
-                Empaques &amp; Maquila a Medida
+                {hp.bulkBadgeText}
               </span>
             </div>
           </div>
@@ -576,10 +578,10 @@ export const HomeView: React.FC<HomeViewProps> = ({
             </div>
             <div>
               <h3 className="font-serif font-bold text-lg text-[#3d2516]">
-                Compromiso de Inocuidad &amp; Seguridad Alimentaria
+                {hp.qualityBannerTitle}
               </h3>
               <p className="text-xs text-[#6d4c41] leading-relaxed mt-1 max-w-2xl">
-                Procesamos alimentos en estricto cumplimiento de estándares ecuatorianos e internacionales (HACCP y BPM), garantizando inocuidad, autenticidad y trazabilidad.
+                {hp.qualityBannerText}
               </p>
             </div>
           </div>
@@ -588,7 +590,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
             onClick={() => setCurrentTab('about')}
             className="shrink-0 bg-[#603813] hover:bg-[#b05d2e] text-white border border-[#603813] px-6 py-3 rounded-full text-xs font-bold transition-all duration-300 cursor-pointer shadow-sm hover:shadow-md hover:scale-105"
           >
-            Leer Política de Calidad
+            {hp.readQualityPolicyBtn}
           </button>
         </div>
       </AnimatedSection>

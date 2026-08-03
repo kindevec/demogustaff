@@ -33,6 +33,12 @@ export interface Product {
   features?: string[];
   is_featured?: boolean;
   order: number;
+  
+  // Dynamic Translations
+  name_en?: string;
+  description_en?: string;
+  package_size_en?: string;
+  features_en?: string[];
 }
 
 export interface TechnicalSheet {
