@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Language, User } from '../types';
+import { Language } from '../types';
 import { TRANSLATIONS } from '../data/translations';
 import { 
   Lock, 
@@ -22,10 +22,7 @@ interface NavbarProps {
   setCurrentTab: (tab: string) => void;
   lang: Language;
   setLang: (lang: Language) => void;
-  currentUser: User | null;
-  onOpenAuth: () => void;
-  onLogout: () => void;
-  onOpenAdmin: () => void;
+    onOpenAdmin: () => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -33,9 +30,6 @@ export const Navbar: React.FC<NavbarProps> = ({
   setCurrentTab,
   lang,
   setLang,
-  currentUser,
-  onOpenAuth,
-  onLogout,
   onOpenAdmin
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -107,7 +101,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           <img 
             src="/images/bodegon/logo_gustaff_oficial.png" 
             alt="Gustaff S.A." 
-            className="h-12 w-auto object-contain group-hover:scale-105 transition-transform"
+            className="h-12 w-auto object-contain scale-[1.4] lg:scale-100 origin-left group-hover:scale-[1.45] lg:group-hover:scale-105 transition-transform"
           />
         </button>
 
@@ -132,50 +126,12 @@ export const Navbar: React.FC<NavbarProps> = ({
             </button>
           ))}
 
-          {/* Downloads Restricted Area */}
-          <button
-            onClick={() => handleNavClick('downloads')}
-            className={`px-4 py-1.5 rounded-full text-sm font-semibold transition-all flex items-center gap-1.5 cursor-pointer ${
-              currentTab === 'downloads'
-                ? 'bg-[#603813] text-white'
-                : 'bg-[#f3ece0] text-[#603813] hover:bg-[#b05d2e] hover:text-white border border-[#e8dcc4]'
-            }`}
-          >
-            <Lock className="w-3.5 h-3.5" />
-            {t.downloads}
-          </button>
+
         </nav>
 
         {/* Action Buttons: User Auth & CMS */}
         <div className="hidden lg:flex items-center space-x-3">
-          {currentUser ? (
-            <div className="flex items-center gap-2 bg-[#f3ece0] p-1.5 pr-3 rounded-full border border-[#e8dcc4]">
-              <div className="w-7 h-7 rounded-full bg-[#603813] text-white font-bold text-xs flex items-center justify-center">
-                {currentUser.name.charAt(0).toUpperCase()}
-              </div>
-              <div className="text-left">
-                <p className="text-xs font-semibold text-[#3d2516] truncate max-w-[100px]">
-                  {currentUser.name}
-                </p>
-                <p className="text-[10px] text-[#8d6e63]">{t.registeredClient}</p>
-              </div>
-              <button
-                onClick={onLogout}
-                className="text-[#8d6e63] hover:text-[#b05d2e] ml-1 p-1 cursor-pointer"
-                title={t.logout}
-              >
-                <LogOut className="w-3.5 h-3.5" />
-              </button>
-            </div>
-          ) : (
-            <button
-              onClick={onOpenAuth}
-              className="flex items-center gap-1.5 bg-[#603813] hover:bg-[#b05d2e] text-white font-semibold px-5 py-2 rounded-full text-sm shadow-md shadow-[#60381333] transition-all duration-300 transform hover:-translate-y-0.5 hover:shadow-lg cursor-pointer"
-            >
-              <UserIcon className="w-4 h-4 text-[#d4af37]" />
-              {t.clientArea}
-            </button>
-          )}
+
 
           {/* CMS Admin Button */}
           <button
@@ -190,14 +146,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
         {/* Mobile Hamburger Toggle */}
         <div className="lg:hidden flex items-center space-x-2">
-          <button
-            onClick={() => handleNavClick('downloads')}
-            className="p-2 bg-[#603813] hover:bg-[#b05d2e] text-white rounded-full text-xs font-bold flex items-center gap-1 shadow-sm cursor-pointer transition-colors"
-            title={t.pdfDownloads}
-          >
-            <Lock className="w-3.5 h-3.5 text-[#d4af37]" />
-            <span className="text-[10px] uppercase tracking-wider font-extrabold pr-1">PDFs</span>
-          </button>
+
 
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
@@ -212,104 +161,6 @@ export const Navbar: React.FC<NavbarProps> = ({
       {/* Mobile Tools & Portal Drawer (No redundant navigation links) */}
       {mobileMenuOpen && (
         <div className="lg:hidden bg-[#fdfaf5] border-b border-[#e8dcc4] px-4 pt-3 pb-6 space-y-4 animate-fadeIn shadow-lg max-h-[85vh] overflow-y-auto">
-          {/* Section 1: User Account & Client Area */}
-          <div className="bg-white p-3.5 rounded-2xl border border-[#e8dcc4] shadow-sm">
-            <div className="text-xs font-bold text-[#b05d2e] uppercase tracking-wider mb-2 flex items-center gap-1.5">
-              <UserIcon className="w-3.5 h-3.5" />
-              <span>{t.portalHeader}</span>
-            </div>
-
-            {currentUser ? (
-              <div className="space-y-2.5">
-                <div className="flex items-center justify-between bg-[#fdfaf5] p-2.5 rounded-xl border border-[#e8dcc4]">
-                  <div className="flex items-center space-x-2.5">
-                    <div className="w-8 h-8 rounded-full bg-[#603813] text-[#d4af37] font-bold text-xs flex items-center justify-center">
-                      {currentUser.name.charAt(0).toUpperCase()}
-                    </div>
-                    <div>
-                      <p className="text-xs font-bold text-[#3d2516]">{currentUser.name}</p>
-                      <p className="text-[10px] text-[#8d6e63]">{currentUser.company || t.registeredClient}</p>
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => {
-                      onLogout();
-                      setMobileMenuOpen(false);
-                    }}
-                    className="p-1.5 text-xs text-red-700 bg-red-50 hover:bg-red-100 rounded-lg font-semibold flex items-center gap-1 cursor-pointer"
-                    title={t.logout}
-                  >
-                    <LogOut className="w-3.5 h-3.5" />
-                    <span>{t.exit}</span>
-                  </button>
-                </div>
-
-                <button
-                  onClick={() => handleNavClick('downloads')}
-                  className="w-full py-2.5 bg-[#603813] hover:bg-[#b05d2e] text-[#f3ece0] rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow-sm cursor-pointer transition-colors"
-                >
-                  <Lock className="w-3.5 h-3.5 text-[#d4af37]" />
-                  <span>{t.downloadZoneAccess}</span>
-                </button>
-              </div>
-            ) : (
-              <div className="space-y-2">
-                <p className="text-[11px] text-[#6d4c41] leading-tight">
-                  {t.registerPrompt}
-                </p>
-                <button
-                  onClick={() => {
-                    setMobileMenuOpen(false);
-                    onOpenAuth();
-                  }}
-                  className="w-full py-2.5 bg-[#603813] hover:bg-[#b05d2e] text-white font-bold rounded-xl text-center text-xs uppercase tracking-wider shadow-sm flex items-center justify-center gap-2 cursor-pointer transition-colors"
-                >
-                  <UserIcon className="w-4 h-4 text-[#d4af37]" />
-                  <span>{t.loginRegisterCTA}</span>
-                </button>
-              </div>
-            )}
-          </div>
-
-          {/* Section 2: Zona de Descargas & Herramientas */}
-          <div className="space-y-2">
-            <p className="text-[11px] font-bold text-[#8d6e63] uppercase tracking-wider px-1">
-              {t.siteTools}
-            </p>
-
-            <button
-              onClick={() => handleNavClick('downloads')}
-              className="w-full text-left p-3 rounded-xl bg-white border border-[#e8dcc4] hover:bg-[#f3ece0] transition-colors flex items-center justify-between shadow-sm cursor-pointer"
-            >
-              <div className="flex items-center gap-2.5">
-                <div className="p-2 rounded-lg bg-[#603813] text-[#d4af37]">
-                  <FileText className="w-4 h-4" />
-                </div>
-                <div>
-                  <span className="text-xs font-bold text-[#3d2516] block">{t.downloads}</span>
-                  <span className="text-[10px] text-[#8d6e63]">{t.catalogSubtext}</span>
-                </div>
-              </div>
-              <ChevronRight className="w-4 h-4 text-[#b05d2e]" />
-            </button>
-
-            <button
-              onClick={() => {
-                setMobileMenuOpen(false);
-                onOpenAdmin();
-              }}
-              className="w-full p-2.5 bg-white border border-[#e8dcc4] rounded-xl hover:bg-[#f3ece0] text-left transition-colors flex items-center gap-2.5 shadow-sm cursor-pointer"
-            >
-              <div className="p-1.5 rounded-lg bg-[#f3ece0] text-[#3d2516]">
-                <Settings className="w-4 h-4" />
-              </div>
-              <div>
-                <span className="text-xs font-bold text-[#3d2516] block">{t.adminPanel}</span>
-                <span className="text-[10px] text-[#8d6e63]">{t.adminSubtext}</span>
-              </div>
-            </button>
-          </div>
-
           {/* Section 3: Idioma & Contacto Directo */}
           <div className="bg-white p-3.5 rounded-2xl border border-[#e8dcc4] space-y-3 shadow-sm">
             <div className="flex items-center justify-between">

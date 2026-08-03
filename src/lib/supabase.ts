@@ -1,5 +1,5 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
-import { User, Product, TechnicalSheet, SiteContent } from '../types';
+import { Product, TechnicalSheet, SiteContent } from '../types';
 import { INITIAL_PRODUCTS, INITIAL_TECHNICAL_SHEETS, INITIAL_SITE_CONTENT } from '../data/initialData';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
@@ -13,29 +13,12 @@ export const supabase: SupabaseClient | null = isSupabaseConfigured
 
 // Local Storage Keys for Fallback Mode
 const STORAGE_KEYS = {
-  USER: 'gustaff_current_user',
   PRODUCTS: 'gustaff_products_list',
   SITE_CONTENT: 'gustaff_site_content',
   COOKIES_ACCEPTED: 'gustaff_cookies_consent'
 };
 
 // Local storage helpers
-export const getLocalUser = (): User | null => {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEYS.USER);
-    return raw ? JSON.parse(raw) : null;
-  } catch {
-    return null;
-  }
-};
-
-export const setLocalUser = (user: User | null): void => {
-  if (user) {
-    localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(user));
-  } else {
-    localStorage.removeItem(STORAGE_KEYS.USER);
-  }
-};
 
 export const adminLogin = async (email: string, password: string) => {
   if (!supabase) return { error: 'Supabase no configurado' };

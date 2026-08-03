@@ -1,14 +1,5 @@
 export type Language = 'es' | 'en';
 
-export interface User {
-  id: string;
-  email: string;
-  name: string;
-  company?: string;
-  phone?: string;
-  role: 'user' | 'admin';
-  created_at: string;
-}
 
 export interface Product {
   id: string;
@@ -42,16 +33,6 @@ export interface TechnicalSheet {
   description: string;
 }
 
-export interface DownloadItem {
-  id: string;
-  title: string;
-  category: 'ficha_tecnica' | 'catalogo' | 'brochure' | 'certificacion';
-  file_type: string;
-  file_size: string;
-  description: string;
-  download_url: string;
-  required_auth: boolean;
-}
 
 export interface Recipe {
   id: string;

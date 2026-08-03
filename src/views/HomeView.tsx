@@ -23,7 +23,6 @@ interface HomeViewProps {
   lang: Language;
   products: Product[];
   siteContent: SiteContent;
-  onOpenAuth: () => void;
   onSelectProduct: (p: Product) => void;
 }
 
@@ -32,7 +31,6 @@ export const HomeView: React.FC<HomeViewProps> = ({
   lang,
   products,
   siteContent,
-  onOpenAuth,
   onSelectProduct
 }) => {
   const t = TRANSLATIONS[lang];

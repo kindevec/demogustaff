@@ -8,7 +8,6 @@ interface ProductsViewProps {
   products: Product[];
   lang: Language;
   onSelectProduct: (p: Product) => void;
-  onOpenAuth: () => void;
 }
 
 export const ProductsView: React.FC<ProductsViewProps> = ({
@@ -66,20 +65,24 @@ export const ProductsView: React.FC<ProductsViewProps> = ({
           />
         </div>
 
-        <div className="flex items-center gap-2 overflow-x-auto w-full md:w-auto pb-1 md:pb-0">
-          {categories.map((cat) => (
-            <button
-              key={cat.id}
-              onClick={() => setSelectedCategory(cat.id)}
-              className={`px-3.5 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-colors ${
-                selectedCategory === cat.id
-                  ? 'bg-[#603813] text-white font-bold'
-                  : 'bg-[#f3ece0] text-[#4a3224] hover:bg-[#e8dcc4]'
-              }`}
-            >
-              {cat.label}
-            </button>
-          ))}
+        <div className="w-full md:w-auto relative min-w-[220px]">
+          <Filter className="w-4 h-4 text-[#8d6e63] absolute left-3 top-2.5" />
+          <select
+            value={selectedCategory}
+            onChange={(e) => setSelectedCategory(e.target.value)}
+            className="w-full appearance-none bg-[#f3ece0] border border-[#e8dcc4] rounded-xl py-2 pl-9 pr-10 text-xs font-semibold text-[#4a3224] focus:outline-none focus:border-[#b05d2e] focus:bg-[#fdfaf5] cursor-pointer"
+          >
+            {categories.map((cat) => (
+              <option key={cat.id} value={cat.id}>
+                {cat.label}
+              </option>
+            ))}
+          </select>
+          <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3 text-[#8d6e63]">
+            <svg className="w-4 h-4 fill-current" viewBox="0 0 20 20">
+              <path d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" />
+            </svg>
+          </div>
         </div>
       </div>
 

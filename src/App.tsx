@@ -1,12 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { User, Language, Product, SiteContent } from './types';
-import { getLocalUser, setLocalUser, fetchProducts, getStoredSiteContent } from './lib/supabase';
+import { Language, Product, SiteContent } from './types';
+import { fetchProducts, getStoredSiteContent } from './lib/supabase';
 import { Navbar } from './components/Navbar';
 import { BottomNav } from './components/BottomNav';
 import { Footer } from './components/Footer';
 import { WhatsAppWidget } from './components/WhatsAppWidget';
 import { CookieBanner } from './components/CookieBanner';
-import { AuthModal } from './components/AuthModal';
 import { ProductDetailModal } from './components/ProductDetailModal';
 
 import { HomeView } from './views/HomeView';
@@ -15,7 +14,6 @@ import { ProductsView } from './views/ProductsView';
 import { IndustrialView } from './views/IndustrialView';
 import { RecipesView } from './views/RecipesView';
 import { ContactView } from './views/ContactView';
-import { RestrictedZoneView } from './views/RestrictedZoneView';
 import { AdminView } from './views/AdminView';
 
 export default function App() {
@@ -40,7 +38,6 @@ export default function App() {
   };
   const [lang, setLang] = useState<Language>('es');
 
-  const [currentUser, setCurrentUser] = useState<User | null>(() => getLocalUser());
   const [products, setProducts] = useState<Product[]>([]);
 
   const loadProducts = async () => {
@@ -51,25 +48,15 @@ export default function App() {
   useEffect(() => {
     loadProducts();
   }, []);
-  const [siteContent] = useState<SiteContent>(() => getStoredSiteContent());
+  const [siteContent, setSiteContent] = useState<SiteContent>(() => getStoredSiteContent());
+  const refreshSiteContent = () => setSiteContent(getStoredSiteContent());
 
-  const [authModalOpen, setAuthModalOpen] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
 
   // Sync scroll top on view changes
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }, [currentTab]);
-
-  const handleLogout = () => {
-    setLocalUser(null);
-    setCurrentUser(null);
-  };
-
-  const handleAuthSuccess = (user: User) => {
-    setCurrentUser(user);
-    setCurrentTab('downloads');
-  };
 
   const handleRequestQuote = (product: Product) => {
     setCurrentTab('industrial');
@@ -84,9 +71,6 @@ export default function App() {
           setCurrentTab={setCurrentTab}
           lang={lang}
           setLang={setLang}
-          currentUser={currentUser}
-          onOpenAuth={() => setAuthModalOpen(true)}
-          onLogout={handleLogout}
           onOpenAdmin={() => setCurrentTab('admin')}
         />
       )}
@@ -99,7 +83,6 @@ export default function App() {
             lang={lang}
             products={products}
             siteContent={siteContent}
-            onOpenAuth={() => setAuthModalOpen(true)}
             onSelectProduct={(p) => setSelectedProduct(p)}
           />
         )}
@@ -113,8 +96,7 @@ export default function App() {
             products={products}
             lang={lang}
             onSelectProduct={(p) => setSelectedProduct(p)}
-            onOpenAuth={() => setAuthModalOpen(true)}
-          />
+            />
         )}
 
         {currentTab === 'industrial' && (
@@ -122,8 +104,7 @@ export default function App() {
             products={products}
             lang={lang}
             onSelectProduct={(p) => setSelectedProduct(p)}
-            onOpenAuth={() => setAuthModalOpen(true)}
-          />
+            />
         )}
 
         {currentTab === 'recipes' && (
@@ -134,16 +115,8 @@ export default function App() {
           <ContactView siteContent={siteContent} lang={lang} />
         )}
 
-        {currentTab === 'downloads' && (
-          <RestrictedZoneView
-            currentUser={currentUser}
-            onOpenAuth={() => setAuthModalOpen(true)}
-            lang={lang}
-          />
-        )}
-
         {currentTab === 'admin' && (
-          <AdminView setCurrentTab={setCurrentTab} lang={lang} refreshProducts={loadProducts} products={products} />
+          <AdminView setCurrentTab={setCurrentTab} lang={lang} refreshProducts={loadProducts} products={products} refreshSiteContent={refreshSiteContent} />
         )}
       </main>
 
@@ -169,19 +142,10 @@ export default function App() {
       {/* Cookie Privacy Consent Banner */}
       <CookieBanner lang={lang} />
 
-      {/* Auth / Lead Registration Modal */}
-      <AuthModal
-        isOpen={authModalOpen}
-        onClose={() => setAuthModalOpen(false)}
-        onSuccess={handleAuthSuccess}
-        lang={lang}
-      />
-
       {/* Product Detail / Technical Sheet Drawer */}
       <ProductDetailModal
         product={selectedProduct}
         onClose={() => setSelectedProduct(null)}
-        onOpenAuth={() => setAuthModalOpen(true)}
         onRequestQuote={handleRequestQuote}
         lang={lang}
       />

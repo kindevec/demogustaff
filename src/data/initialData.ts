@@ -173,133 +173,6 @@ export const INITIAL_PRODUCTS: Product[] = [
     is_featured: false,
     order: 12
   }
-];
-
-export const INITIAL_TECHNICAL_SHEETS: TechnicalSheet[] = INITIAL_PRODUCTS.map(p => ({
-  id: `sheet-${p.id}`,
-  product_id: p.id,
-  product_name: p.name,
-  package_size: p.package_size,
-  version: '2026.1 - Rev A',
-  pdf_url: p.spec_sheet_url || `/docs/FT-${p.name.replace(/\s+/g, '-')}-Gustaff.pdf`,
-  file_size: '1.4 MB',
-  updated_at: '2026-01-15',
-  description: `Ficha Técnica Oficial con especificaciones fisicoquímicas, microbiológicas, tabla nutricional y condiciones de almacenamiento para ${p.name}.`
-}));
-
-export const INITIAL_DOWNLOADS: DownloadItem[] = [
-  ...INITIAL_TECHNICAL_SHEETS.map(ts => ({
-    id: `dl-${ts.id}`,
-    title: `Ficha Técnica: ${ts.product_name} (${ts.package_size})`,
-    category: 'ficha_tecnica' as const,
-    file_type: 'PDF',
-    file_size: ts.file_size,
-    description: ts.description,
-    download_url: ts.pdf_url,
-    required_auth: true
-  })),
-  {
-    id: 'dl-cat-2026',
-    title: 'Catálogo General de Productos e Insumos Industriales Gustaff 2026',
-    category: 'catalogo',
-    file_type: 'PDF',
-    file_size: '8.5 MB',
-    description: 'Catálogo institucional completo con portafolio de chocolates, coberturas, polvos de cacao, galletas y presentaciones para maquila.',
-    download_url: '/docs/Catalogo-General-Gustaff-2026.pdf',
-    required_auth: true
-  },
-  {
-    id: 'dl-brochure-inst',
-    title: 'Folleto Institucional y Perfil de Planta Gustaff S.A.',
-    category: 'brochure',
-    file_type: 'PDF',
-    file_size: '4.2 MB',
-    description: 'Presentación de planta, capacidad instalada en Vía a Daule Guayaquil, estándares de calidad e historia desde 1998.',
-    download_url: '/docs/Folleto-Institucional-Gustaff.pdf',
-    required_auth: true
-  },
-  {
-    id: 'dl-cert-bpm-haccp',
-    title: 'Resumen de Políticas de Calidad e Inocuidad (BPM / HACCP)',
-    category: 'certificacion',
-    file_type: 'PDF',
-    file_size: '2.1 MB',
-    description: 'Documento normativo de acreditaciones sanitarias, buenas prácticas de manufactura y control de alérgenos.',
-    download_url: '/docs/Certificaciones-Inocuidad-Gustaff.pdf',
-    required_auth: true
-  }
-];
-
-export const INITIAL_RECIPES: Recipe[] = [
-  {
-    id: 'rec-1',
-    title: 'Torta Suprema con Cocoa Alcalina Gustaff',
-    description: 'Una torta húmeda con intenso aroma a cacao, miga sedosa y cobertura espejo elaborada con botones semiamargos.',
-    prep_time: '45 mins',
-    difficulty: 'Fácil',
-    servings: '12 porciones',
-    ingredients: [
-      '200g de Cocoa Alcalina Gustaff (Sacos de 25kg)',
-      '300g de harina pastelera',
-      '250g de Azúcar Impalpable Gustaff',
-      '3 huevos frescos',
-      '150ml de aceite vegetal',
-      '200ml de suero de leche cálido',
-      '15g de polvo de hornear'
-    ],
-    instructions: [
-      'Cernir la Cocoa Alcalina Gustaff junto a la harina y el Azúcar Impalpable.',
-      'Batir los huevos con el aceite e incorporar alternadamente los secos con el suero de leche.',
-      'Hornear a 175°C durante 35 minutos.',
-      'Bañar con sirope caliente de chocolate Gustaff o ganache de botones.'
-    ],
-    image: '/images/bodegon/rapichoc_chocobanano_variedad_sabores.jpg',
-    featured_product_name: 'Cocoa alcalina Gustaff'
-  },
-  {
-    id: 'rec-2',
-    title: 'Sandwiches Helados Artesanales de Galleta Gustaff',
-    description: 'Deliciosa combinación de helado cremoso de vainilla contenido entre dos galletas horneadas especial para congelación.',
-    prep_time: '20 mins',
-    difficulty: 'Fácil',
-    servings: '20 unidades',
-    ingredients: [
-      '40 unidades de Galleta para helado tipo sanduche Gustaff',
-      '2 litros de helado de vainilla artesanal',
-      '100g de Gotas o Minigotas de chocolate Gustaff para decorar bordes'
-    ],
-    instructions: [
-      'Acomodar las galletas Gustaff en una bandeja fría.',
-      'Colocar una porción uniforme de helado congelado firme de 2cm de grosor.',
-      'Poner la segunda galleta presionando suavemente.',
-      'Rodar los bordes en minigotas de chocolate Gustaff y congelar a -18°C.'
-    ],
-    image: '/images/bodegon/zebritas_vainilla_cobertura_chocolate_250g.png',
-    featured_product_name: 'Galleta para helado tipo sanduche'
-  },
-  {
-    id: 'rec-3',
-    title: 'Galletas Chocochip Horneadas con Gotas Termoestables',
-    description: 'Clásicas galletas doradas con generosas gotas de chocolate que conservan su cuerpo crujiente al morder.',
-    prep_time: '30 mins',
-    difficulty: 'Fácil',
-    servings: '24 galletas',
-    ingredients: [
-      '250g de Gotas y minigotas de chocolate Gustaff',
-      '200g de mantequilla sin sal',
-      '150g de azúcar moreno',
-      '100g de Azúcar Impalpable Gustaff',
-      '300g de harina leudante'
-    ],
-    instructions: [
-      'Cremar la mantequilla con los azúcares hasta aclarar.',
-      'Incorporar harina y mezclar hasta unir.',
-      'Agregar las Gotas termoestables Gustaff.',
-      'Formar bolitas de 35g y hornear a 180°C por 12-14 minutos.'
-    ],
-    image: '/images/bodegon/galletas_paty_navidad_gustaff_125g.png',
-    featured_product_name: 'Gotas y minigotas Gustaff'
-  }
 ,
   {
     id: 'prod-13',
@@ -612,5 +485,90 @@ export const INITIAL_RECIPES: Recipe[] = [
     features: ['Sabor delicioso', 'Calidad Gustaff'],
     is_featured: false,
     order: 36
+  }
+
+];
+
+export const INITIAL_TECHNICAL_SHEETS: TechnicalSheet[] = INITIAL_PRODUCTS.map(p => ({
+  id: `sheet-${p.id}`,
+  product_id: p.id,
+  product_name: p.name,
+  package_size: p.package_size,
+  version: '2026.1 - Rev A',
+  pdf_url: p.spec_sheet_url || `/docs/FT-${p.name.replace(/\s+/g, '-')}-Gustaff.pdf`,
+  file_size: '1.4 MB',
+  updated_at: '2026-01-15',
+  description: `Ficha Técnica Oficial con especificaciones fisicoquímicas, microbiológicas, tabla nutricional y condiciones de almacenamiento para ${p.name}.`
+}));
+
+export const INITIAL_RECIPES: Recipe[] = [
+  {
+    id: 'rec-1',
+    title: 'Torta Suprema con Cocoa Alcalina Gustaff',
+    description: 'Una torta húmeda con intenso aroma a cacao, miga sedosa y cobertura espejo elaborada con botones semiamargos.',
+    prep_time: '45 mins',
+    difficulty: 'Fácil',
+    servings: '12 porciones',
+    ingredients: [
+      '200g de Cocoa Alcalina Gustaff (Sacos de 25kg)',
+      '300g de harina pastelera',
+      '250g de Azúcar Impalpable Gustaff',
+      '3 huevos frescos',
+      '150ml de aceite vegetal',
+      '200ml de suero de leche cálido',
+      '15g de polvo de hornear'
+    ],
+    instructions: [
+      'Cernir la Cocoa Alcalina Gustaff junto a la harina y el Azúcar Impalpable.',
+      'Batir los huevos con el aceite e incorporar alternadamente los secos con el suero de leche.',
+      'Hornear a 175°C durante 35 minutos.',
+      'Bañar con sirope caliente de chocolate Gustaff o ganache de botones.'
+    ],
+    image: '/images/bodegon/rapichoc_chocobanano_variedad_sabores.jpg',
+    featured_product_name: 'Cocoa alcalina Gustaff'
+  },
+  {
+    id: 'rec-2',
+    title: 'Sandwiches Helados Artesanales de Galleta Gustaff',
+    description: 'Deliciosa combinación de helado cremoso de vainilla contenido entre dos galletas horneadas especial para congelación.',
+    prep_time: '20 mins',
+    difficulty: 'Fácil',
+    servings: '20 unidades',
+    ingredients: [
+      '40 unidades de Galleta para helado tipo sanduche Gustaff',
+      '2 litros de helado de vainilla artesanal',
+      '100g de Gotas o Minigotas de chocolate Gustaff para decorar bordes'
+    ],
+    instructions: [
+      'Acomodar las galletas Gustaff en una bandeja fría.',
+      'Colocar una porción uniforme de helado congelado firme de 2cm de grosor.',
+      'Poner la segunda galleta presionando suavemente.',
+      'Rodar los bordes en minigotas de chocolate Gustaff y congelar a -18°C.'
+    ],
+    image: '/images/bodegon/zebritas_vainilla_cobertura_chocolate_250g.png',
+    featured_product_name: 'Galleta para helado tipo sanduche'
+  },
+  {
+    id: 'rec-3',
+    title: 'Galletas Chocochip Horneadas con Gotas Termoestables',
+    description: 'Clásicas galletas doradas con generosas gotas de chocolate que conservan su cuerpo crujiente al morder.',
+    prep_time: '30 mins',
+    difficulty: 'Fácil',
+    servings: '24 galletas',
+    ingredients: [
+      '250g de Gotas y minigotas de chocolate Gustaff',
+      '200g de mantequilla sin sal',
+      '150g de azúcar moreno',
+      '100g de Azúcar Impalpable Gustaff',
+      '300g de harina leudante'
+    ],
+    instructions: [
+      'Cremar la mantequilla con los azúcares hasta aclarar.',
+      'Incorporar harina y mezclar hasta unir.',
+      'Agregar las Gotas termoestables Gustaff.',
+      'Formar bolitas de 35g y hornear a 180°C por 12-14 minutos.'
+    ],
+    image: '/images/bodegon/galletas_paty_navidad_gustaff_125g.png',
+    featured_product_name: 'Gotas y minigotas Gustaff'
   }
 ];

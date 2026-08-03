@@ -1,4 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import { HomeView } from './HomeView';
+import { AboutView } from './AboutView';
+import { ContactView } from './ContactView';
 import { Product, SiteContent, Language } from '../types';
 import { 
   addProduct,
@@ -28,7 +31,8 @@ import {
   ArrowLeft,
   Search,
   ShieldCheck,
-  X,
+  Eye,
+    X,
   LogOut,
   Menu,
   AlertTriangle
@@ -41,7 +45,7 @@ interface AdminViewProps {
   refreshProducts: () => void;
 }
 
-export const AdminView: React.FC<AdminViewProps> = ({ setCurrentTab, products, refreshProducts }) => {
+export const AdminView: React.FC<AdminViewProps> = ({ setCurrentTab, products, refreshProducts, refreshSiteContent }) => {
   const [authenticated, setAuthenticated] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -50,6 +54,8 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentTab, products, r
 
   // Mobile menu state
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [previewView, setPreviewView] = useState<'home' | 'about' | 'contact' | null>(null);
+
 
   useEffect(() => {
     const checkSession = async () => {
@@ -192,6 +198,7 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentTab, products, r
   const handleSaveContent = (e: React.FormEvent) => {
     e.preventDefault();
     saveStoredSiteContent(siteContent);
+    if (refreshSiteContent) refreshSiteContent();
     showNotice();
   };
 
@@ -725,7 +732,11 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentTab, products, r
                     <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider pb-3 border-b border-slate-100 flex items-center gap-2">
                       <span className="w-2 h-2 rounded-full bg-amber-500"></span>
                       Página de Inicio
-                    </h3>
+                    
+                        <button type="button" onClick={() => setPreviewView('home')} className="ml-auto flex items-center gap-1 text-xs font-bold bg-amber-100 text-amber-700 px-3 py-1.5 rounded-full hover:bg-amber-200 transition-colors">
+                          <Eye className="w-3.5 h-3.5" /> Previsualizar
+                        </button>
+                      </h3>
                     <div className="bg-slate-50/50 p-5 sm:p-6 rounded-2xl border border-slate-100 space-y-5">
                       <div>
                         <label className="block text-xs font-bold text-slate-700 mb-2">TITULAR PRINCIPAL (HERO)</label>
@@ -743,7 +754,11 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentTab, products, r
                     <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider pb-3 border-b border-slate-100 flex items-center gap-2">
                       <span className="w-2 h-2 rounded-full bg-amber-500"></span>
                       Identidad Corporativa
-                    </h3>
+                    
+                        <button type="button" onClick={() => setPreviewView('about')} className="ml-auto flex items-center gap-1 text-xs font-bold bg-amber-100 text-amber-700 px-3 py-1.5 rounded-full hover:bg-amber-200 transition-colors">
+                          <Eye className="w-3.5 h-3.5" /> Previsualizar
+                        </button>
+                      </h3>
                     <div className="bg-slate-50/50 p-5 sm:p-6 rounded-2xl border border-slate-100 grid grid-cols-1 md:grid-cols-2 gap-6">
                       <div>
                         <label className="block text-xs font-bold text-slate-700 mb-2">MISIÓN</label>
@@ -822,6 +837,52 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentTab, products, r
           })}
         </div>
       </main>
+
+      {/* Live Preview Modal */}
+      {previewView && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center bg-black/60 backdrop-blur-sm p-2 sm:p-4 animate-fadeIn">
+          <div className="bg-white w-full max-w-[1400px] h-full sm:h-[90vh] sm:rounded-3xl shadow-2xl flex flex-col overflow-hidden">
+            <div className="p-4 bg-slate-900 text-white flex justify-between items-center shrink-0">
+              <h3 className="font-bold flex items-center gap-2">
+                <Eye className="w-5 h-5 text-amber-400" />
+                Previsualización en Vivo: {previewView === 'home' ? 'Inicio' : previewView === 'about' ? 'Nosotros' : 'Contacto'}
+              </h3>
+              <button 
+                type="button"
+                onClick={() => setPreviewView(null)}
+                className="p-2 hover:bg-white/10 rounded-lg transition-colors cursor-pointer flex items-center gap-2 text-sm font-semibold"
+              >
+                Cerrar <X className="w-5 h-5" />
+              </button>
+            </div>
+            <div className="flex-1 overflow-y-auto bg-slate-50 relative custom-scrollbar">
+              <div className="w-full">
+                {previewView === 'home' && (
+                  <HomeView 
+                    products={products} 
+                    lang="es" 
+                    siteContent={siteContent}
+                    onSelectProduct={() => {}}
+                    onNavigate={() => {}}
+                  />
+                )}
+                {previewView === 'about' && (
+                  <AboutView 
+                    lang="es" 
+                    siteContent={siteContent}
+                  />
+                )}
+                {previewView === 'contact' && (
+                  <ContactView 
+                    lang="es" 
+                    siteContent={siteContent}
+                  />
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
