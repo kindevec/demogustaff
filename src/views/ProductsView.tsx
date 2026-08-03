@@ -19,7 +19,7 @@ interface ProductsViewProps {
   products: Product[];
   lang: Language;
   onSelectProduct: (p: Product) => void;
-  onOpenAuth: () => void;
+  onOpenAuth?: () => void;
   onThemeColorChange?: (color: string) => void;
 }
 
@@ -278,8 +278,6 @@ export const ProductsView: React.FC<ProductsViewProps> = ({
             ))}
           </div>
         </div>
-
-
       </div>
 
 

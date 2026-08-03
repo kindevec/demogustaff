@@ -44,7 +44,12 @@ export const ContactView: React.FC<ContactViewProps> = ({ siteContent, lang }) =
     setIsSubmitting(true);
 
     try {
-      await new Promise(resolve => setTimeout(resolve, 800));
+      const waNumber = '593969718045';
+      const text = `*Nuevo Contacto Web*%0A%0A*Nombre:* ${name}%0A*Email:* ${email}%0A*Asunto:* ${subject}%0A*Mensaje:* ${message}`;
+      const url = `https://wa.me/${waNumber}?text=${text}`;
+      
+      window.open(url, '_blank');
+      
       setSuccessMsg(t.successMsg);
       setName('');
       setEmail('');

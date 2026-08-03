@@ -6,7 +6,6 @@ import { X, Download, MessageSquare, Check, Sparkles, Package, FileText, ArrowRi
 interface ProductDetailModalProps {
   product: Product | null;
   onClose: () => void;
-  onOpenAuth: () => void;
   onRequestQuote: (prod: Product) => void;
   lang: Language;
 }
@@ -14,7 +13,6 @@ interface ProductDetailModalProps {
 export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
   product,
   onClose,
-  onOpenAuth,
   onRequestQuote,
   lang
 }) => {
@@ -90,16 +88,7 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                 {t.requestQuoteBtn}
               </button>
 
-              <button
-                onClick={() => {
-                  onClose();
-                  onOpenAuth();
-                }}
-                className="w-full bg-[#f3ece0] hover:bg-[#e8dcc4] text-[#603813] border border-[#e8dcc4] font-semibold py-2 px-4 rounded-xl text-xs flex items-center justify-center gap-2 transition-colors cursor-pointer"
-              >
-                <FileText className="w-3.5 h-3.5 text-[#b05d2e]" />
-                {t.downloadPdfBtn}
-              </button>
+              
             </div>
           </div>
         </div>
