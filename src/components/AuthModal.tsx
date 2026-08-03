@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { User, Language } from '../types';
-import { registerLead, setLocalUser } from '../lib/supabase';
+import { setLocalUser } from '../lib/supabase';
 import { TRANSLATIONS } from '../data/translations';
 import { ReCaptchaWidget } from './ReCaptchaWidget';
 import { X, Lock, Mail, User as UserIcon, Building, ShieldCheck, ArrowRight } from 'lucide-react';
@@ -64,19 +64,18 @@ export const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onSuccess
           return;
         }
 
-        const res = await registerLead({
-          name,
+        const newUser: User = {
+          id: `usr-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
           email,
-          company_phone: companyPhone,
-          password
-        });
-
-        if (res.error) {
-          setErrorMsg(res.error);
-        } else {
-          onSuccess(res.user);
-          onClose();
-        }
+          name,
+          company: companyPhone,
+          phone: companyPhone,
+          role: 'user',
+          created_at: new Date().toISOString()
+        };
+        setLocalUser(newUser);
+        onSuccess(newUser);
+        onClose();
       }
     } catch (e) {
       setErrorMsg(t.processingError);

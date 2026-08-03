@@ -1,8 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { Product, Prospect, ContactSubmission, SiteContent, Language } from '../types';
+import { Product, SiteContent, Language } from '../types';
 import { 
-  getLocalProspects, 
-  getLocalContactSubmissions, 
   addProduct,
   updateProduct,
   deleteProduct,
@@ -11,9 +9,7 @@ import {
   getAdminSession,
   getStoredSiteContent,
   saveStoredSiteContent,
-  uploadProductImage,
-  fetchProspects,
-  fetchMessages
+  uploadProductImage
 } from '../lib/supabase';
 import { translateText, translateArray } from '../lib/translateAPI';
 import { 
@@ -69,8 +65,7 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentTab, products, r
   useEffect(() => {
     const loadData = async () => {
       if (authenticated) {
-        setProspects(await fetchProspects());
-        setMessages(await fetchMessages());
+        
       }
     };
     loadData();
@@ -80,12 +75,12 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentTab, products, r
     const hash = window.location.hash.replace('#', '');
     const parts = hash.split('/');
     if (parts[0] === 'admin' && parts[1]) {
-      return parts[1] as 'prospects' | 'products' | 'content' | 'messages';
+      return parts[1] as 'products' | 'content';
     }
-    return 'prospects';
+    return 'products';
   };
 
-  const [activeTab, setActiveTabState] = useState<'prospects' | 'products' | 'content' | 'messages'>(getActiveTab());
+  const [activeTab, setActiveTabState] = useState<'products' | 'content'>(getActiveTab());
 
   useEffect(() => {
     const handleHashChange = () => {
@@ -96,13 +91,11 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentTab, products, r
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
 
-  const setActiveTab = (tab: 'prospects' | 'products' | 'content' | 'messages') => {
+  const setActiveTab = (tab: 'products' | 'content') => {
     window.location.hash = `admin/${tab}`;
     setIsMobileMenuOpen(false); // Close mobile menu if open
   };
 
-  const [prospects, setProspects] = useState<Prospect[]>(() => getLocalProspects());
-  const [messages, setMessages] = useState<ContactSubmission[]>(() => getLocalContactSubmissions());
   const [siteContent, setSiteContent] = useState<SiteContent>(() => getStoredSiteContent());
 
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
@@ -110,7 +103,6 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentTab, products, r
   const [isUploading, setIsUploading] = useState(false);
   const [isTranslating, setIsTranslating] = useState(false);
 
-  const [prospectSearch, setProspectSearch] = useState('');
   const [productSearch, setProductSearch] = useState('');
   const [productCategoryFilter, setProductCategoryFilter] = useState<'all' | 'industrial' | 'consumer' | 'coberturas' | 'galletas' | 'cocoa'>('all');
   const [productToDelete, setProductToDelete] = useState<Product | null>(null);
@@ -132,29 +124,6 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentTab, products, r
     setAuthenticated(false);
     setEmail('');
     setPassword('');
-  };
-
-  const handleExportCSV = () => {
-    if (prospects.length === 0) {
-      alert('No hay prospectos registrados aún.');
-      return;
-    }
-    const headers = ['Nombre', 'Correo', 'Empresa_Telefono', 'Estado', 'Fecha_Registro'];
-    const rows = prospects.map(p => [
-      `"${p.name}"`,
-      `"${p.email}"`,
-      `"${p.company_phone}"`,
-      `"${p.status}"`,
-      `"${p.created_at}"`
-    ]);
-    const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
-    const encodedUri = encodeURI(csvContent);
-    const link = document.createElement('a');
-    link.setAttribute('href', encodedUri);
-    link.setAttribute('download', `Prospectos_Gustaff_${new Date().toISOString().slice(0, 10)}.csv`);
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
   };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -232,18 +201,12 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentTab, products, r
   };
 
   const handleRefreshData = async () => {
-    setProspects(await fetchProspects());
-    setMessages(await fetchMessages());
+    
     refreshProducts();
     setSiteContent(getStoredSiteContent());
     showNotice();
   };
 
-  const filteredProspects = prospects.filter(p =>
-    p.name.toLowerCase().includes(prospectSearch.toLowerCase()) ||
-    p.email.toLowerCase().includes(prospectSearch.toLowerCase()) ||
-    p.company_phone.toLowerCase().includes(prospectSearch.toLowerCase())
-  );
 
   const filteredProducts = products.filter(p => {
     const matchesSearch = p.name.toLowerCase().includes(productSearch.toLowerCase()) ||
@@ -254,10 +217,8 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentTab, products, r
   });
 
   const tabs = [
-    { id: 'prospects', label: 'Prospectos / Leads', icon: Users, badge: prospects.length },
     { id: 'products', label: 'Gestión Catálogo', icon: Package, badge: products.length },
-    { id: 'content', label: 'Textos de Páginas', icon: FileText },
-    { id: 'messages', label: 'Mensajes Recibidos', icon: MessageSquare, badge: messages.length }
+    { id: 'content', label: 'Textos de Páginas', icon: FileText }
   ];
 
   if (isCheckingAuth) {
@@ -447,121 +408,6 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentTab, products, r
             <div className="mb-6 p-4 bg-emerald-50 border border-emerald-200 rounded-2xl shadow-sm flex items-center gap-3 animate-fadeIn">
               <CheckCircle className="w-5 h-5 text-emerald-500 shrink-0" />
               <span className="text-emerald-800 text-sm font-medium">Cambios guardados correctamente.</span>
-            </div>
-          )}
-
-          {/* TAB: PROSPECTS */}
-          {activeTab === 'prospects' && (
-            <div className="space-y-6 animate-fadeIn">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                  <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Registro de Prospectos</h2>
-                  <p className="text-sm text-slate-500 mt-1">Usuarios que han descargado fichas o solicitado información.</p>
-                </div>
-                <button
-                  onClick={handleExportCSV}
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-xl text-sm font-medium transition-colors shadow-sm"
-                >
-                  <Download className="w-4 h-4" />
-                  Exportar CSV
-                </button>
-              </div>
-
-              <div className="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                <div className="p-4 border-b border-slate-100 bg-slate-50/50">
-                  <div className="relative w-full sm:max-w-md">
-                    <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-3.5" />
-                    <input
-                      type="text"
-                      value={prospectSearch}
-                      onChange={(e) => setProspectSearch(e.target.value)}
-                      placeholder="Buscar prospectos..."
-                      className="w-full pl-10 pr-4 py-2.5 bg-white border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 shadow-sm"
-                    />
-                  </div>
-                </div>
-
-                {/* Mobile View: Cards */}
-                <div className="block sm:hidden divide-y divide-slate-100">
-                  {filteredProspects.length === 0 ? (
-                    <div className="p-8 text-center text-slate-500 text-sm bg-slate-50/50">
-                      No se encontraron resultados.
-                    </div>
-                  ) : (
-                    filteredProspects.map((p) => (
-                      <div key={p.id} className="p-4 bg-white space-y-3">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center font-bold text-sm shrink-0">
-                              {p.name.charAt(0).toUpperCase()}
-                            </div>
-                            <div>
-                              <h4 className="font-bold text-slate-900">{p.name}</h4>
-                              <p className="text-xs text-slate-500">{new Date(p.created_at).toLocaleDateString('es-EC')}</p>
-                            </div>
-                          </div>
-                          <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700 border border-emerald-200">
-                            Nuevo
-                          </span>
-                        </div>
-                        <div className="bg-slate-50 rounded-xl p-3 space-y-2 border border-slate-100">
-                           <div className="flex justify-between items-center text-sm">
-                             <span className="text-slate-500 text-xs font-semibold">Correo:</span>
-                             <span className="text-slate-800 text-xs truncate max-w-[180px]">{p.email}</span>
-                           </div>
-                           <div className="flex justify-between items-center text-sm">
-                             <span className="text-slate-500 text-xs font-semibold">Teléfono:</span>
-                             <span className="text-slate-800 text-xs">{p.company_phone || '-'}</span>
-                           </div>
-                        </div>
-                      </div>
-                    ))
-                  )}
-                </div>
-
-                {/* Desktop View: Table */}
-                <div className="hidden sm:block overflow-x-auto">
-                  <table className="w-full text-left text-sm text-slate-600">
-                    <thead className="bg-slate-50 text-slate-500 font-semibold uppercase text-[10px] tracking-wider border-b border-slate-200">
-                      <tr>
-                        <th className="px-6 py-4">Usuario</th>
-                        <th className="px-6 py-4">Contacto</th>
-                        <th className="px-6 py-4">Empresa / Tel</th>
-                        <th className="px-6 py-4">Fecha</th>
-                        <th className="px-6 py-4">Estado</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100 bg-white">
-                      {filteredProspects.length === 0 ? (
-                        <tr>
-                          <td colSpan={5} className="px-6 py-12 text-center text-slate-500 bg-slate-50/50">
-                            No se encontraron resultados.
-                          </td>
-                        </tr>
-                      ) : (
-                        filteredProspects.map((p) => (
-                          <tr key={p.id} className="hover:bg-slate-50 transition-colors">
-                            <td className="px-6 py-4 font-medium text-slate-900 flex items-center gap-3">
-                              <div className="w-8 h-8 rounded-full bg-amber-100 text-amber-700 flex items-center justify-center font-bold text-xs shrink-0">
-                                {p.name.charAt(0).toUpperCase()}
-                              </div>
-                              {p.name}
-                            </td>
-                            <td className="px-6 py-4 text-slate-500">{p.email}</td>
-                            <td className="px-6 py-4 text-slate-500">{p.company_phone || '-'}</td>
-                            <td className="px-6 py-4 text-slate-500 text-xs">{new Date(p.created_at).toLocaleDateString('es-EC')}</td>
-                            <td className="px-6 py-4">
-                              <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-700 border border-emerald-200">
-                                Nuevo Lead
-                              </span>
-                            </td>
-                          </tr>
-                        ))
-                      )}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
             </div>
           )}
 
@@ -947,61 +793,6 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentTab, products, r
             </div>
           )}
 
-          {/* TAB: MESSAGES */}
-          {activeTab === 'messages' && (
-            <div className="space-y-6 animate-fadeIn">
-              <div className="mb-6">
-                <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Bandeja de Mensajes</h2>
-                <p className="text-sm text-slate-500 mt-1">Consultas enviadas desde el formulario de contacto.</p>
-              </div>
-
-              {messages.length === 0 ? (
-                <div className="p-12 bg-white border border-slate-200 rounded-2xl text-center shadow-sm">
-                  <MessageSquare className="w-12 h-12 text-slate-300 mx-auto mb-3" />
-                  <p className="text-slate-500 font-medium">No hay mensajes en la bandeja de entrada.</p>
-                </div>
-              ) : (
-                <div className="space-y-4 max-w-4xl">
-                  {messages.map((msg) => (
-                    <div key={msg.id} className="bg-white border border-slate-200 rounded-2xl p-5 shadow-sm hover:shadow-md transition-shadow">
-                      <div className="flex flex-wrap items-center justify-between gap-4 mb-4 pb-4 border-b border-slate-100">
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-slate-100 text-slate-600 flex items-center justify-center font-bold">
-                            {msg.name.charAt(0).toUpperCase()}
-                          </div>
-                          <div>
-                            <h4 className="font-bold text-slate-900">{msg.name}</h4>
-                            <p className="text-xs text-slate-500 flex items-center gap-2">
-                              <a href={`mailto:${msg.email}`} className="hover:text-amber-600 transition-colors">{msg.email}</a>
-                              {msg.phone && (
-                                <>
-                                  <span className="text-slate-300">•</span>
-                                  <span>{msg.phone}</span>
-                                </>
-                              )}
-                            </p>
-                          </div>
-                        </div>
-                        <div className="text-right">
-                          <span className="text-xs font-medium text-slate-400 bg-slate-50 px-2.5 py-1 rounded-md border border-slate-100">
-                            {new Date(msg.created_at).toLocaleString('es-EC')}
-                          </span>
-                        </div>
-                      </div>
-                      
-                      <div>
-                        <h5 className="text-sm font-bold text-slate-800 mb-2">Asunto: {msg.subject}</h5>
-                        <p className="text-sm text-slate-600 whitespace-pre-wrap leading-relaxed bg-slate-50 p-4 rounded-xl border border-slate-100">
-                          {msg.message}
-                        </p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              )}
-            </div>
-          )}
-          
           </div>
         </div>
 
@@ -1024,7 +815,7 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentTab, products, r
                 <span className={`text-[10px] mt-0.5 font-medium truncate w-full text-center px-1 ${
                   isActive ? 'text-amber-700' : 'text-slate-500'
                 }`}>
-                  {t.id === 'prospects' ? 'Leads' : t.id === 'products' ? 'Catálogo' : t.id === 'content' ? 'Textos' : 'Buzón'}
+                  {t.id === 'products' ? 'Catálogo' : 'Textos'}
                 </span>
               </button>
             );

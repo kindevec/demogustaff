@@ -1,5 +1,5 @@
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
-import { User, Prospect, Product, ContactSubmission, TechnicalSheet, SiteContent } from '../types';
+import { User, Product, TechnicalSheet, SiteContent } from '../types';
 import { INITIAL_PRODUCTS, INITIAL_TECHNICAL_SHEETS, INITIAL_SITE_CONTENT } from '../data/initialData';
 
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL || '';
@@ -14,9 +14,7 @@ export const supabase: SupabaseClient | null = isSupabaseConfigured
 // Local Storage Keys for Fallback Mode
 const STORAGE_KEYS = {
   USER: 'gustaff_current_user',
-  PROSPECTS: 'gustaff_prospects_list',
   PRODUCTS: 'gustaff_products_list',
-  MESSAGES: 'gustaff_contact_messages',
   SITE_CONTENT: 'gustaff_site_content',
   COOKIES_ACCEPTED: 'gustaff_cookies_consent'
 };
@@ -55,133 +53,6 @@ export const getAdminSession = async () => {
   const { data, error } = await supabase.auth.getSession();
   if (error) return { session: null, error };
   return { session: data.session };
-};
-
-export const registerLead = async (data: {
-  name: string;
-  email: string;
-  company_phone: string;
-  password?: string;
-}): Promise<{ user: User; error: string | null }> => {
-  const newUser: User = {
-    id: `usr-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`,
-    email: data.email,
-    name: data.name,
-    company: data.company_phone,
-    phone: data.company_phone,
-    role: 'user',
-    created_at: new Date().toISOString()
-  };
-
-  const newProspect: Prospect = {
-    id: `prosp-${Date.now()}`,
-    name: data.name,
-    email: data.email,
-    company_phone: data.company_phone,
-    status: 'new',
-    created_at: new Date().toISOString(),
-    notes: 'Registrado desde formulario de captación de descargas'
-  };
-
-  // If Supabase is available, sync to Supabase
-  if (supabase) {
-    try {
-      const { error: sbError } = await supabase.from('prospects').insert([{
-        name: data.name,
-        email: data.email,
-        company_phone: data.company_phone,
-        status: 'new'
-      }]);
-      if (sbError) console.warn('Supabase sync notice:', sbError.message);
-    } catch (e) {
-      console.warn('Supabase request skipped:', e);
-    }
-  }
-
-  // Save to local storage list of prospects
-  const existingProspects: Prospect[] = getLocalProspects();
-  existingProspects.unshift(newProspect);
-  localStorage.setItem(STORAGE_KEYS.PROSPECTS, JSON.stringify(existingProspects));
-
-  // Set current user session
-  setLocalUser(newUser);
-
-  return { user: newUser, error: null };
-};
-
-export const getLocalProspects = (): Prospect[] => {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEYS.PROSPECTS);
-    if (!raw) return [];
-    return JSON.parse(raw);
-  } catch {
-    return [];
-  }
-};
-
-export const saveContactSubmission = async (data: {
-  name: string;
-  email: string;
-  subject: string;
-  message: string;
-}): Promise<{ success: boolean; error: string | null }> => {
-  const newMsg: ContactSubmission = {
-    id: `msg-${Date.now()}`,
-    name: data.name,
-    email: data.email,
-    subject: data.subject,
-    message: data.message,
-    created_at: new Date().toISOString(),
-    status: 'pending'
-  };
-
-  if (supabase) {
-    try {
-      await supabase.from('contact_submissions').insert([{
-        name: data.name,
-        email: data.email,
-        subject: data.subject,
-        message: data.message
-      }]);
-    } catch (e) {
-      console.warn('Supabase insert note:', e);
-    }
-  }
-
-  const existingMsgs: ContactSubmission[] = getLocalContactSubmissions();
-  existingMsgs.unshift(newMsg);
-  localStorage.setItem(STORAGE_KEYS.MESSAGES, JSON.stringify(existingMsgs));
-
-  return { success: true, error: null };
-};
-
-export const getLocalContactSubmissions = (): ContactSubmission[] => {
-  try {
-    const raw = localStorage.getItem(STORAGE_KEYS.MESSAGES);
-    return raw ? JSON.parse(raw) : [];
-  } catch {
-    return [];
-  }
-};
-
-export const fetchProspects = async (): Promise<Prospect[]> => {
-  if (!supabase) return getLocalProspects();
-  const { data, error } = await supabase.from('prospects').select('*').order('created_at', { ascending: false });
-  if (error) {
-    console.error('Error fetching prospects:', error);
-    return getLocalProspects();
-  }
-  return data || [];
-};
-
-export const fetchMessages = async (): Promise<ContactSubmission[]> => {
-  if (!supabase) return getLocalContactSubmissions();
-  const { data, error } = await supabase.from('contact_submissions').select('*').order('created_at', { ascending: false });
-  if (error) {
-    console.error('Error fetching messages:', error);
-    return getLocalContactSubmissions();
-  }
-  return data || [];
 };
 
 export const fetchProducts = async (): Promise<Product[]> => {

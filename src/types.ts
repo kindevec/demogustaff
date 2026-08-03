@@ -10,17 +10,6 @@ export interface User {
   created_at: string;
 }
 
-export interface Prospect {
-  id: string;
-  name: string;
-  email: string;
-  company_phone: string;
-  interest?: string;
-  status: 'new' | 'contacted' | 'qualified';
-  created_at: string;
-  notes?: string;
-}
-
 export interface Product {
   id: string;
   code: string;
@@ -75,17 +64,6 @@ export interface Recipe {
   instructions: string[];
   image: string;
   featured_product_name: string;
-}
-
-export interface ContactSubmission {
-  id: string;
-  name: string;
-  email: string;
-  subject: string;
-  message: string;
-  phone?: string;
-  created_at: string;
-  status: 'pending' | 'read' | 'replied';
 }
 
 export interface SiteContent {
