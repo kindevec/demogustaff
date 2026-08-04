@@ -233,11 +233,11 @@ export const ProductsView: React.FC<ProductsViewProps> = ({
                   : 'opacity-0 z-0 scale-105'
               }`}
             >
-              {/* Background Image — Full Edge-to-Edge */}
+              {/* Background Image — Full Edge-to-Edge with smooth zoom */}
               <img
                 src={s.image}
                 alt={s.titleLine1}
-                className="absolute inset-0 w-full h-full object-cover object-center"
+                className={`absolute inset-0 w-full h-full object-cover object-center ${idx === currentSlide ? 'animate-hero-zoom' : ''}`}
               />
 
               {/* Left Gradient Overlay */}

@@ -52,7 +52,10 @@ export default function App() {
   const refreshSiteContent = () => setSiteContent(getStoredSiteContent());
 
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [headerThemeColor, setHeaderThemeColor] = useState('');
+  const [headerThemeColor, setHeaderThemeColor] = useState<string>(() => {
+    const initialTab = getHashTab();
+    return initialTab === 'admin' ? '' : '#3A1B12';
+  });
 
   // Sync scroll top on view changes
   useEffect(() => {

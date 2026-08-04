@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Recipe, Language } from '../types';
 import { INITIAL_RECIPES } from '../data/initialData';
 import { TRANSLATIONS } from '../data/translations';
+import { AnimatedSection } from '../components/AnimatedSection';
 import { ChefHat, Clock, Users, BookOpen, Sparkles, CheckCircle2 } from 'lucide-react';
 
 interface RecipesViewProps {
@@ -27,12 +28,12 @@ export const RecipesView: React.FC<RecipesViewProps> = ({ lang, onThemeColorChan
       {/* =========================================================================
           1. HEADER BANNER — Edge-to-Edge ProductsView/AboutView Style
          ========================================================================= */}
-      <div className="relative overflow-hidden transition-colors duration-700 ease-in-out h-[520px] sm:h-[620px] lg:h-[700px] bg-[#3A1B12]">
-        {/* Background Image (Absolute Fill) */}
+      <div className="relative overflow-hidden transition-colors duration-700 ease-in-out h-[520px] sm:h-[620px] lg:h-[700px] bg-[#3A1B12] group">
+        {/* Background Image (Absolute Fill) with smooth page load zoom */}
         <img
           src="/images/bodegon/recetas.webp"
           alt="Recetas Gustaff S.A."
-          className="absolute inset-0 w-full h-full object-cover object-center z-0"
+          className="absolute inset-0 w-full h-full object-cover object-center z-0 animate-hero-zoom"
         />
         
         {/* Left Gradient Overlay — Exact ProductsView/AboutView Style */}
@@ -83,7 +84,7 @@ export const RecipesView: React.FC<RecipesViewProps> = ({ lang, onThemeColorChan
               <div
                 key={rec.id}
                 onClick={() => setSelectedRecipe(rec)}
-                className={`p-4 rounded-2xl border transition-all cursor-pointer flex gap-4 items-center text-left ${
+                className={`p-4 rounded-2xl border transition-all duration-300 transform hover:scale-[1.01] cursor-pointer flex gap-4 items-center text-left ${
                   selectedRecipe?.id === rec.id
                     ? 'bg-[#603813] text-white border-[#d4af37] shadow-md'
                     : 'bg-white border-[#e8dcc4] hover:bg-[#f3ece0] text-[#3d2516]'
@@ -121,58 +122,60 @@ export const RecipesView: React.FC<RecipesViewProps> = ({ lang, onThemeColorChan
 
         {/* Right Column: Selected Recipe Details */}
         {selectedRecipe && (
-          <div className="lg:col-span-7 bg-white rounded-3xl p-6 sm:p-8 border border-[#e8dcc4] shadow-sm space-y-6 text-left">
-            <div className="relative h-64 rounded-2xl overflow-hidden">
-              <img
-                src={selectedRecipe.image}
-                alt={selectedRecipe.title}
-                className="w-full h-full object-cover"
-              />
-              <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-md p-3 rounded-xl border border-[#e8dcc4] shadow-sm">
-                <span className="text-[10px] uppercase font-bold text-[#b05d2e]">{t.keyIngredient}</span>
-                <p className="text-xs font-bold text-[#3d2516]">{selectedRecipe.featured_product_name}</p>
+          <div className="lg:col-span-7">
+            <div className="bg-white rounded-3xl p-6 sm:p-8 border border-[#e8dcc4] shadow-sm space-y-6 text-left">
+              <div className="relative h-64 rounded-2xl overflow-hidden group">
+                <img
+                  src={selectedRecipe.image}
+                  alt={selectedRecipe.title}
+                  className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                />
+                <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-md p-3 rounded-xl border border-[#e8dcc4] shadow-sm">
+                  <span className="text-[10px] uppercase font-bold text-[#b05d2e]">{t.keyIngredient}</span>
+                  <p className="text-xs font-bold text-[#3d2516]">{selectedRecipe.featured_product_name}</p>
+                </div>
               </div>
-            </div>
 
-            <div>
-              <h2 className="font-serif font-bold text-2xl text-[#3d2516]">
-                {selectedRecipe.title}
-              </h2>
-              <p className="text-xs text-[#6d4c41] mt-1 leading-relaxed">
-                {selectedRecipe.description}
-              </p>
-            </div>
+              <div>
+                <h2 className="font-serif font-bold text-2xl text-[#3d2516]">
+                  {selectedRecipe.title}
+                </h2>
+                <p className="text-xs text-[#6d4c41] mt-1 leading-relaxed">
+                  {selectedRecipe.description}
+                </p>
+              </div>
 
-            {/* Ingredients */}
-            <div className="space-y-2">
-              <h4 className="font-bold text-xs uppercase text-[#b05d2e] tracking-wider">
-                {t.ingredientsRequired}
-              </h4>
-              <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-[#4a3224]">
-                {selectedRecipe.ingredients.map((ing, idx) => (
-                  <li key={idx} className="flex items-center gap-2 bg-[#fdfaf5] p-2.5 rounded-xl border border-[#e8dcc4]">
-                    <CheckCircle2 className="w-4 h-4 text-[#b05d2e] shrink-0" />
-                    <span>{ing}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
+              {/* Ingredients */}
+              <div className="space-y-2">
+                <h4 className="font-bold text-xs uppercase text-[#b05d2e] tracking-wider">
+                  {t.ingredientsRequired}
+                </h4>
+                <ul className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs text-[#4a3224]">
+                  {selectedRecipe.ingredients.map((ing, idx) => (
+                    <li key={idx} className="flex items-center gap-2 bg-[#fdfaf5] p-2.5 rounded-xl border border-[#e8dcc4]">
+                      <CheckCircle2 className="w-4 h-4 text-[#b05d2e] shrink-0" />
+                      <span>{ing}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
 
-            {/* Preparation Steps */}
-            <div className="space-y-2 pt-2 border-t border-[#e8dcc4]">
-              <h4 className="font-bold text-xs uppercase text-[#b05d2e] tracking-wider">
-                {t.stepByStep}
-              </h4>
-              <ol className="space-y-2 text-xs text-[#4a3224]">
-                {selectedRecipe.instructions.map((inst, idx) => (
-                  <li key={idx} className="flex items-start gap-3 bg-[#fdfaf5] p-3 rounded-xl border border-[#e8dcc4]">
-                    <span className="w-5 h-5 rounded-full bg-[#603813] text-white font-bold text-[11px] flex items-center justify-center shrink-0 mt-0.5">
-                      {idx + 1}
-                    </span>
-                    <span className="leading-relaxed">{inst}</span>
-                  </li>
-                ))}
-              </ol>
+              {/* Preparation Steps */}
+              <div className="space-y-2 pt-2 border-t border-[#e8dcc4]">
+                <h4 className="font-bold text-xs uppercase text-[#b05d2e] tracking-wider">
+                  {t.stepByStep}
+                </h4>
+                <ol className="space-y-2 text-xs text-[#4a3224]">
+                  {selectedRecipe.instructions.map((inst, idx) => (
+                    <li key={idx} className="flex items-start gap-3 bg-[#fdfaf5] p-3 rounded-xl border border-[#e8dcc4]">
+                      <span className="w-5 h-5 rounded-full bg-[#603813] text-white font-bold text-[11px] flex items-center justify-center shrink-0 mt-0.5">
+                        {idx + 1}
+                      </span>
+                      <span className="leading-relaxed">{inst}</span>
+                    </li>
+                  ))}
+                </ol>
+              </div>
             </div>
           </div>
         )}

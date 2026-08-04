@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { translateProduct } from '../lib/translateProduct';
 import { Product, Language } from '../types';
 import { TRANSLATIONS } from '../data/translations';
+import { AnimatedSection } from '../components/AnimatedSection';
 import { 
   Package, 
   Download, 
@@ -92,12 +93,12 @@ export const IndustrialView: React.FC<IndustrialViewProps> = ({
       {/* =========================================================================
           1. HEADER BANNER — Edge-to-Edge ProductsView/AboutView Style
          ========================================================================= */}
-      <div className="relative overflow-hidden transition-colors duration-700 ease-in-out h-[520px] sm:h-[620px] lg:h-[700px] bg-[#3A1B12]">
-        {/* Background Image (Absolute Fill) */}
+      <div className="relative overflow-hidden transition-colors duration-700 ease-in-out h-[520px] sm:h-[620px] lg:h-[700px] bg-[#3A1B12] group">
+        {/* Background Image (Absolute Fill) with smooth page load zoom */}
         <img
           src="/images/bodegon/Maquila.webp"
           alt="Maquila Industrial Gustaff S.A."
-          className="absolute inset-0 w-full h-full object-cover object-center z-0"
+          className="absolute inset-0 w-full h-full object-cover object-center z-0 animate-hero-zoom"
         />
         
         {/* Left Gradient Overlay — Exact ProductsView/AboutView Style */}
@@ -186,7 +187,7 @@ export const IndustrialView: React.FC<IndustrialViewProps> = ({
         {filteredProducts.map((p) => (
           <div
             key={p.id}
-            className="bg-white rounded-3xl border border-[#e8dcc4] hover:border-[#b05d2e] transition-all overflow-hidden flex flex-col justify-between shadow-sm hover:shadow-md group"
+            className="bg-white rounded-3xl border border-[#e8dcc4] hover:border-[#b05d2e] transition-all duration-300 transform hover:scale-[1.02] overflow-hidden flex flex-col justify-between shadow-sm hover:shadow-md group h-full"
           >
             {/* Product Image */}
             <div className="relative h-56 bg-[#fdf5e6] overflow-hidden">

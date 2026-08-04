@@ -78,17 +78,19 @@ export const Navbar: React.FC<NavbarProps> = ({
         {/* Brand Logo */}
         <button 
           onClick={() => handleNavClick('home')}
-          className="flex items-center group text-left cursor-pointer"
+          className="flex items-center shrink-0 group text-left cursor-pointer w-[140px] sm:w-[170px] h-[48px] justify-start overflow-visible"
         >
           <img 
             src="/images/bodegon/logo_gustaff_oficial.png" 
             alt="Gustaff S.A." 
+            width={180}
+            height={68}
             className="h-[68px] -my-[10px] w-auto object-contain scale-[1.4] lg:scale-100 origin-left group-hover:scale-[1.45] lg:group-hover:scale-105 transition-transform"
           />
         </button>
 
         {/* Desktop Nav Items */}
-        <nav className="hidden lg:flex items-center space-x-2">
+        <nav className="hidden lg:flex items-center space-x-2 shrink-0">
           {navItems.map((item) => (
             <button
               key={item.id}
@@ -110,7 +112,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         </nav>
 
         {/* Action Buttons: CMS Admin Button */}
-        <div className="hidden lg:flex items-center space-x-3">
+        <div className="hidden lg:flex items-center space-x-3 shrink-0">
           {/* CMS Admin Button */}
           <button
             onClick={onOpenAdmin}

@@ -8,9 +8,7 @@ import {
   Mail, 
   MessageCircle, 
   Send, 
-  CheckCircle2, 
-  Sparkles,
-  Building2
+  CheckCircle2
 } from 'lucide-react';
 import { FacebookIcon, InstagramIcon } from '../components/SocialIcons';
 
@@ -78,12 +76,12 @@ export const ContactView: React.FC<ContactViewProps> = ({ siteContent, lang, onT
       {/* =========================================================================
           1. HEADER BANNER — Edge-to-Edge ProductsView/AboutView Style
          ========================================================================= */}
-      <div className="relative overflow-hidden transition-colors duration-700 ease-in-out h-[520px] sm:h-[620px] lg:h-[700px] bg-[#3A1B12]">
-        {/* Background Image (Absolute Fill) */}
+      <div className="relative overflow-hidden transition-colors duration-700 ease-in-out h-[520px] sm:h-[620px] lg:h-[700px] bg-[#3A1B12] group">
+        {/* Background Image (Absolute Fill) with smooth page load zoom */}
         <img
           src="/images/bodegon/contactanos.webp"
           alt="Contáctanos Gustaff S.A."
-          className="absolute inset-0 w-full h-full object-cover object-center z-0"
+          className="absolute inset-0 w-full h-full object-cover object-center z-0 animate-hero-zoom"
         />
         
         {/* Left Gradient Overlay — Exact ProductsView/AboutView Style */}
@@ -124,95 +122,97 @@ export const ContactView: React.FC<ContactViewProps> = ({ siteContent, lang, onT
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
         {/* Contact Form Column */}
-        <div className="lg:col-span-7 bg-white rounded-3xl p-6 sm:p-8 border border-[#e8dcc4] shadow-sm space-y-6 text-left">
-          <h3 className="font-serif font-bold text-xl text-[#3d2516]">
-            {t.formTitle}
-          </h3>
+        <div className="lg:col-span-7">
+          <div className="bg-white rounded-3xl p-6 sm:p-8 border border-[#e8dcc4] shadow-sm space-y-6 text-left">
+            <h3 className="font-serif font-bold text-xl text-[#3d2516]">
+              {t.formTitle}
+            </h3>
 
-          {errorMsg && (
-            <div className="p-3.5 bg-red-50 border border-red-200 text-red-800 rounded-xl text-xs font-bold">
-              {errorMsg}
-            </div>
-          )}
+            {errorMsg && (
+              <div className="p-3.5 bg-red-50 border border-red-200 text-red-800 rounded-xl text-xs font-bold">
+                {errorMsg}
+              </div>
+            )}
 
-          {successMsg && (
-            <div className="p-4 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl text-xs font-bold flex items-center gap-2">
-              <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
-              <span>{successMsg}</span>
-            </div>
-          )}
+            {successMsg && (
+              <div className="p-4 bg-emerald-50 border border-emerald-200 text-emerald-800 rounded-xl text-xs font-bold flex items-center gap-2">
+                <CheckCircle2 className="w-5 h-5 text-emerald-600 shrink-0" />
+                <span>{successMsg}</span>
+              </div>
+            )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <div>
-              <label className="block text-xs font-bold text-[#3d2516] mb-1">
-                {t.name} *
-              </label>
-              <input
-                type="text"
-                required
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder={t.placeholderName}
-                className="w-full bg-[#fdfaf5] border border-[#e8dcc4] rounded-xl p-3 text-xs text-[#3d2516] placeholder-[#8d6e63] focus:outline-none focus:border-[#b05d2e]"
-              />
-            </div>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-[#3d2516] mb-1">
+                  {t.name} *
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder={t.placeholderName}
+                  className="w-full bg-[#fdfaf5] border border-[#e8dcc4] rounded-xl p-3 text-xs text-[#3d2516] placeholder-[#8d6e63] focus:outline-none focus:border-[#b05d2e]"
+                />
+              </div>
 
-            <div>
-              <label className="block text-xs font-bold text-[#3d2516] mb-1">
-                {t.email} *
-              </label>
-              <input
-                type="email"
-                required
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                placeholder={t.placeholderEmail}
-                className="w-full bg-[#fdfaf5] border border-[#e8dcc4] rounded-xl p-3 text-xs text-[#3d2516] placeholder-[#8d6e63] focus:outline-none focus:border-[#b05d2e]"
-              />
-            </div>
+              <div>
+                <label className="block text-xs font-bold text-[#3d2516] mb-1">
+                  {t.email} *
+                </label>
+                <input
+                  type="email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder={t.placeholderEmail}
+                  className="w-full bg-[#fdfaf5] border border-[#e8dcc4] rounded-xl p-3 text-xs text-[#3d2516] placeholder-[#8d6e63] focus:outline-none focus:border-[#b05d2e]"
+                />
+              </div>
 
-            <div>
-              <label className="block text-xs font-bold text-[#3d2516] mb-1">
-                {t.subject} *
-              </label>
-              <input
-                type="text"
-                required
-                value={subject}
-                onChange={(e) => setSubject(e.target.value)}
-                placeholder={t.placeholderSubject}
-                className="w-full bg-[#fdfaf5] border border-[#e8dcc4] rounded-xl p-3 text-xs text-[#3d2516] placeholder-[#8d6e63] focus:outline-none focus:border-[#b05d2e]"
-              />
-            </div>
+              <div>
+                <label className="block text-xs font-bold text-[#3d2516] mb-1">
+                  {t.subject} *
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={subject}
+                  onChange={(e) => setSubject(e.target.value)}
+                  placeholder={t.placeholderSubject}
+                  className="w-full bg-[#fdfaf5] border border-[#e8dcc4] rounded-xl p-3 text-xs text-[#3d2516] placeholder-[#8d6e63] focus:outline-none focus:border-[#b05d2e]"
+                />
+              </div>
 
-            <div>
-              <label className="block text-xs font-bold text-[#3d2516] mb-1">
-                {t.message} *
-              </label>
-              <textarea
-                rows={4}
-                required
-                value={message}
-                onChange={(e) => setMessage(e.target.value)}
-                placeholder={t.placeholderMessage}
-                className="w-full bg-[#fdfaf5] border border-[#e8dcc4] rounded-xl p-3 text-xs text-[#3d2516] placeholder-[#8d6e63] focus:outline-none focus:border-[#b05d2e] resize-none"
-              />
-            </div>
+              <div>
+                <label className="block text-xs font-bold text-[#3d2516] mb-1">
+                  {t.message} *
+                </label>
+                <textarea
+                  rows={4}
+                  required
+                  value={message}
+                  onChange={(e) => setMessage(e.target.value)}
+                  placeholder={t.placeholderMessage}
+                  className="w-full bg-[#fdfaf5] border border-[#e8dcc4] rounded-xl p-3 text-xs text-[#3d2516] placeholder-[#8d6e63] focus:outline-none focus:border-[#b05d2e] resize-none"
+                />
+              </div>
 
-            {/* Google reCAPTCHA Protection */}
-            <div className="pt-2">
-              <ReCaptchaWidget verified={captchaVerified} onVerify={setCaptchaVerified} lang={lang} />
-            </div>
+              {/* Google reCAPTCHA Protection */}
+              <div className="pt-2">
+                <ReCaptchaWidget verified={captchaVerified} onVerify={setCaptchaVerified} lang={lang} />
+              </div>
 
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full bg-[#603813] hover:bg-[#3d2516] text-[#fdfaf5] font-bold py-3.5 rounded-full text-xs uppercase tracking-widest flex items-center justify-center gap-2 shadow-md transition-all cursor-pointer"
-            >
-              <Send className="w-4 h-4 text-[#d4af37]" />
-              {isSubmitting ? t.sendingBtn : t.sendBtn}
-            </button>
-          </form>
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full bg-[#603813] hover:bg-[#3d2516] text-[#fdfaf5] font-bold py-3.5 rounded-full text-xs uppercase tracking-widest flex items-center justify-center gap-2 shadow-md transition-all cursor-pointer"
+              >
+                <Send className="w-4 h-4 text-[#d4af37]" />
+                {isSubmitting ? t.sendingBtn : t.sendBtn}
+              </button>
+            </form>
+          </div>
         </div>
 
         {/* Contact Information & Map Column */}

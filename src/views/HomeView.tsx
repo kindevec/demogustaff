@@ -180,11 +180,11 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 idx === currentSlide ? 'opacity-100 z-10 scale-100 pointer-events-auto' : 'opacity-0 z-0 scale-105 pointer-events-none'
               }`}
             >
-              {/* Full Background Image Container (Edge-to-Edge Coverage) */}
+              {/* Full Background Image Container (Edge-to-Edge Coverage with smooth zoom) */}
               <img
                 src={slide.image}
                 alt={slide.titleLine1}
-                className={`absolute inset-0 w-full h-full ${slide.objectFit} transition-transform duration-700`}
+                className={`absolute inset-0 w-full h-full ${slide.objectFit} transition-transform duration-700 ${idx === currentSlide ? 'animate-hero-zoom' : ''}`}
               />
 
               {/* Left Gradient Overlay — Dynamic per slide navColor */}

@@ -51,11 +51,11 @@ export const AboutView: React.FC<AboutViewProps> = ({ siteContent, lang, setCurr
           1. HEADER BANNER — Edge-to-Edge ProductsView Style
          ========================================================================= */}
       <div className="relative overflow-hidden transition-colors duration-700 ease-in-out h-[520px] sm:h-[620px] lg:h-[700px] bg-[#3A1B12]">
-        {/* Background Image (Absolute Fill) */}
+        {/* Background Image (Absolute Fill) with smooth page load zoom */}
         <img
           src="/images/bodegon/Conocenos.png"
           alt="Planta Industrial Gustaff S.A."
-          className="absolute inset-0 w-full h-full object-cover object-center z-0"
+          className="absolute inset-0 w-full h-full object-cover object-center z-0 animate-hero-zoom"
         />
         
         {/* Left Gradient Overlay — Exact ProductsView Style */}

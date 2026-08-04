@@ -31,6 +31,15 @@
   }
 }
 
+@keyframes heroZoomIn {
+  from {
+    transform: scale(1.15);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
 .animate-fade-in-up {
   animation: fadeInUp 0.75s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
@@ -41,6 +50,10 @@
 
 .animate-scale-up {
   animation: scaleUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.animate-hero-zoom {
+  animation: heroZoomIn 1.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
 .delay-100 {
