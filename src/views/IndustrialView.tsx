@@ -6,15 +6,11 @@ import { AnimatedSection } from '../components/AnimatedSection';
 import { 
   Package, 
   Download, 
-  MessageSquare, 
   Search, 
   Filter, 
   Check, 
-  Sparkles, 
   Lock, 
   FileText, 
-  ArrowRight,
-  ChevronRight,
   Send
 } from 'lucide-react';
 
@@ -26,7 +22,7 @@ interface IndustrialViewProps {
   onThemeColorChange?: (color: string) => void;
 }
 
-export const IndustrialView: React.FC<IndustrialViewProps> = ({
+export const IndustrialView: React.FC<IndustrialViewProps> = React.memo(({
   products,
   lang,
   onSelectProduct,
@@ -34,7 +30,9 @@ export const IndustrialView: React.FC<IndustrialViewProps> = ({
   onThemeColorChange
 }) => {
   const t = TRANSLATIONS[lang].industrialPage;
-  const industrialProds = products.map(p => translateProduct(p, lang)).filter(p => p.category === 'industrial' || p.category === 'coberturas' || p.category === 'galletas' || p.category === 'cocoa');
+  const industrialProds = React.useMemo(() => {
+    return products.map(p => translateProduct(p, lang)).filter(p => p.category === 'industrial' || p.category === 'coberturas' || p.category === 'galletas' || p.category === 'cocoa');
+  }, [products, lang]);
 
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedPackaging, setSelectedPackaging] = useState<string>('all');
@@ -62,30 +60,32 @@ export const IndustrialView: React.FC<IndustrialViewProps> = ({
   };
 
   // Filtering
-  const filteredProducts = (industrialProds || []).filter(p => {
-    if (!p) return false;
+  const filteredProducts = React.useMemo(() => {
+    return (industrialProds || []).filter(p => {
+      if (!p) return false;
 
-    const query = normalizeString(searchTerm);
-    const pName = normalizeString(p.name);
-    const pCode = normalizeString(p.code);
-    const pPkg = normalizeString(p.package_size);
-    const pDesc = normalizeString(p.description);
+      const query = normalizeString(searchTerm);
+      const pName = normalizeString(p.name);
+      const pCode = normalizeString(p.code);
+      const pPkg = normalizeString(p.package_size);
+      const pDesc = normalizeString(p.description);
 
-    const matchesSearch = query === '' ||
-                          pName.includes(query) ||
-                          pCode.includes(query) ||
-                          pPkg.includes(query) ||
-                          pDesc.includes(query);
-    
-    if (selectedPackaging === 'all') return matchesSearch;
-    let pkgKeyword = normalizeString(selectedPackaging);
-    if (lang === 'en') {
-      if (pkgKeyword === 'sacos') pkgKeyword = 'bags';
-      if (pkgKeyword === 'cajas') pkgKeyword = 'boxes';
-      if (pkgKeyword === 'pomas') pkgKeyword = 'pails';
-    }
-    return matchesSearch && pPkg.includes(pkgKeyword);
-  });
+      const matchesSearch = query === '' ||
+                            pName.includes(query) ||
+                            pCode.includes(query) ||
+                            pPkg.includes(query) ||
+                            pDesc.includes(query);
+      
+      if (selectedPackaging === 'all') return matchesSearch;
+      let pkgKeyword = normalizeString(selectedPackaging);
+      if (lang === 'en') {
+        if (pkgKeyword === 'sacos') pkgKeyword = 'bags';
+        if (pkgKeyword === 'cajas') pkgKeyword = 'boxes';
+        if (pkgKeyword === 'pomas') pkgKeyword = 'pails';
+      }
+      return matchesSearch && pPkg.includes(pkgKeyword);
+    });
+  }, [industrialProds, searchTerm, selectedPackaging, lang]);
 
   return (
     <div className="text-white font-sans selection:bg-[#b05d2e] selection:text-white space-y-12 pb-16">
@@ -195,6 +195,8 @@ export const IndustrialView: React.FC<IndustrialViewProps> = ({
                 src={p.image}
                 alt={p.name}
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                loading="lazy"
+                decoding="async"
               />
               <div className="absolute bottom-3 right-3 bg-[#b05d2e] text-white text-[11px] font-bold px-3 py-1 rounded-full shadow">
                 {p.package_size}
@@ -316,4 +318,4 @@ export const IndustrialView: React.FC<IndustrialViewProps> = ({
       </div>
     </div>
   );
-};
+});

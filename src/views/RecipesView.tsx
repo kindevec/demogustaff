@@ -3,14 +3,14 @@ import { Recipe, Language } from '../types';
 import { INITIAL_RECIPES } from '../data/initialData';
 import { TRANSLATIONS } from '../data/translations';
 import { AnimatedSection } from '../components/AnimatedSection';
-import { ChefHat, Clock, Users, BookOpen, Sparkles, CheckCircle2 } from 'lucide-react';
+import { ChefHat, Clock, Users, CheckCircle2 } from 'lucide-react';
 
 interface RecipesViewProps {
   lang: Language;
   onThemeColorChange?: (color: string) => void;
 }
 
-export const RecipesView: React.FC<RecipesViewProps> = ({ lang, onThemeColorChange }) => {
+export const RecipesView: React.FC<RecipesViewProps> = React.memo(({ lang, onThemeColorChange }) => {
   const t = TRANSLATIONS[lang].recipesPage;
   const [selectedRecipe, setSelectedRecipe] = useState<Recipe | null>(INITIAL_RECIPES[0]);
 
@@ -94,6 +94,8 @@ export const RecipesView: React.FC<RecipesViewProps> = ({ lang, onThemeColorChan
                   src={rec.image}
                   alt={rec.title}
                   className="w-20 h-20 object-cover rounded-xl shrink-0"
+                  loading="lazy"
+                  decoding="async"
                 />
                 <div>
                   <span className={`text-[10px] font-bold px-2 py-0.5 rounded ${
@@ -129,6 +131,8 @@ export const RecipesView: React.FC<RecipesViewProps> = ({ lang, onThemeColorChan
                   src={selectedRecipe.image}
                   alt={selectedRecipe.title}
                   className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
+                  loading="lazy"
+                  decoding="async"
                 />
                 <div className="absolute bottom-4 left-4 bg-white/90 backdrop-blur-md p-3 rounded-xl border border-[#e8dcc4] shadow-sm">
                   <span className="text-[10px] uppercase font-bold text-[#b05d2e]">{t.keyIngredient}</span>
@@ -183,4 +187,4 @@ export const RecipesView: React.FC<RecipesViewProps> = ({ lang, onThemeColorChan
       </div>
     </div>
   );
-};
+});

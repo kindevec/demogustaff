@@ -4,19 +4,14 @@ import { TRANSLATIONS } from '../data/translations';
 import { AnimatedSection } from '../components/AnimatedSection';
 import { 
   Building2, 
-  History, 
   Target, 
   Eye, 
   ShieldCheck, 
   Award, 
-  CheckCircle2, 
   Sparkles,
-  MapPin,
   Calendar,
-  Users,
   ArrowRight,
-  X,
-  FileText
+  X
 } from 'lucide-react';
 
 interface AboutViewProps {
@@ -26,7 +21,7 @@ interface AboutViewProps {
   onThemeColorChange?: (color: string) => void;
 }
 
-export const AboutView: React.FC<AboutViewProps> = ({ siteContent, lang, setCurrentTab, onThemeColorChange }) => {
+export const AboutView: React.FC<AboutViewProps> = React.memo(({ siteContent, lang, setCurrentTab, onThemeColorChange }) => {
   const t = TRANSLATIONS[lang].aboutPage;
 
   // Sync header theme color to parent (Navbar)
@@ -118,6 +113,8 @@ export const AboutView: React.FC<AboutViewProps> = ({ siteContent, lang, setCurr
                 src="/images/bodegon/rapichoc_chocobanano_variedad_sabores.jpg"
                 alt="Historia Gustaff S.A."
                 className="w-full h-[440px] object-cover"
+                loading="lazy"
+                decoding="async"
               />
             </div>
 
@@ -220,6 +217,8 @@ export const AboutView: React.FC<AboutViewProps> = ({ siteContent, lang, setCurr
               src="/images/bodegon/Conocenos.png"
               alt="Planta Industrial Gustaff S.A."
               className="absolute inset-0 w-full h-full object-cover object-center z-0"
+              loading="lazy"
+              decoding="async"
             />
 
             {/* Dark Overlay for Text Readability */}
@@ -422,4 +421,4 @@ export const AboutView: React.FC<AboutViewProps> = ({ siteContent, lang, setCurr
       </div>
     </div>
   );
-};
+});

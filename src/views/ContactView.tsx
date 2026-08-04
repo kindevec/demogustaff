@@ -18,7 +18,7 @@ interface ContactViewProps {
   onThemeColorChange?: (color: string) => void;
 }
 
-export const ContactView: React.FC<ContactViewProps> = ({ siteContent, lang, onThemeColorChange }) => {
+export const ContactView: React.FC<ContactViewProps> = React.memo(({ siteContent, lang, onThemeColorChange }) => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [subject, setSubject] = useState('');
@@ -290,7 +290,7 @@ export const ContactView: React.FC<ContactViewProps> = ({ siteContent, lang, onT
           {/* Interactive Map Visual */}
           <div className="bg-white rounded-3xl p-4 border border-[#e8dcc4] shadow-sm text-center space-y-2">
             <div className="bg-[#fdf5e6] h-44 rounded-2xl border border-[#e8dcc4] relative overflow-hidden flex flex-col items-center justify-center p-4">
-              <MapPin className="w-8 h-8 text-[#b05d2e] animate-bounce mb-1" />
+              <MapPin className="w-8 h-8 text-[#b05d2e] animate-bounce mb-1" style={{ animationIterationCount: 3 }} />
               <p className="font-serif font-bold text-sm text-[#3d2516]">{t.cityCountry}</p>
               <p className="text-[11px] text-[#6d4c41]">{t.plantSublocation}</p>
             </div>
@@ -300,4 +300,4 @@ export const ContactView: React.FC<ContactViewProps> = ({ siteContent, lang, onT
       </div>
     </div>
   );
-};
+});

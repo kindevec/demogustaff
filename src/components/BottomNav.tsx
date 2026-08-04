@@ -9,14 +9,14 @@ interface BottomNavProps {
   lang: Language;
 }
 
-export const BottomNav: React.FC<BottomNavProps> = ({
+export const BottomNav: React.FC<BottomNavProps> = React.memo(({
   currentTab,
   setCurrentTab,
   lang
 }) => {
   const t = TRANSLATIONS[lang].nav;
 
-  const items = [
+  const items = React.useMemo(() => [
     {
       id: 'home',
       label: t.home,
@@ -47,7 +47,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({
       label: t.contact,
       icon: Mail
     }
-  ];
+  ], [t]);
 
   const handleTabClick = (id: string) => {
     setCurrentTab(id);
@@ -55,7 +55,7 @@ export const BottomNav: React.FC<BottomNavProps> = ({
   };
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-white/95 backdrop-blur-md border-t border-[#e8dcc4] lg:hidden shadow-[0_-4px_16px_rgba(61,37,22,0.08)] px-2 py-1.5 flex items-center justify-around">
+    <nav className="fixed bottom-0 left-0 right-0 z-40 bg-[#fdfaf5] border-t border-[#e8dcc4] lg:hidden shadow-[0_-4px_16px_rgba(61,37,22,0.08)] px-2 py-1.5 flex items-center justify-around">
       {items.map((item) => {
         const Icon = item.icon;
         const isActive = currentTab === item.id;
@@ -85,4 +85,4 @@ export const BottomNav: React.FC<BottomNavProps> = ({
       })}
     </nav>
   );
-};
+});

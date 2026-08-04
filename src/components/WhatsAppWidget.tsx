@@ -8,7 +8,7 @@ interface WhatsAppWidgetProps {
   lang?: Language;
 }
 
-export const WhatsAppWidget: React.FC<WhatsAppWidgetProps> = ({ lang = 'es' }) => {
+export const WhatsAppWidget: React.FC<WhatsAppWidgetProps> = React.memo(({ lang = 'es' }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [userMsg, setUserMsg] = useState('');
   const t = TRANSLATIONS[lang].whatsappWidget;
@@ -94,4 +94,4 @@ export const WhatsAppWidget: React.FC<WhatsAppWidgetProps> = ({ lang = 'es' }) =
       </button>
     </div>
   );
-};
+});

@@ -91,7 +91,13 @@ const CATEGORY_SLIDES = [
   }
 ];
 
-export const ProductsView: React.FC<ProductsViewProps> = ({
+// Helper for safe, accent-insensitive search normalization
+const normalizeString = (str?: string | null): string => {
+  if (!str) return '';
+  return str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+};
+
+export const ProductsView: React.FC<ProductsViewProps> = React.memo(({
   products,
   lang,
   onSelectProduct,
@@ -135,61 +141,57 @@ export const ProductsView: React.FC<ProductsViewProps> = ({
     setSelectedFilter(slide.id);
   };
 
-  // Helper for safe, accent-insensitive search normalization
-  const normalizeString = (str?: string | null): string => {
-    if (!str) return '';
-    return str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
-  };
-
   // Filter products
-  const filteredProducts = (products || []).filter(p => {
-    if (!p) return false;
+  const filteredProducts = React.useMemo(() => {
+    return (products || []).filter(p => {
+      if (!p) return false;
 
-    const query = normalizeString(searchTerm);
-    const pName = normalizeString(p.name);
-    const pCode = normalizeString(p.code);
-    const pDesc = normalizeString(p.description);
-    const pPkg = normalizeString(p.package_size);
-    const pCat = normalizeString(p.category);
+      const query = normalizeString(searchTerm);
+      const pName = normalizeString(p.name);
+      const pCode = normalizeString(p.code);
+      const pDesc = normalizeString(p.description);
+      const pPkg = normalizeString(p.package_size);
+      const pCat = normalizeString(p.category);
 
-    const matchesSearch = query === '' ||
-      pName.includes(query) ||
-      pCode.includes(query) ||
-      pDesc.includes(query) ||
-      pPkg.includes(query) ||
-      pCat.includes(query);
+      const matchesSearch = query === '' ||
+        pName.includes(query) ||
+        pCode.includes(query) ||
+        pDesc.includes(query) ||
+        pPkg.includes(query) ||
+        pCat.includes(query);
 
-    if (!matchesSearch) return false;
+      if (!matchesSearch) return false;
 
-    if (selectedFilter === 'all') return true;
-    if (selectedFilter === 'coberturas') {
-      return p.category === 'coberturas' ||
-        (p.category === 'industrial' && (
-          pName.includes('cobertura') ||
-          pName.includes('gota') ||
-          pName.includes('boton') ||
-          pName.includes('palillo') ||
-          pName.includes('mini milk')
-        ));
-    }
-    if (selectedFilter === 'cocoa') {
-      return p.category === 'cocoa' ||
-        (p.category === 'industrial' && (
-          pName.includes('cocoa') ||
-          pName.includes('cacao') ||
-          pName.includes('azucar') ||
-          pName.includes('sirope')
-        ));
-    }
-    if (selectedFilter === 'galletas') {
-      return p.category === 'galletas' ||
-        (p.category === 'industrial' && (
-          pName.includes('galleta') ||
-          pName.includes('kibledd')
-        ));
-    }
-    return p.category === selectedFilter;
-  });
+      if (selectedFilter === 'all') return true;
+      if (selectedFilter === 'coberturas') {
+        return p.category === 'coberturas' ||
+          (p.category === 'industrial' && (
+            pName.includes('cobertura') ||
+            pName.includes('gota') ||
+            pName.includes('boton') ||
+            pName.includes('palillo') ||
+            pName.includes('mini milk')
+          ));
+      }
+      if (selectedFilter === 'cocoa') {
+        return p.category === 'cocoa' ||
+          (p.category === 'industrial' && (
+            pName.includes('cocoa') ||
+            pName.includes('cacao') ||
+            pName.includes('azucar') ||
+            pName.includes('sirope')
+          ));
+      }
+      if (selectedFilter === 'galletas') {
+        return p.category === 'galletas' ||
+          (p.category === 'industrial' && (
+            pName.includes('galleta') ||
+            pName.includes('kibledd')
+          ));
+      }
+      return p.category === selectedFilter;
+    });
+  }, [products, searchTerm, selectedFilter]);
 
   const filterTabs = [
     { id: 'all', label: 'Todos', icon: Package },
@@ -409,6 +411,8 @@ export const ProductsView: React.FC<ProductsViewProps> = ({
                     src={p.image}
                     alt={p.name}
                     className="absolute inset-0 h-full w-full object-cover transition-transform duration-500 ease-in-out group-hover:scale-110"
+                    loading="lazy"
+                    decoding="async"
                   />
 
                   {/* Gradient Overlay for Text Readability */}
@@ -491,4 +495,4 @@ export const ProductsView: React.FC<ProductsViewProps> = ({
       </div>
     </div>
   );
-};
+});

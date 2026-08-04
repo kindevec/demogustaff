@@ -14,8 +14,7 @@ import {
   ArrowRight, 
   ShieldCheck,
   Star,
-  Heart,
-  Download
+  Heart
 } from 'lucide-react';
 
 interface HomeViewProps {
@@ -27,7 +26,7 @@ interface HomeViewProps {
   onThemeColorChange?: (color: string) => void;
 }
 
-export const HomeView: React.FC<HomeViewProps> = ({
+export const HomeView: React.FC<HomeViewProps> = React.memo(({
   setCurrentTab,
   lang,
   products,
@@ -44,7 +43,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
   const [isPaused, setIsPaused] = useState(false);
 
   // Intelligent Slides Color & Edge-to-Edge WebP Banners Config
-  const slides = [
+  const slides = React.useMemo(() => [
     {
       id: 1,
       tagline: hp.slide1Tagline,
@@ -129,7 +128,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
       primaryBtnText: hp.slide4Btn,
       primaryTab: "industrial"
     }
-  ];
+  ], [hp, lang, siteContent.home_headline, t.cmsFallback.home_headline, t.hero.btnCatalog]);
 
   // Sync theme color to parent (Navbar)
   useEffect(() => {
@@ -185,6 +184,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 src={slide.image}
                 alt={slide.titleLine1}
                 className={`absolute inset-0 w-full h-full ${slide.objectFit} transition-transform duration-700 ${idx === currentSlide ? 'animate-hero-zoom' : ''}`}
+                fetchPriority={idx === 0 ? "high" : undefined}
+                loading={idx === 0 ? undefined : "lazy"}
               />
 
               {/* Left Gradient Overlay — Dynamic per slide navColor */}
@@ -381,6 +382,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
                   src={prod.image}
                   alt={prod.name}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                  loading="lazy"
+                  decoding="async"
                 />
                 
                 {/* Floating Heart / Detail Icon */}
@@ -454,6 +457,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 src="/images/bodegon/rapichoc_chocobanano_variedad_sabores.jpg"
                 alt="Nuestra Fábrica Gustaff"
                 className="w-full h-[420px] object-cover"
+                loading="lazy"
+                decoding="async"
               />
             </div>
 
@@ -553,6 +558,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 src="/images/bodegon/crema_avellanas_con_chocolate_frasco.png"
                 alt="Maquila Industrial Gustaff"
                 className="w-full h-[420px] object-cover"
+                loading="lazy"
+                decoding="async"
               />
             </div>
 
@@ -600,4 +607,4 @@ export const HomeView: React.FC<HomeViewProps> = ({
 
     </div>
   );
-};
+});

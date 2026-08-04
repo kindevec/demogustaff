@@ -2,8 +2,6 @@ import React, { useState } from 'react';
 import { Language } from '../types';
 import { TRANSLATIONS } from '../data/translations';
 import { 
-  Lock, 
-  Globe, 
   Menu, 
   X, 
   Settings, 
@@ -20,7 +18,7 @@ interface NavbarProps {
   themeColor?: string;
 }
 
-export const Navbar: React.FC<NavbarProps> = ({
+export const Navbar: React.FC<NavbarProps> = React.memo(({
   currentTab,
   setCurrentTab,
   lang,
@@ -30,14 +28,14 @@ export const Navbar: React.FC<NavbarProps> = ({
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const t = TRANSLATIONS[lang].nav;
 
-  const navItems = [
+  const navItems = React.useMemo(() => [
     { id: 'home', label: t.home },
     { id: 'about', label: t.about },
     { id: 'products', label: t.products },
     { id: 'industrial', label: t.industrial, badge: t.productionBadge },
     { id: 'recipes', label: t.recipes },
     { id: 'contact', label: t.contact }
-  ];
+  ], [t]);
 
   const handleNavClick = (id: string) => {
     setCurrentTab(id);
@@ -185,4 +183,4 @@ export const Navbar: React.FC<NavbarProps> = ({
       )}
     </header>
   );
-};
+});

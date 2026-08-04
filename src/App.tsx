@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, Suspense, lazy } from 'react';
 import { Language, Product, SiteContent } from './types';
 import { fetchProducts, getStoredSiteContent } from './lib/supabase';
 import { Navbar } from './components/Navbar';
@@ -8,48 +8,53 @@ import { WhatsAppWidget } from './components/WhatsAppWidget';
 import { CookieBanner } from './components/CookieBanner';
 import { ProductDetailModal } from './components/ProductDetailModal';
 
+/* User-facing views — static imports for instant tab switching */
 import { HomeView } from './views/HomeView';
 import { AboutView } from './views/AboutView';
 import { ProductsView } from './views/ProductsView';
 import { IndustrialView } from './views/IndustrialView';
 import { RecipesView } from './views/RecipesView';
 import { ContactView } from './views/ContactView';
-import { AdminView } from './views/AdminView';
+
+/* Admin panel — lazy loaded (regular users never access it) */
+const AdminView = lazy(() => import('./views/AdminView').then(m => ({ default: m.AdminView })));
+
+const getHashTab = () => {
+  const hash = window.location.hash.replace('#', '');
+  return hash.split('/')[0] || 'home';
+};
 
 export default function App() {
-  const getHashTab = () => {
-    const hash = window.location.hash.replace('#', '');
-    return hash.split('/')[0] || 'home';
-  };
-
   const [currentTab, setCurrentTabState] = useState<string>(getHashTab());
 
   useEffect(() => {
     const handleHashChange = () => {
       setCurrentTabState(getHashTab());
-      window.scrollTo(0, 0); // Reset scroll to top on tab change
+      window.scrollTo(0, 0);
     };
     window.addEventListener('hashchange', handleHashChange);
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
 
-  const setCurrentTab = (tab: string) => {
+  const setCurrentTab = useCallback((tab: string) => {
     window.location.hash = tab;
-  };
+  }, []);
+
   const lang: Language = 'es';
 
   const [products, setProducts] = useState<Product[]>([]);
 
-  const loadProducts = async () => {
+  const loadProducts = useCallback(async () => {
     const data = await fetchProducts();
     setProducts(data);
-  };
+  }, []);
 
   useEffect(() => {
     loadProducts();
-  }, []);
+  }, [loadProducts]);
+
   const [siteContent, setSiteContent] = useState<SiteContent>(() => getStoredSiteContent());
-  const refreshSiteContent = () => setSiteContent(getStoredSiteContent());
+  const refreshSiteContent = useCallback(() => setSiteContent(getStoredSiteContent()), []);
 
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
   const [headerThemeColor, setHeaderThemeColor] = useState<string>(() => {
@@ -57,14 +62,12 @@ export default function App() {
     return initialTab === 'admin' ? '' : '#3A1B12';
   });
 
-  // Sync scroll top on view changes
-  useEffect(() => {
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  }, [currentTab]);
-
-  const handleRequestQuote = (product: Product) => {
+  const handleSelectProduct = useCallback((p: Product) => setSelectedProduct(p), []);
+  const handleCloseProduct = useCallback(() => setSelectedProduct(null), []);
+  const handleOpenAdmin = useCallback(() => setCurrentTab('admin'), [setCurrentTab]);
+  const handleRequestQuote = useCallback(() => {
     setCurrentTab('industrial');
-  };
+  }, [setCurrentTab]);
 
   return (
     <div className="min-h-screen bg-[#fdfaf5] text-[#4a3224] font-sans selection:bg-[#b05d2e] selection:text-white flex flex-col justify-between">
@@ -74,7 +77,7 @@ export default function App() {
           currentTab={currentTab}
           setCurrentTab={setCurrentTab}
           lang={lang}
-          onOpenAdmin={() => setCurrentTab('admin')}
+          onOpenAdmin={handleOpenAdmin}
           themeColor={headerThemeColor}
         />
       )}
@@ -87,7 +90,7 @@ export default function App() {
             lang={lang}
             products={products}
             siteContent={siteContent}
-            onSelectProduct={(p) => setSelectedProduct(p)}
+            onSelectProduct={handleSelectProduct}
             onThemeColorChange={setHeaderThemeColor}
           />
         )}
@@ -105,8 +108,8 @@ export default function App() {
           <ProductsView
             products={products}
             lang={lang}
-            onSelectProduct={(p) => setSelectedProduct(p)}
-            onOpenAuth={() => setCurrentTab('admin')}
+            onSelectProduct={handleSelectProduct}
+            onOpenAuth={handleOpenAdmin}
             onThemeColorChange={setHeaderThemeColor}
           />
         )}
@@ -115,8 +118,8 @@ export default function App() {
           <IndustrialView
             products={products}
             lang={lang}
-            onSelectProduct={(p) => setSelectedProduct(p)}
-            onOpenAuth={() => setCurrentTab('admin')}
+            onSelectProduct={handleSelectProduct}
+            onOpenAuth={handleOpenAdmin}
             onThemeColorChange={setHeaderThemeColor}
           />
         )}
@@ -130,7 +133,9 @@ export default function App() {
         )}
 
         {currentTab === 'admin' && (
-          <AdminView setCurrentTab={setCurrentTab} lang={lang} refreshProducts={loadProducts} products={products} refreshSiteContent={refreshSiteContent} />
+          <Suspense fallback={<div className="min-h-[60vh] bg-[#fdfaf5]" />}>
+            <AdminView setCurrentTab={setCurrentTab} lang={lang} refreshProducts={loadProducts} products={products} refreshSiteContent={refreshSiteContent} />
+          </Suspense>
         )}
       </main>
 
@@ -159,7 +164,7 @@ export default function App() {
       {/* Product Detail / Technical Sheet Drawer */}
       <ProductDetailModal
         product={selectedProduct}
-        onClose={() => setSelectedProduct(null)}
+        onClose={handleCloseProduct}
         onRequestQuote={handleRequestQuote}
         lang={lang}
       />

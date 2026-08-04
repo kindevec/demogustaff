@@ -9,7 +9,6 @@ import {
   Award, 
   ChevronRight,
   Sparkles,
-  Lock,
   Clock,
   PhoneCall,
   Truck
@@ -21,7 +20,7 @@ interface FooterProps {
   lang: Language;
 }
 
-export const Footer: React.FC<FooterProps> = ({ setCurrentTab, lang }) => {
+export const Footer: React.FC<FooterProps> = React.memo(({ setCurrentTab, lang }) => {
   const t = TRANSLATIONS[lang].footer;
 
   return (
@@ -241,4 +240,4 @@ export const Footer: React.FC<FooterProps> = ({ setCurrentTab, lang }) => {
       </div>
     </footer>
   );
-};
+});

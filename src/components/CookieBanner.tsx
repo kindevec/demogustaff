@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Shield, Check, Settings, X, Cookie } from 'lucide-react';
+import { Check, Settings, Cookie } from 'lucide-react';
 import { Language } from '../types';
 import { TRANSLATIONS } from '../data/translations';
 
@@ -8,18 +8,15 @@ interface CookieBannerProps {
 }
 
 export const CookieBanner: React.FC<CookieBannerProps> = ({ lang = 'es' }) => {
-  const [visible, setVisible] = useState(false);
+  if (typeof window !== 'undefined' && localStorage.getItem('gustaff_cookies_consent')) {
+    return null;
+  }
+
+  const [visible, setVisible] = useState(true);
   const [showSettings, setShowSettings] = useState(false);
   const [analytical, setAnalytical] = useState(true);
   const [marketing, setMarketing] = useState(true);
   const t = TRANSLATIONS[lang].cookieBanner;
-
-  useEffect(() => {
-    const consent = localStorage.getItem('gustaff_cookies_consent');
-    if (!consent) {
-      setVisible(true);
-    }
-  }, []);
 
   const handleAcceptAll = () => {
     localStorage.setItem('gustaff_cookies_consent', JSON.stringify({

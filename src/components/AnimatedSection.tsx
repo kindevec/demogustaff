@@ -64,7 +64,7 @@ export const AnimatedSection: React.FC<AnimatedSectionProps> = ({
     <div
       ref={ref}
       style={{ transitionDelay: `${delay}ms` }}
-      className={`transition-all duration-500 ease-out transform ${getInitialClass()} ${className}`}
+      className={`transition-[opacity,transform] duration-500 ease-out transform ${getInitialClass()} ${className}`}
     >
       {children}
     </div>
