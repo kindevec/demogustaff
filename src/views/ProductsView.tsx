@@ -135,17 +135,60 @@ export const ProductsView: React.FC<ProductsViewProps> = ({
     setSelectedFilter(slide.id);
   };
 
-  // Filter products
-  const filteredProducts = products.filter(p => {
-    const matchesSearch = searchTerm === '' ||
-      p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      p.code.toLowerCase().includes(searchTerm.toLowerCase());
+  // Helper for safe, accent-insensitive search normalization
+  const normalizeString = (str?: string | null): string => {
+    if (!str) return '';
+    return str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  };
 
-    if (selectedFilter === 'all') return matchesSearch;
-    if (selectedFilter === 'coberturas') return matchesSearch && (p.category === 'coberturas' || (p.category === 'industrial' && (p.name.toLowerCase().includes('cobertura') || p.name.toLowerCase().includes('gota') || p.name.toLowerCase().includes('botón') || p.name.toLowerCase().includes('boton') || p.name.toLowerCase().includes('palillo') || p.name.toLowerCase().includes('mini milk'))));
-    if (selectedFilter === 'cocoa') return matchesSearch && (p.category === 'cocoa' || (p.category === 'industrial' && (p.name.toLowerCase().includes('cocoa') || p.name.toLowerCase().includes('cacao') || p.name.toLowerCase().includes('azúcar') || p.name.toLowerCase().includes('azucar') || p.name.toLowerCase().includes('sirope'))));
-    if (selectedFilter === 'galletas') return matchesSearch && (p.category === 'galletas' || (p.category === 'industrial' && (p.name.toLowerCase().includes('galleta') || p.name.toLowerCase().includes('kibledd'))));
-    return matchesSearch && p.category === selectedFilter;
+  // Filter products
+  const filteredProducts = (products || []).filter(p => {
+    if (!p) return false;
+
+    const query = normalizeString(searchTerm);
+    const pName = normalizeString(p.name);
+    const pCode = normalizeString(p.code);
+    const pDesc = normalizeString(p.description);
+    const pPkg = normalizeString(p.package_size);
+    const pCat = normalizeString(p.category);
+
+    const matchesSearch = query === '' ||
+      pName.includes(query) ||
+      pCode.includes(query) ||
+      pDesc.includes(query) ||
+      pPkg.includes(query) ||
+      pCat.includes(query);
+
+    if (!matchesSearch) return false;
+
+    if (selectedFilter === 'all') return true;
+    if (selectedFilter === 'coberturas') {
+      return p.category === 'coberturas' ||
+        (p.category === 'industrial' && (
+          pName.includes('cobertura') ||
+          pName.includes('gota') ||
+          pName.includes('boton') ||
+          pName.includes('palillo') ||
+          pName.includes('mini milk')
+        ));
+    }
+    if (selectedFilter === 'cocoa') {
+      return p.category === 'cocoa' ||
+        (p.category === 'industrial' && (
+          pName.includes('cocoa') ||
+          pName.includes('cacao') ||
+          pName.includes('azucar') ||
+          pName.includes('sirope')
+        ));
+    }
+    if (selectedFilter === 'galletas') {
+      return p.category === 'galletas' ||
+        (p.category === 'industrial' && (
+          pName.includes('galleta') ||
+          pName.includes('kibledd')
+        ));
+    }
+    return p.category === selectedFilter;
   });
 
   const filterTabs = [
@@ -354,7 +397,7 @@ export const ProductsView: React.FC<ProductsViewProps> = ({
               <AnimatedSection
                 key={p.id}
                 animation="fade-up"
-                delay={Math.min(idx * 80, 400)}
+                delay={Math.min((idx % 4) * 40, 120)}
               >
                 {/* === TravelCard Style Product Card === */}
                 <div

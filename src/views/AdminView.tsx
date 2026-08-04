@@ -215,10 +215,17 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentTab, products, r
   };
 
 
-  const filteredProducts = products.filter(p => {
-    const matchesSearch = p.name.toLowerCase().includes(productSearch.toLowerCase()) ||
-                          p.code.toLowerCase().includes(productSearch.toLowerCase()) ||
-                          p.category.toLowerCase().includes(productSearch.toLowerCase());
+  const filteredProducts = (products || []).filter(p => {
+    if (!p) return false;
+    const query = (productSearch || '').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    const pName = (p.name || '').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    const pCode = (p.code || '').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+    const pCat = (p.category || '').toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+
+    const matchesSearch = query === '' ||
+                          pName.includes(query) ||
+                          pCode.includes(query) ||
+                          pCat.includes(query);
     const matchesCategory = productCategoryFilter === 'all' || p.category === productCategoryFilter;
     return matchesSearch && matchesCategory;
   });

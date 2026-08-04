@@ -43,20 +43,36 @@ export const IndustrialView: React.FC<IndustrialViewProps> = ({
     { id: 'Pomas', label: t.pkgPomas }
   ];
 
+  // Helper for safe search normalization
+  const normalizeString = (str?: string | null): string => {
+    if (!str) return '';
+    return str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  };
+
   // Filtering
-  const filteredProducts = industrialProds.filter(p => {
-    const matchesSearch = p.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          p.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                          p.package_size.toLowerCase().includes(searchTerm.toLowerCase());
+  const filteredProducts = (industrialProds || []).filter(p => {
+    if (!p) return false;
+
+    const query = normalizeString(searchTerm);
+    const pName = normalizeString(p.name);
+    const pCode = normalizeString(p.code);
+    const pPkg = normalizeString(p.package_size);
+    const pDesc = normalizeString(p.description);
+
+    const matchesSearch = query === '' ||
+                          pName.includes(query) ||
+                          pCode.includes(query) ||
+                          pPkg.includes(query) ||
+                          pDesc.includes(query);
     
     if (selectedPackaging === 'all') return matchesSearch;
-    let pkgKeyword = selectedPackaging.toLowerCase();
+    let pkgKeyword = normalizeString(selectedPackaging);
     if (lang === 'en') {
       if (pkgKeyword === 'sacos') pkgKeyword = 'bags';
       if (pkgKeyword === 'cajas') pkgKeyword = 'boxes';
       if (pkgKeyword === 'pomas') pkgKeyword = 'pails';
     }
-    return matchesSearch && p.package_size.toLowerCase().includes(pkgKeyword);
+    return matchesSearch && pPkg.includes(pkgKeyword);
   });
 
   return (

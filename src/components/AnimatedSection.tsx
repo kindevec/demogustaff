@@ -25,8 +25,8 @@ export const AnimatedSection: React.FC<AnimatedSectionProps> = ({
         }
       },
       {
-        threshold: 0.12,
-        rootMargin: '0px 0px -40px 0px'
+        threshold: 0,
+        rootMargin: '0px 0px 120px 0px'
       }
     );
 
@@ -43,17 +43,17 @@ export const AnimatedSection: React.FC<AnimatedSectionProps> = ({
     if (!isVisible) {
       switch (animation) {
         case 'fade-up':
-          return 'opacity-0 translate-y-10';
+          return 'opacity-0 translate-y-6';
         case 'fade-in':
           return 'opacity-0';
         case 'scale-up':
           return 'opacity-0 scale-95';
         case 'slide-left':
-          return 'opacity-0 -translate-x-10';
+          return 'opacity-0 -translate-x-6';
         case 'slide-right':
-          return 'opacity-0 translate-x-10';
+          return 'opacity-0 translate-x-6';
         default:
-          return 'opacity-0 translate-y-10';
+          return 'opacity-0 translate-y-6';
       }
     }
 
@@ -64,7 +64,7 @@ export const AnimatedSection: React.FC<AnimatedSectionProps> = ({
     <div
       ref={ref}
       style={{ transitionDelay: `${delay}ms` }}
-      className={`transition-all duration-700 ease-out transform ${getInitialClass()} ${className}`}
+      className={`transition-all duration-500 ease-out transform ${getInitialClass()} ${className}`}
     >
       {children}
     </div>

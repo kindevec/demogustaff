@@ -105,7 +105,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           <img 
             src="/images/bodegon/logo_gustaff_oficial.png" 
             alt="Gustaff S.A." 
-            className="h-12 w-auto object-contain scale-[1.4] lg:scale-100 origin-left group-hover:scale-[1.45] lg:group-hover:scale-105 transition-transform"
+            className="h-[68px] -my-[10px] w-auto object-contain scale-[1.4] lg:scale-100 origin-left group-hover:scale-[1.45] lg:group-hover:scale-105 transition-transform"
           />
         </button>
 
