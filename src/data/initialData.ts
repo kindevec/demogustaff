@@ -1,4 +1,4 @@
-import { Product, TechnicalSheet, DownloadItem, Recipe, SiteContent } from '../types';
+import { Product, TechnicalSheet, Recipe, SiteContent } from '../types';
 
 export const INITIAL_SITE_CONTENT: SiteContent = {
   home_headline: "En Gustaff somos soñadores, creemos en los nuevos proyectos, en nuestro personal, proveedores y clientes",

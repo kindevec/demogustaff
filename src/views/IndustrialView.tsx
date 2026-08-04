@@ -21,13 +21,16 @@ interface IndustrialViewProps {
   products: Product[];
   lang: Language;
   onSelectProduct: (p: Product) => void;
+  onOpenAuth?: () => void;
+  onThemeColorChange?: (color: string) => void;
 }
 
 export const IndustrialView: React.FC<IndustrialViewProps> = ({
   products,
   lang,
   onSelectProduct,
-  onOpenAuth
+  onOpenAuth,
+  onThemeColorChange
 }) => {
   const t = TRANSLATIONS[lang].industrialPage;
   const industrialProds = products.map(p => translateProduct(p, lang)).filter(p => p.category === 'industrial' || p.category === 'coberturas' || p.category === 'galletas' || p.category === 'cocoa');
@@ -35,6 +38,14 @@ export const IndustrialView: React.FC<IndustrialViewProps> = ({
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedPackaging, setSelectedPackaging] = useState<string>('all');
   const [quoteSuccessMsg, setQuoteSuccessMsg] = useState('');
+
+  // Sync header theme color to parent (Navbar)
+  React.useEffect(() => {
+    onThemeColorChange?.('#3A1B12');
+    return () => {
+      onThemeColorChange?.('');
+    };
+  }, [onThemeColorChange]);
 
   const packagingFilters = [
     { id: 'all', label: t.pkgFilterAll },
@@ -76,32 +87,65 @@ export const IndustrialView: React.FC<IndustrialViewProps> = ({
   });
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
-      {/* Title & Banner */}
-      <div className="bg-[#603813] text-white p-8 sm:p-12 rounded-3xl border border-[#d4af37]/30 shadow-xl text-left space-y-4 relative overflow-hidden">
-        <div className="inline-flex items-center gap-2 bg-[#d4af37] text-[#3d2516] font-extrabold px-3.5 py-1.5 rounded-full text-xs uppercase tracking-wider shadow">
-          <Package className="w-4 h-4" />
-          <span>{t.bannerBadge}</span>
-        </div>
+    <div className="text-white font-sans selection:bg-[#b05d2e] selection:text-white space-y-12 pb-16">
+      
+      {/* =========================================================================
+          1. HEADER BANNER — Edge-to-Edge ProductsView/AboutView Style
+         ========================================================================= */}
+      <div className="relative overflow-hidden transition-colors duration-700 ease-in-out h-[520px] sm:h-[620px] lg:h-[700px] bg-[#3A1B12]">
+        {/* Background Image (Absolute Fill) */}
+        <img
+          src="/images/bodegon/Maquila.webp"
+          alt="Maquila Industrial Gustaff S.A."
+          className="absolute inset-0 w-full h-full object-cover object-center z-0"
+        />
+        
+        {/* Left Gradient Overlay — Exact ProductsView/AboutView Style */}
+        <div 
+          className="absolute inset-0 z-10 pointer-events-none" 
+          style={{ 
+            background: 'linear-gradient(to right, #3A1B12ee 0%, #3A1B12cc 30%, #3A1B1288 50%, transparent 75%)' 
+          }} 
+        />
 
-        <h1 className="font-serif font-bold text-3xl sm:text-4xl lg:text-5xl text-white">
-          {t.bannerTitle}
-        </h1>
+        {/* Mobile Bottom Shade */}
+        <div className="absolute inset-x-0 bottom-0 h-56 z-10 bg-gradient-to-t from-black/80 via-black/40 to-transparent sm:hidden pointer-events-none" />
 
-        <p className="text-xs sm:text-sm text-[#f3ece0] max-w-3xl leading-relaxed">
-          {t.subtitle}
-        </p>
+        {/* Text Content Overlay */}
+        <div className="relative z-20 h-full max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 flex flex-col justify-center text-left space-y-4 sm:space-y-5">
+          
+          {/* Badge */}
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[11px] font-extrabold tracking-wider uppercase w-fit border border-white/20 shadow-lg bg-[#e86014] text-white">
+            <Package className="w-4 h-4 text-white" />
+            <span>{t.bannerBadge}</span>
+          </div>
 
-        <div className="pt-2 flex flex-wrap gap-3">
-          <button
-            onClick={onOpenAuth}
-            className="bg-[#d4af37] hover:bg-amber-400 text-[#3d2516] font-bold px-6 py-2.5 rounded-full text-xs flex items-center gap-2 transition-colors shadow-lg"
-          >
-            <Lock className="w-4 h-4" />
-            {t.downloadPdfClient}
-          </button>
+          {/* Main Title */}
+          <h1 className="font-serif font-black text-3xl sm:text-5xl lg:text-6xl xl:text-7xl text-white leading-tight max-w-3xl drop-shadow-lg">
+            {t.bannerTitle}
+          </h1>
+
+          {/* Subtitle / Description */}
+          <p className="text-sm sm:text-base text-white/80 max-w-xl leading-relaxed drop-shadow-sm font-serif italic border-l-2 border-[#e86014] pl-3">
+            "{t.subtitle}"
+          </p>
+
+          {/* Action Button */}
+          <div className="pt-2 flex flex-wrap gap-3">
+            <button
+              onClick={onOpenAuth}
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-bold text-white bg-[#e86014] shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-0.5 w-fit cursor-pointer group/btn"
+            >
+              <Lock className="w-4 h-4" />
+              <span>{t.downloadPdfClient}</span>
+            </button>
+          </div>
+
         </div>
       </div>
+
+      {/* Main Content Area */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
 
       {/* Search & Filter Controls */}
       <div className="bg-white p-4 rounded-2xl border border-[#e8dcc4] shadow-sm flex flex-col sm:flex-row gap-4 items-center justify-between">
@@ -151,9 +195,6 @@ export const IndustrialView: React.FC<IndustrialViewProps> = ({
                 alt={p.name}
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
               />
-              <div className="absolute top-3 left-3 bg-white/90 text-[#3d2516] font-mono text-xs font-bold px-2.5 py-1 rounded-lg border border-[#e8dcc4] shadow-sm">
-                {p.code}
-              </div>
               <div className="absolute bottom-3 right-3 bg-[#b05d2e] text-white text-[11px] font-bold px-3 py-1 rounded-full shadow">
                 {p.package_size}
               </div>
@@ -271,6 +312,7 @@ export const IndustrialView: React.FC<IndustrialViewProps> = ({
           </form>
         )}
       </section>
+      </div>
     </div>
   );
 };

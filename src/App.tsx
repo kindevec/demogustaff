@@ -36,7 +36,7 @@ export default function App() {
   const setCurrentTab = (tab: string) => {
     window.location.hash = tab;
   };
-  const [lang, setLang] = useState<Language>('es');
+  const lang: Language = 'es';
 
   const [products, setProducts] = useState<Product[]>([]);
 
@@ -52,7 +52,7 @@ export default function App() {
   const refreshSiteContent = () => setSiteContent(getStoredSiteContent());
 
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
-  const [productsThemeColor, setProductsThemeColor] = useState('');
+  const [headerThemeColor, setHeaderThemeColor] = useState('');
 
   // Sync scroll top on view changes
   useEffect(() => {
@@ -71,9 +71,8 @@ export default function App() {
           currentTab={currentTab}
           setCurrentTab={setCurrentTab}
           lang={lang}
-          setLang={setLang}
           onOpenAdmin={() => setCurrentTab('admin')}
-          themeColor={currentTab === 'products' ? productsThemeColor : ''}
+          themeColor={headerThemeColor}
         />
       )}
 
@@ -86,11 +85,17 @@ export default function App() {
             products={products}
             siteContent={siteContent}
             onSelectProduct={(p) => setSelectedProduct(p)}
+            onThemeColorChange={setHeaderThemeColor}
           />
         )}
 
         {currentTab === 'about' && (
-          <AboutView siteContent={siteContent} lang={lang} setCurrentTab={setCurrentTab} />
+          <AboutView 
+            siteContent={siteContent} 
+            lang={lang} 
+            setCurrentTab={setCurrentTab}
+            onThemeColorChange={setHeaderThemeColor} 
+          />
         )}
 
         {currentTab === 'products' && (
@@ -99,7 +104,7 @@ export default function App() {
             lang={lang}
             onSelectProduct={(p) => setSelectedProduct(p)}
             onOpenAuth={() => setCurrentTab('admin')}
-            onThemeColorChange={setProductsThemeColor}
+            onThemeColorChange={setHeaderThemeColor}
           />
         )}
 
@@ -108,15 +113,17 @@ export default function App() {
             products={products}
             lang={lang}
             onSelectProduct={(p) => setSelectedProduct(p)}
-            />
+            onOpenAuth={() => setCurrentTab('admin')}
+            onThemeColorChange={setHeaderThemeColor}
+          />
         )}
 
         {currentTab === 'recipes' && (
-          <RecipesView lang={lang} />
+          <RecipesView lang={lang} onThemeColorChange={setHeaderThemeColor} />
         )}
 
         {currentTab === 'contact' && (
-          <ContactView siteContent={siteContent} lang={lang} />
+          <ContactView siteContent={siteContent} lang={lang} onThemeColorChange={setHeaderThemeColor} />
         )}
 
         {currentTab === 'admin' && (

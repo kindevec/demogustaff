@@ -23,10 +23,19 @@ interface AboutViewProps {
   siteContent: SiteContent;
   lang: Language;
   setCurrentTab?: (tab: string) => void;
+  onThemeColorChange?: (color: string) => void;
 }
 
-export const AboutView: React.FC<AboutViewProps> = ({ siteContent, lang, setCurrentTab }) => {
+export const AboutView: React.FC<AboutViewProps> = ({ siteContent, lang, setCurrentTab, onThemeColorChange }) => {
   const t = TRANSLATIONS[lang].aboutPage;
+
+  // Sync header theme color to parent (Navbar)
+  React.useEffect(() => {
+    onThemeColorChange?.('#3A1B12');
+    return () => {
+      onThemeColorChange?.('');
+    };
+  }, [onThemeColorChange]);
 
   // Modal State for Misión, Visión and Política de Calidad
   const [activeModal, setActiveModal] = useState<{
@@ -36,57 +45,66 @@ export const AboutView: React.FC<AboutViewProps> = ({ siteContent, lang, setCurr
   } | null>(null);
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-16">
+    <div className="text-white font-sans selection:bg-[#b05d2e] selection:text-white space-y-16 pb-16">
       
       {/* =========================================================================
-          1. HEADER BANNER WITH Conocenos.png BACKGROUND & DIRECTLY SUPERIMPOSED TEXT
+          1. HEADER BANNER — Edge-to-Edge ProductsView Style
          ========================================================================= */}
-      <AnimatedSection animation="scale-up">
-        <div className="relative h-[320px] sm:h-[380px] lg:h-[420px] rounded-3xl overflow-hidden shadow-2xl border-2 border-[#e8dcc4] bg-[#120703]">
-          {/* Background Image (Absolute Fill z-0) */}
-          <img
-            src="/images/bodegon/Conocenos.png"
-            alt="Planta Industrial Gustaff S.A."
-            className="absolute inset-0 w-full h-full object-cover object-center z-0"
-          />
+      <div className="relative overflow-hidden transition-colors duration-700 ease-in-out h-[520px] sm:h-[620px] lg:h-[700px] bg-[#3A1B12]">
+        {/* Background Image (Absolute Fill) */}
+        <img
+          src="/images/bodegon/Conocenos.png"
+          alt="Planta Industrial Gustaff S.A."
+          className="absolute inset-0 w-full h-full object-cover object-center z-0"
+        />
+        
+        {/* Left Gradient Overlay — Exact ProductsView Style */}
+        <div 
+          className="absolute inset-0 z-10 pointer-events-none" 
+          style={{ 
+            background: 'linear-gradient(to right, rgba(58, 27, 18, 0.933) 0%, rgba(58, 27, 18, 0.8) 30%, rgba(58, 27, 18, 0.533) 50%, transparent 75%)' 
+          }} 
+        />
+
+        {/* Mobile Bottom Shade */}
+        <div className="absolute inset-x-0 bottom-0 h-56 z-10 bg-gradient-to-t from-black/80 via-black/40 to-transparent sm:hidden pointer-events-none" />
+
+        {/* Text Content Overlay */}
+        <div className="relative z-20 h-full max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 flex flex-col justify-center text-left space-y-4 sm:space-y-5">
           
-          {/* Dark Gradient Overlay (Absolute Fill z-10) */}
-          <div className="absolute inset-0 bg-gradient-to-r from-black/90 via-black/75 via-60% to-black/35 z-10 pointer-events-none" />
-
-          {/* Text Content Overlay (Absolute Fill z-20) */}
-          <div className="absolute inset-0 z-20 max-w-7xl mx-auto px-6 sm:px-12 flex flex-col justify-center text-left space-y-4">
-            
-            {/* Badge */}
-            <div className="inline-flex items-center gap-2 bg-[#e86014] text-white px-4 py-1.5 rounded-full text-xs font-extrabold tracking-wider uppercase shadow-xl w-fit border border-white/20">
-              <Calendar className="w-4 h-4 text-white" />
-              <span>{t.bannerBadge}</span>
-            </div>
-
-            {/* Main Title */}
-            <h1 className="font-serif font-extrabold text-3xl sm:text-4xl lg:text-5xl text-white tracking-tight leading-tight max-w-3xl drop-shadow-lg">
-              {lang === 'es' ? (siteContent.about_title || t.historyTitle) : t.historyTitle}
-            </h1>
-
-            {/* Subtitle */}
-            <p className="text-sm sm:text-base text-[#fdfaf5] font-serif italic leading-relaxed max-w-2xl drop-shadow">
-              {t.bannerSubtitle}
-            </p>
-
-            {/* Nav Breadcrumb */}
-            <div className="flex items-center gap-2 text-xs font-mono font-bold tracking-widest text-[#e86014] uppercase pt-2 border-t border-white/20 w-fit">
-              <button 
-                onClick={() => setCurrentTab?.('home')} 
-                className="hover:underline cursor-pointer text-[#e86014]"
-              >
-                {t.breadcrumbHome}
-              </button>
-              <span className="text-[#e86014]">&gt;</span>
-              <span className="text-[#f3ece0]">{t.breadcrumbAbout}</span>
-            </div>
-
+          {/* Badge */}
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[11px] font-extrabold tracking-wider uppercase w-fit border border-white/20 shadow-lg bg-[#e86014] text-white">
+            <Calendar className="w-4 h-4 text-white" />
+            <span>{t.bannerBadge}</span>
           </div>
+
+          {/* Main Title */}
+          <h1 className="font-serif font-black text-3xl sm:text-5xl lg:text-6xl xl:text-7xl text-white leading-tight max-w-3xl drop-shadow-lg">
+            {lang === 'es' ? (siteContent.about_title || t.historyTitle) : t.historyTitle}
+          </h1>
+
+          {/* Subtitle / Description */}
+          <p className="text-sm sm:text-base text-white/80 max-w-xl leading-relaxed drop-shadow-sm font-serif italic border-l-2 border-[#e86014] pl-3">
+            "{t.bannerSubtitle}"
+          </p>
+
+          {/* Nav Breadcrumb */}
+          <div className="flex items-center gap-2 text-xs font-mono font-bold tracking-widest text-[#e86014] uppercase pt-3 border-t border-white/20 w-fit">
+            <button 
+              onClick={() => setCurrentTab?.('home')} 
+              className="hover:underline cursor-pointer text-[#e86014]"
+            >
+              {t.breadcrumbHome}
+            </button>
+            <span className="text-[#e86014]">&gt;</span>
+            <span className="text-[#f3ece0]">{t.breadcrumbAbout}</span>
+          </div>
+
         </div>
-      </AnimatedSection>
+      </div>
+
+      {/* Main Content Area */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-16">
 
       {/* =========================================================================
           2. SECTION 1: QUIÉNES SOMOS (Image Left with Floating Badge, Text Right)
@@ -401,6 +419,7 @@ export const AboutView: React.FC<AboutViewProps> = ({ siteContent, lang, setCurr
         </div>
       )}
 
+      </div>
     </div>
   );
 };

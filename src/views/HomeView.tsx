@@ -24,6 +24,7 @@ interface HomeViewProps {
   products: Product[];
   siteContent: SiteContent;
   onSelectProduct: (p: Product) => void;
+  onThemeColorChange?: (color: string) => void;
 }
 
 export const HomeView: React.FC<HomeViewProps> = ({
@@ -31,7 +32,8 @@ export const HomeView: React.FC<HomeViewProps> = ({
   lang,
   products,
   siteContent,
-  onSelectProduct
+  onSelectProduct,
+  onThemeColorChange
 }) => {
   const t = TRANSLATIONS[lang];
   const hp = t.homePage;
@@ -57,6 +59,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
       quoteText: "text-[#f3ece0]",
       taglineBadge: "bg-[#e86014] text-white border-[#e86014]/40 font-bold",
       accentColor: "text-[#e86014]",
+      navColor: "#3A1B12",
       btnPrimary: "bg-gradient-to-r from-[#e86014] to-[#d9530f] hover:from-[#d9530f] hover:to-[#c4470b] text-white shadow-xl shadow-[#e8601444]",
       btnSecondary: "bg-black/40 hover:bg-black/60 text-white border border-white/30 backdrop-blur-md",
       gradientMask: "from-[#120703]/85 via-[#120703]/60 via-45% to-transparent",
@@ -77,6 +80,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
       quoteText: "text-[#f3ece0]",
       taglineBadge: "bg-[#e86014] text-white border-[#e86014]/40 font-bold",
       accentColor: "text-[#e86014]",
+      navColor: "#2E1208",
       btnPrimary: "bg-gradient-to-r from-[#e86014] to-[#d9530f] hover:from-[#d9530f] hover:to-[#c4470b] text-white shadow-xl shadow-[#e8601444]",
       btnSecondary: "bg-black/40 hover:bg-black/60 text-white border border-white/30 backdrop-blur-md",
       gradientMask: "from-[#170a04]/85 via-[#170a04]/60 via-45% to-transparent",
@@ -97,6 +101,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
       quoteText: "text-[#f3ece0]",
       taglineBadge: "bg-[#e86014] text-white border-[#e86014]/40 font-bold",
       accentColor: "text-[#e86014]",
+      navColor: "#4D3318",
       btnPrimary: "bg-gradient-to-r from-[#e86014] to-[#d9530f] hover:from-[#d9530f] hover:to-[#c4470b] text-white shadow-xl shadow-[#e8601444]",
       btnSecondary: "bg-black/40 hover:bg-black/60 text-white border border-white/30 backdrop-blur-md",
       gradientMask: "from-[#1c0c05]/85 via-[#1c0c05]/60 via-45% to-transparent",
@@ -117,6 +122,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
       quoteText: "text-[#f3ece0]",
       taglineBadge: "bg-[#e86014] text-white border-[#e86014]/40 font-bold",
       accentColor: "text-[#e86014]",
+      navColor: "#1A251B",
       btnPrimary: "bg-gradient-to-r from-[#e86014] to-[#d9530f] hover:from-[#d9530f] hover:to-[#c4470b] text-white shadow-xl shadow-[#e8601444]",
       btnSecondary: "bg-black/40 hover:bg-black/60 text-white border border-white/30 backdrop-blur-md",
       gradientMask: "from-[#150903]/85 via-[#150903]/60 via-45% to-transparent",
@@ -124,6 +130,14 @@ export const HomeView: React.FC<HomeViewProps> = ({
       primaryTab: "industrial"
     }
   ];
+
+  // Sync theme color to parent (Navbar)
+  useEffect(() => {
+    onThemeColorChange?.(slides[currentSlide]?.navColor || '#3A1B12');
+    return () => {
+      onThemeColorChange?.('');
+    };
+  }, [currentSlide, onThemeColorChange, slides]);
 
   // Auto advance slides every 5 seconds
   useEffect(() => {
@@ -148,87 +162,83 @@ export const HomeView: React.FC<HomeViewProps> = ({
       {/* =========================================================================
           1. HERO SLIDER SECTION (Full Edge-to-Edge 4 WebP Banners)
          ========================================================================= */}
-      <AnimatedSection animation="scale-up" className="pt-6 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-        <div 
-          className="relative h-[540px] sm:h-[580px] lg:h-[620px] rounded-3xl overflow-hidden shadow-2xl border border-[#e8dcc4] bg-[#120703] group"
-          onMouseEnter={() => setIsPaused(true)}
-          onMouseLeave={() => setIsPaused(false)}
-        >
-          {/* Active Slide Renderer */}
+      {/* =========================================================================
+          1. HERO SLIDER SECTION (Full Edge-to-Edge ProductsView Style)
+         ========================================================================= */}
+      <div 
+        className="relative overflow-hidden transition-colors duration-700 ease-in-out h-[580px] sm:h-[680px] lg:h-[784px] group"
+        style={{ backgroundColor: slides[currentSlide]?.navColor || '#3A1B12' }}
+        onMouseEnter={() => setIsPaused(true)}
+        onMouseLeave={() => setIsPaused(false)}
+      >
+        {/* Active Slide Renderer */}
+        <div className="relative h-full">
           {slides.map((slide, idx) => (
             <div
               key={slide.id}
-              className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${
-                idx === currentSlide ? 'opacity-100 z-10 pointer-events-auto' : 'opacity-0 z-0 pointer-events-none'
+              className={`absolute inset-0 transition-all duration-700 ease-in-out ${
+                idx === currentSlide ? 'opacity-100 z-10 scale-100 pointer-events-auto' : 'opacity-0 z-0 scale-105 pointer-events-none'
               }`}
             >
               {/* Full Background Image Container (Edge-to-Edge Coverage) */}
-              <div className="absolute inset-0 z-0">
-                <img
-                  src={slide.image}
-                  alt={slide.titleLine1}
-                  className={`w-full h-full ${slide.objectFit} transition-transform duration-700`}
-                />
-              </div>
+              <img
+                src={slide.image}
+                alt={slide.titleLine1}
+                className={`absolute inset-0 w-full h-full ${slide.objectFit} transition-transform duration-700`}
+              />
 
-              {/* Left-Half Contrast Overlay */}
-              <div className={`absolute inset-0 z-10 bg-gradient-to-r ${slide.gradientMask} pointer-events-none`} />
+              {/* Left Gradient Overlay — Dynamic per slide navColor */}
+              <div 
+                className="absolute inset-0 z-10 pointer-events-none transition-all duration-700" 
+                style={{ 
+                  background: `linear-gradient(to right, ${slide.navColor}ee 0%, ${slide.navColor}cc 30%, ${slide.navColor}88 50%, transparent 75%)` 
+                }} 
+              />
 
-              {/* Mobile Bottom Shade for Small Devices */}
-              <div className="absolute inset-x-0 bottom-0 h-40 z-10 bg-gradient-to-t from-black/80 via-black/40 to-transparent sm:hidden pointer-events-none" />
+              {/* Mobile Bottom Shade */}
+              <div className="absolute inset-x-0 bottom-0 h-56 z-10 bg-gradient-to-t from-black/80 via-black/40 to-transparent sm:hidden pointer-events-none" />
 
               {/* Text & Content Overlay */}
-              <div className="relative z-20 h-full max-w-7xl mx-auto px-6 sm:px-12 flex items-center pb-8 sm:pb-12">
-                <div className="max-w-2xl text-left space-y-5">
-                  
-                  {/* Tagline Badge */}
-                  <div className={`inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-extrabold tracking-wider uppercase shadow-md ${slide.taglineBadge}`}>
-                    <Sparkles className="w-4 h-4 text-white" />
-                    <span>{slide.tagline}</span>
-                  </div>
-
-                  {/* Headline Title */}
-                  <div className="space-y-1">
-                    <h1 className={`font-serif text-3xl sm:text-4xl lg:text-5xl font-extrabold tracking-tight leading-tight uppercase ${slide.textColor}`}>
-                      {slide.titleLine1} <br />
-                      <span className={`font-black tracking-wider block mt-1 ${slide.accentColor}`}>
-                        {slide.titleAccent}
-                      </span>
-                    </h1>
-                    
-                    {/* Decorative Divider */}
-                    <div className="flex items-center gap-3 pt-2">
-                      <span className="w-12 h-[2px] bg-[#e86014]" />
-                      <span className="text-[#e86014] text-sm">🍫 ❤ 🍫</span>
-                      <span className="w-12 h-[2px] bg-[#e86014]" />
-                    </div>
-                  </div>
-
-                  {/* Description Paragraph */}
-                  <p className={`text-sm sm:text-base leading-relaxed font-serif italic border-l-4 border-[#e86014] pl-4 py-2.5 rounded-r-xl border-y border-r shadow-md ${slide.quoteBg} ${slide.quoteText}`}>
-                    "{slide.description}"
-                  </p>
-
-                  {/* Action Pill Buttons */}
-                  <div className="flex flex-wrap items-center gap-4 pt-2">
-                    <button
-                      onClick={() => setCurrentTab(slide.primaryTab)}
-                      className={`font-bold px-8 py-3.5 rounded-full text-sm flex items-center gap-2 cursor-pointer transition-all transform hover:-translate-y-0.5 ${slide.btnPrimary}`}
-                    >
-                      <span>{slide.primaryBtnText}</span>
-                      <ArrowRight className="w-4 h-4" />
-                    </button>
-
-                    <button
-                      onClick={() => setCurrentTab('downloads')}
-                      className={`font-semibold px-7 py-3.5 rounded-full text-sm flex items-center gap-2 cursor-pointer transition-all ${slide.btnSecondary}`}
-                    >
-                      <Lock className="w-4 h-4 text-[#e86014]" />
-                      <span>{t.hero.btnDownloads}</span>
-                    </button>
-                  </div>
-
+              <div className="relative z-20 h-full max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 flex flex-col justify-center text-left space-y-4 sm:space-y-5">
+                
+                {/* Tagline Badge */}
+                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[11px] font-extrabold tracking-wider uppercase w-fit border border-white/20 shadow-lg bg-[#e86014] text-white">
+                  <Sparkles className="w-4 h-4 text-white" />
+                  <span>{slide.tagline}</span>
                 </div>
+
+                {/* Headline Title */}
+                <h1 className="font-serif font-black text-3xl sm:text-5xl lg:text-6xl xl:text-7xl text-white leading-tight max-w-2xl drop-shadow-lg uppercase">
+                  {slide.titleLine1}
+                  <span className="block text-2xl sm:text-3xl lg:text-4xl font-bold mt-1 text-[#e86014]">
+                    {slide.titleAccent}
+                  </span>
+                </h1>
+
+                {/* Description Paragraph */}
+                <p className="text-sm sm:text-base text-white/80 max-w-md leading-relaxed drop-shadow-sm font-serif italic border-l-2 border-[#e86014] pl-3">
+                  "{slide.description}"
+                </p>
+
+                {/* Action Buttons */}
+                <div className="flex flex-wrap items-center gap-3 pt-2">
+                  <button
+                    onClick={() => setCurrentTab(slide.primaryTab)}
+                    className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-bold text-white bg-[#e86014] shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-0.5 w-fit cursor-pointer group/btn"
+                  >
+                    <span>{slide.primaryBtnText}</span>
+                    <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
+                  </button>
+
+                  <button
+                    onClick={() => setCurrentTab('downloads')}
+                    className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-semibold text-white bg-black/40 hover:bg-black/60 border border-white/30 backdrop-blur-md transition-all duration-300 w-fit cursor-pointer"
+                  >
+                    <Lock className="w-4 h-4 text-[#e86014]" />
+                    <span>{t.hero.btnDownloads}</span>
+                  </button>
+                </div>
+
               </div>
 
             </div>
@@ -237,28 +247,28 @@ export const HomeView: React.FC<HomeViewProps> = ({
           {/* Navigation Controls: Left & Right Arrows */}
           <button
             onClick={prevSlide}
-            className="absolute left-4 top-1/2 -translate-y-1/2 z-30 w-11 h-11 rounded-full bg-black/50 hover:bg-[#e86014] text-white backdrop-blur-md border border-white/20 flex items-center justify-center cursor-pointer transition-all shadow-lg hover:scale-110"
+            className="absolute left-4 sm:left-8 top-1/2 -translate-y-1/2 z-30 p-3 rounded-full bg-black/40 hover:bg-black/60 text-white backdrop-blur-md border border-white/20 transition-all shadow-lg cursor-pointer hover:scale-110"
             aria-label={hp.prevSlide}
           >
-            <ChevronLeft className="w-6 h-6" />
+            <ChevronLeft className="w-5 h-5" />
           </button>
 
           <button
             onClick={nextSlide}
-            className="absolute right-4 top-1/2 -translate-y-1/2 z-30 w-11 h-11 rounded-full bg-black/50 hover:bg-[#e86014] text-white backdrop-blur-md border border-white/20 flex items-center justify-center cursor-pointer transition-all shadow-lg hover:scale-110"
+            className="absolute right-4 sm:right-8 top-1/2 -translate-y-1/2 z-30 p-3 rounded-full bg-black/40 hover:bg-black/60 text-white backdrop-blur-md border border-white/20 transition-all shadow-lg cursor-pointer hover:scale-110"
             aria-label={hp.nextSlide}
           >
-            <ChevronRight className="w-6 h-6" />
+            <ChevronRight className="w-5 h-5" />
           </button>
 
           {/* Pagination Indicators / Slide Dots */}
-          <div className="absolute bottom-5 sm:bottom-6 left-6 sm:left-12 z-30 flex items-center gap-2 bg-black/50 backdrop-blur-md px-4 py-2 rounded-full border border-white/15">
+          <div className="absolute bottom-20 sm:bottom-24 lg:bottom-28 left-6 sm:left-10 lg:left-16 z-30 flex items-center gap-2.5">
             {slides.map((_, idx) => (
               <button
                 key={idx}
                 onClick={() => setCurrentSlide(idx)}
-                className={`h-2.5 rounded-full cursor-pointer transition-all duration-300 ${
-                  idx === currentSlide ? 'w-8 bg-[#e86014]' : 'w-2.5 bg-white/40 hover:bg-white/70'
+                className={`rounded-full transition-all duration-300 cursor-pointer ${
+                  idx === currentSlide ? 'w-10 h-3 bg-[#e86014]' : 'w-3 h-3 bg-white/40 hover:bg-white/60'
                 }`}
                 aria-label={`${hp.goToSlide} ${idx + 1}`}
               />
@@ -266,16 +276,16 @@ export const HomeView: React.FC<HomeViewProps> = ({
           </div>
 
         </div>
-      </AnimatedSection>
+      </div>
 
       {/* =========================================================================
-          2. FEATURE RIBBON BAR (4 Independent Cards Superimposed)
+          2. FEATURE RIBBON BAR (4 Independent Cards Superimposed over Hero Slider)
          ========================================================================= */}
-      <AnimatedSection animation="fade-up" delay={100} className="relative z-30 -mt-8 sm:-mt-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <AnimatedSection animation="fade-up" delay={100} className="relative z-30 -mt-16 sm:-mt-20 lg:-mt-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
           
           {/* Card 1 */}
-          <div className="bg-white rounded-2xl sm:rounded-3xl p-5 border border-[#e8dcc4] shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex items-start gap-4 text-left">
+          <div className="bg-white/95 backdrop-blur-md rounded-2xl sm:rounded-3xl p-5 border border-[#e8dcc4] shadow-xl hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-300 flex items-start gap-4 text-left">
             <div className="p-3 bg-[#f3ece0] text-[#b05d2e] rounded-2xl shrink-0 border border-[#e8dcc4] shadow-sm">
               <Sparkles className="w-6 h-6" />
             </div>
@@ -290,7 +300,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
           </div>
 
           {/* Card 2 */}
-          <div className="bg-white rounded-2xl sm:rounded-3xl p-5 border border-[#e8dcc4] shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex items-start gap-4 text-left">
+          <div className="bg-white/95 backdrop-blur-md rounded-2xl sm:rounded-3xl p-5 border border-[#e8dcc4] shadow-xl hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-300 flex items-start gap-4 text-left">
             <div className="p-3 bg-[#f3ece0] text-[#b05d2e] rounded-2xl shrink-0 border border-[#e8dcc4] shadow-sm">
               <Factory className="w-6 h-6" />
             </div>
@@ -305,7 +315,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
           </div>
 
           {/* Card 3 */}
-          <div className="bg-white rounded-2xl sm:rounded-3xl p-5 border border-[#e8dcc4] shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex items-start gap-4 text-left">
+          <div className="bg-white/95 backdrop-blur-md rounded-2xl sm:rounded-3xl p-5 border border-[#e8dcc4] shadow-xl hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-300 flex items-start gap-4 text-left">
             <div className="p-3 bg-[#f3ece0] text-[#b05d2e] rounded-2xl shrink-0 border border-[#e8dcc4] shadow-sm">
               <Award className="w-6 h-6" />
             </div>
@@ -320,7 +330,7 @@ export const HomeView: React.FC<HomeViewProps> = ({
           </div>
 
           {/* Card 4 */}
-          <div className="bg-white rounded-2xl sm:rounded-3xl p-5 border border-[#e8dcc4] shadow-lg hover:shadow-xl hover:-translate-y-1 transition-all duration-300 flex items-start gap-4 text-left">
+          <div className="bg-white/95 backdrop-blur-md rounded-2xl sm:rounded-3xl p-5 border border-[#e8dcc4] shadow-xl hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-300 flex items-start gap-4 text-left">
             <div className="p-3 bg-[#f3ece0] text-[#b05d2e] rounded-2xl shrink-0 border border-[#e8dcc4] shadow-sm">
               <Heart className="w-6 h-6" />
             </div>
@@ -376,11 +386,6 @@ export const HomeView: React.FC<HomeViewProps> = ({
                 {/* Floating Heart / Detail Icon */}
                 <div className="absolute top-4 right-4 w-9 h-9 rounded-full bg-[#b05d2e] text-[#fdfaf5] flex items-center justify-center shadow-md group-hover:scale-110 transition-transform z-10">
                   <Heart className="w-4 h-4 fill-white" />
-                </div>
-
-                {/* Code Badge */}
-                <div className="absolute bottom-4 left-4 bg-white/95 text-[#3d2516] font-mono text-[11px] font-bold px-2.5 py-1 rounded-lg border border-[#e8dcc4] shadow-md z-10">
-                  {prod.code}
                 </div>
               </div>
 

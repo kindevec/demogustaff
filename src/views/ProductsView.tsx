@@ -418,12 +418,7 @@ export const ProductsView: React.FC<ProductsViewProps> = ({
                   <div className="relative flex h-full flex-col justify-between p-4 sm:p-5">
 
                     {/* Top Section: Badges */}
-                    <div className="flex items-start justify-between">
-                      {/* Code Badge */}
-                      <div className="flex h-8 items-center justify-center rounded-full border border-white/30 bg-black/40 backdrop-blur-sm px-2.5">
-                        <span className="font-mono text-[9px] sm:text-[10px] font-bold text-white/90 tracking-wider">{p.code}</span>
-                      </div>
-
+                    <div className="flex items-start justify-end">
                       {/* Featured Badge */}
                       {p.is_featured && (
                         <div className="flex items-center gap-1 bg-[#e86014] text-white text-[9px] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider shadow-md border border-white/20">
@@ -434,34 +429,30 @@ export const ProductsView: React.FC<ProductsViewProps> = ({
                     </div>
 
                     {/* Middle/Bottom Section: Details (slides up on hover) */}
-                    <div className="space-y-1.5 sm:space-y-2 transition-transform duration-500 ease-in-out group-hover:-translate-y-12">
+                    <div className="space-y-1.5 sm:space-y-2 transition-transform duration-500 ease-in-out group-hover:-translate-y-20 sm:group-hover:-translate-y-24">
                       {/* Category Tag */}
                       <span className="inline-block text-[9px] sm:text-[10px] font-bold uppercase tracking-wider text-white/70 bg-white/10 px-2 py-0.5 rounded-full border border-white/10 backdrop-blur-sm">
-                        {getCategoryLabel(p.category)}
+                        <span>{getCategoryLabel(p.category)}</span>
                       </span>
 
                       {/* Product Name */}
                       <h3 className="text-lg sm:text-xl font-bold text-white leading-snug line-clamp-2">
-                        {p.name}
+                        <span>{p.name}</span>
                       </h3>
 
                       {/* Package Size */}
                       <p className="text-xs text-white/70 flex items-center gap-1">
                         <Package className="w-3 h-3" />
-                        {p.package_size}
+                        <span>{p.package_size}</span>
                       </p>
-
-                      {/* Description */}
-                      <div>
-                        <p className="text-xs text-white/60 leading-normal line-clamp-2">
-                          {p.description}
-                        </p>
-                      </div>
                     </div>
 
-                    {/* Bottom Section: Action Button (revealed on hover) */}
-                    <div className="absolute -bottom-14 left-0 w-full p-4 sm:p-5 opacity-0 transition-all duration-500 ease-in-out group-hover:bottom-0 group-hover:opacity-100">
-                      <div className="flex items-center justify-between">
+                    {/* Bottom Section: Description & Action Button (revealed on hover) */}
+                    <div className="absolute -bottom-28 left-0 w-full p-4 sm:p-5 opacity-0 transition-all duration-500 ease-in-out group-hover:bottom-0 group-hover:opacity-100 space-y-2.5 bg-gradient-to-t from-black via-black/90 to-transparent pt-6">
+                      <p className="text-xs text-white/70 leading-normal line-clamp-2">
+                        <span>{p.description}</span>
+                      </p>
+                      <div className="flex items-center justify-between pt-1 border-t border-white/15">
                         <span className="text-[10px] font-bold text-white/50 uppercase tracking-wider">Ficha Técnica</span>
                         <span className="inline-flex items-center gap-1.5 bg-white text-[#3d2516] px-3.5 py-1.5 rounded-full text-xs font-bold shadow-xl hover:bg-[#f3ece0] transition-colors">
                           Ver Detalles <ArrowRight className="w-3 h-3" />

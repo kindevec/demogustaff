@@ -17,9 +17,10 @@ import { FacebookIcon, InstagramIcon } from '../components/SocialIcons';
 interface ContactViewProps {
   siteContent: SiteContent;
   lang: Language;
+  onThemeColorChange?: (color: string) => void;
 }
 
-export const ContactView: React.FC<ContactViewProps> = ({ siteContent, lang }) => {
+export const ContactView: React.FC<ContactViewProps> = ({ siteContent, lang, onThemeColorChange }) => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [subject, setSubject] = useState('');
@@ -30,6 +31,14 @@ export const ContactView: React.FC<ContactViewProps> = ({ siteContent, lang }) =
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const t = TRANSLATIONS[lang].contactPage;
+
+  // Sync header theme color to parent (Navbar)
+  React.useEffect(() => {
+    onThemeColorChange?.('#3A1B12');
+    return () => {
+      onThemeColorChange?.('');
+    };
+  }, [onThemeColorChange]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -64,22 +73,54 @@ export const ContactView: React.FC<ContactViewProps> = ({ siteContent, lang }) =
   };
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
-      {/* Banner */}
-      <div className="bg-[#603813] text-white p-8 sm:p-12 rounded-3xl border border-[#d4af37]/30 shadow-xl text-left space-y-3">
-        <span className="text-xs font-bold text-[#d4af37] uppercase tracking-widest bg-white/10 px-3.5 py-1 rounded-full border border-white/20 inline-flex items-center gap-1.5">
-          <Mail className="w-4 h-4 text-[#d4af37]" />
-          <span>{t.bannerBadge}</span>
-        </span>
+    <div className="text-white font-sans selection:bg-[#b05d2e] selection:text-white space-y-12 pb-16">
+      
+      {/* =========================================================================
+          1. HEADER BANNER — Edge-to-Edge ProductsView/AboutView Style
+         ========================================================================= */}
+      <div className="relative overflow-hidden transition-colors duration-700 ease-in-out h-[520px] sm:h-[620px] lg:h-[700px] bg-[#3A1B12]">
+        {/* Background Image (Absolute Fill) */}
+        <img
+          src="/images/bodegon/contactanos.webp"
+          alt="Contáctanos Gustaff S.A."
+          className="absolute inset-0 w-full h-full object-cover object-center z-0"
+        />
+        
+        {/* Left Gradient Overlay — Exact ProductsView/AboutView Style */}
+        <div 
+          className="absolute inset-0 z-10 pointer-events-none" 
+          style={{ 
+            background: 'linear-gradient(to right, #3A1B12ee 0%, #3A1B12cc 30%, #3A1B1288 50%, transparent 75%)' 
+          }} 
+        />
 
-        <h1 className="font-serif font-bold text-3xl sm:text-4xl text-white">
-          {t.title}
-        </h1>
+        {/* Mobile Bottom Shade */}
+        <div className="absolute inset-x-0 bottom-0 h-56 z-10 bg-gradient-to-t from-black/80 via-black/40 to-transparent sm:hidden pointer-events-none" />
 
-        <p className="text-sm sm:text-base text-[#f3ece0] font-medium">
-          "{lang === 'es' ? (siteContent.contact_intro || t.intro) : t.cmsFallback.contact_intro}"
-        </p>
+        {/* Text Content Overlay */}
+        <div className="relative z-20 h-full max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 flex flex-col justify-center text-left space-y-4 sm:space-y-5">
+          
+          {/* Badge */}
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[11px] font-extrabold tracking-wider uppercase w-fit border border-white/20 shadow-lg bg-[#e86014] text-white">
+            <Mail className="w-4 h-4 text-white" />
+            <span>{t.bannerBadge}</span>
+          </div>
+
+          {/* Main Title */}
+          <h1 className="font-serif font-black text-3xl sm:text-5xl lg:text-6xl xl:text-7xl text-white leading-tight max-w-3xl drop-shadow-lg">
+            {t.title}
+          </h1>
+
+          {/* Subtitle / Description */}
+          <p className="text-sm sm:text-base text-white/80 max-w-xl leading-relaxed drop-shadow-sm font-serif italic border-l-2 border-[#e86014] pl-3">
+            "{lang === 'es' ? (siteContent.contact_intro || t.intro) : t.cmsFallback.contact_intro}"
+          </p>
+
+        </div>
       </div>
+
+      {/* Main Content Area */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
         {/* Contact Form Column */}
@@ -255,6 +296,7 @@ export const ContactView: React.FC<ContactViewProps> = ({ siteContent, lang }) =
             </div>
           </div>
         </div>
+      </div>
       </div>
     </div>
   );
