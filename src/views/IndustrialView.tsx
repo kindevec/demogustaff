@@ -11,7 +11,12 @@ import {
   Check, 
   Lock, 
   FileText, 
-  Send
+  Send,
+  Award,
+  Factory,
+  ShieldCheck,
+  Edit3,
+  Plus
 } from 'lucide-react';
 
 interface IndustrialViewProps {
@@ -20,6 +25,9 @@ interface IndustrialViewProps {
   onSelectProduct: (p: Product) => void;
   onOpenAuth?: () => void;
   onThemeColorChange?: (color: string) => void;
+  isAdmin?: boolean;
+  onEditProduct?: (p: Product) => void;
+  onAddProduct?: () => void;
 }
 
 export const IndustrialView: React.FC<IndustrialViewProps> = React.memo(({
@@ -27,7 +35,10 @@ export const IndustrialView: React.FC<IndustrialViewProps> = React.memo(({
   lang,
   onSelectProduct,
   onOpenAuth,
-  onThemeColorChange
+  onThemeColorChange,
+  isAdmin = false,
+  onEditProduct,
+  onAddProduct
 }) => {
   const t = TRANSLATIONS[lang].industrialPage;
   const industrialProds = React.useMemo(() => {
@@ -145,6 +156,73 @@ export const IndustrialView: React.FC<IndustrialViewProps> = React.memo(({
         </div>
       </div>
 
+      {/* Feature Ribbon Bar (Superimposed over Hero Banner) */}
+      <AnimatedSection animation="fade-up" delay={100} className="relative z-30 -mt-16 sm:-mt-20 lg:-mt-24 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-12">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+          
+          {/* Card 1: HACCP & BPM */}
+          <div className="bg-white/95 backdrop-blur-md rounded-2xl sm:rounded-3xl p-5 border border-[#e8dcc4] shadow-xl hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-300 flex items-start gap-4 text-left">
+            <div className="p-3 bg-[#f3ece0] text-[#b05d2e] rounded-2xl shrink-0 border border-[#e8dcc4] shadow-sm">
+              <Award className="w-6 h-6" />
+            </div>
+            <div>
+              <h4 className="font-bold text-sm uppercase tracking-wider text-[#3d2516]">
+                {t.ribbonCard1Title}
+              </h4>
+              <p className="text-xs text-[#6d4c41] mt-1 leading-relaxed">
+                {t.ribbonCard1Desc}
+              </p>
+            </div>
+          </div>
+
+          {/* Card 2: Fórmulas a Medida */}
+          <div className="bg-white/95 backdrop-blur-md rounded-2xl sm:rounded-3xl p-5 border border-[#e8dcc4] shadow-xl hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-300 flex items-start gap-4 text-left">
+            <div className="p-3 bg-[#f3ece0] text-[#b05d2e] rounded-2xl shrink-0 border border-[#e8dcc4] shadow-sm">
+              <Factory className="w-6 h-6" />
+            </div>
+            <div>
+              <h4 className="font-bold text-sm uppercase tracking-wider text-[#3d2516]">
+                {t.ribbonCard2Title}
+              </h4>
+              <p className="text-xs text-[#6d4c41] mt-1 leading-relaxed">
+                {t.ribbonCard2Desc}
+              </p>
+            </div>
+          </div>
+
+          {/* Card 3: Empaques Industriales */}
+          <div className="bg-white/95 backdrop-blur-md rounded-2xl sm:rounded-3xl p-5 border border-[#e8dcc4] shadow-xl hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-300 flex items-start gap-4 text-left">
+            <div className="p-3 bg-[#f3ece0] text-[#b05d2e] rounded-2xl shrink-0 border border-[#e8dcc4] shadow-sm">
+              <Package className="w-6 h-6" />
+            </div>
+            <div>
+              <h4 className="font-bold text-sm uppercase tracking-wider text-[#3d2516]">
+                {t.ribbonCard3Title}
+              </h4>
+              <p className="text-xs text-[#6d4c41] mt-1 leading-relaxed">
+                {t.ribbonCard3Desc}
+              </p>
+            </div>
+          </div>
+
+          {/* Card 4: Trazabilidad Total */}
+          <div className="bg-white/95 backdrop-blur-md rounded-2xl sm:rounded-3xl p-5 border border-[#e8dcc4] shadow-xl hover:shadow-2xl hover:-translate-y-1.5 transition-all duration-300 flex items-start gap-4 text-left">
+            <div className="p-3 bg-[#f3ece0] text-[#b05d2e] rounded-2xl shrink-0 border border-[#e8dcc4] shadow-sm">
+              <ShieldCheck className="w-6 h-6" />
+            </div>
+            <div>
+              <h4 className="font-bold text-sm uppercase tracking-wider text-[#3d2516]">
+                {t.ribbonCard4Title}
+              </h4>
+              <p className="text-xs text-[#6d4c41] mt-1 leading-relaxed">
+                {t.ribbonCard4Desc}
+              </p>
+            </div>
+          </div>
+
+        </div>
+      </AnimatedSection>
+
       {/* Main Content Area */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-12">
 
@@ -184,13 +262,32 @@ export const IndustrialView: React.FC<IndustrialViewProps> = React.memo(({
 
       {/* Grid of Industrial Products */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {filteredProducts.map((p) => (
-          <div
+        {filteredProducts.map((p, idx) => (
+          <AnimatedSection
             key={p.id}
-            className="bg-white rounded-3xl border border-[#e8dcc4] hover:border-[#b05d2e] transition-all duration-300 transform hover:scale-[1.02] overflow-hidden flex flex-col justify-between shadow-sm hover:shadow-md group h-full"
+            animation="scale-up"
+            delay={(idx % 6) * 90}
           >
+            <div
+              className="bg-white rounded-3xl border border-[#e8dcc4] hover:border-[#b05d2e] transition-all duration-300 transform hover:scale-[1.02] overflow-hidden flex flex-col justify-between shadow-sm hover:shadow-md group h-full"
+            >
             {/* Product Image */}
             <div className="relative h-56 bg-[#fdf5e6] overflow-hidden">
+              {/* Admin Direct Product Edit Button */}
+              {isAdmin && (
+                <button
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onEditProduct?.(p);
+                  }}
+                  className="absolute top-3 left-3 z-20 bg-[#e86014] hover:bg-[#d9530f] text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg border border-white/40 flex items-center gap-1 transition-transform hover:scale-105 cursor-pointer"
+                  title="Editar este producto"
+                >
+                  <Edit3 className="w-3.5 h-3.5" />
+                  <span>Editar</span>
+                </button>
+              )}
+
               <img
                 src={p.image}
                 alt={p.name}
@@ -245,6 +342,7 @@ export const IndustrialView: React.FC<IndustrialViewProps> = React.memo(({
               </div>
             </div>
           </div>
+        </AnimatedSection>
         ))}
       </div>
 

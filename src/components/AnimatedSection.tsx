@@ -43,17 +43,17 @@ export const AnimatedSection: React.FC<AnimatedSectionProps> = ({
     if (!isVisible) {
       switch (animation) {
         case 'fade-up':
-          return 'opacity-0 translate-y-6';
+          return 'opacity-0 translate-y-10 scale-[0.985]';
         case 'fade-in':
           return 'opacity-0';
         case 'scale-up':
           return 'opacity-0 scale-95';
         case 'slide-left':
-          return 'opacity-0 -translate-x-6';
+          return 'opacity-0 -translate-x-10';
         case 'slide-right':
-          return 'opacity-0 translate-x-6';
+          return 'opacity-0 translate-x-10';
         default:
-          return 'opacity-0 translate-y-6';
+          return 'opacity-0 translate-y-10 scale-[0.985]';
       }
     }
 
@@ -63,8 +63,11 @@ export const AnimatedSection: React.FC<AnimatedSectionProps> = ({
   return (
     <div
       ref={ref}
-      style={{ transitionDelay: `${delay}ms` }}
-      className={`transition-[opacity,transform] duration-500 ease-out transform ${getInitialClass()} ${className}`}
+      style={{
+        transitionDelay: `${delay}ms`,
+        transitionTimingFunction: 'cubic-bezier(0.22, 1, 0.36, 1)'
+      }}
+      className={`transition-all duration-850 transform will-change-transform ${getInitialClass()} ${className}`}
     >
       {children}
     </div>

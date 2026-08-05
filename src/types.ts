@@ -47,11 +47,24 @@ export interface Recipe {
   featured_product_name: string;
 }
 
+export interface SlideConfig {
+  id: number;
+  tagline: string;
+  titleLine1: string;
+  titleAccent: string;
+  description: string;
+  image: string;
+  primaryBtnText: string;
+  primaryTab: string;
+  objectPosition?: string;
+}
+
 export interface SiteContent {
   home_headline: string;
   home_quienes_somos: string;
   home_productos_summary: string;
   home_industrial_summary: string;
+  home_slides?: SlideConfig[];
   about_title: string;
   about_history: string;
   about_mision: string;

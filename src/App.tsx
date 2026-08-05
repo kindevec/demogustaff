@@ -1,12 +1,15 @@
 import React, { useState, useEffect, useCallback, Suspense, lazy } from 'react';
 import { Language, Product, SiteContent } from './types';
-import { fetchProducts, getStoredSiteContent } from './lib/supabase';
+import { fetchProducts, getStoredSiteContent, saveStoredSiteContent, getAdminSession, adminLogout } from './lib/supabase';
 import { Navbar } from './components/Navbar';
 import { BottomNav } from './components/BottomNav';
 import { Footer } from './components/Footer';
 import { WhatsAppWidget } from './components/WhatsAppWidget';
 import { CookieBanner } from './components/CookieBanner';
 import { ProductDetailModal } from './components/ProductDetailModal';
+import { ProductEditModal } from './components/ProductEditModal';
+import { updateProduct, addProduct, deleteProduct } from './lib/supabase';
+import { ShieldCheck, LogOut, Edit3, Plus } from 'lucide-react';
 
 /* User-facing views — static imports for instant tab switching */
 import { HomeView } from './views/HomeView';
@@ -26,15 +29,38 @@ const getHashTab = () => {
 
 export default function App() {
   const [currentTab, setCurrentTabState] = useState<string>(getHashTab());
+  const [isAdmin, setIsAdmin] = useState(() => {
+    try {
+      for (let i = 0; i < localStorage.length; i++) {
+        const key = localStorage.key(i);
+        if (key && key.includes('sb-') && key.includes('-auth-token')) {
+          const val = localStorage.getItem(key);
+          if (val && val.includes('access_token')) return true;
+        }
+      }
+    } catch {}
+    return false;
+  });
+
+  // Check admin auth status
+  const checkAuth = useCallback(async () => {
+    const { session } = await getAdminSession();
+    setIsAdmin(Boolean(session));
+  }, []);
+
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth, currentTab]);
 
   useEffect(() => {
     const handleHashChange = () => {
       setCurrentTabState(getHashTab());
       window.scrollTo(0, 0);
+      checkAuth();
     };
     window.addEventListener('hashchange', handleHashChange);
     return () => window.removeEventListener('hashchange', handleHashChange);
-  }, []);
+  }, [checkAuth]);
 
   const setCurrentTab = useCallback((tab: string) => {
     window.location.hash = tab;
@@ -56,7 +82,50 @@ export default function App() {
   const [siteContent, setSiteContent] = useState<SiteContent>(() => getStoredSiteContent());
   const refreshSiteContent = useCallback(() => setSiteContent(getStoredSiteContent()), []);
 
+  const handleUpdateSiteContent = useCallback(async (newContent: SiteContent) => {
+    setSiteContent(newContent);
+    await saveStoredSiteContent(newContent);
+  }, []);
+
+  const handleAdminLogout = useCallback(async () => {
+    await adminLogout();
+    setIsAdmin(false);
+  }, []);
+
   const [selectedProduct, setSelectedProduct] = useState<Product | null>(null);
+  const [editingProductModal, setEditingProductModal] = useState<Product | null>(null);
+
+  const handleEditProductModal = useCallback((p: Product) => {
+    setEditingProductModal(p);
+  }, []);
+
+  const handleAddNewProductModal = useCallback(() => {
+    setEditingProductModal({
+      id: `prod_${Date.now()}`,
+      code: 'GUST-NEW',
+      name: '',
+      category: 'industrial',
+      package_size: '',
+      description: '',
+      image: '',
+      order: products.length + 1
+    });
+  }, [products.length]);
+
+  const handleSaveProductModal = useCallback(async (prod: Product) => {
+    if (prod.id && !prod.id.startsWith('prod_')) {
+      await updateProduct(prod.id, prod);
+    } else {
+      await addProduct(prod);
+    }
+    await loadProducts();
+  }, [loadProducts]);
+
+  const handleDeleteProductModal = useCallback(async (id: string) => {
+    await deleteProduct(id);
+    await loadProducts();
+  }, [loadProducts]);
+
   const [headerThemeColor, setHeaderThemeColor] = useState<string>(() => {
     const initialTab = getHashTab();
     return initialTab === 'admin' ? '' : '#3A1B12';
@@ -71,6 +140,34 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[#fdfaf5] text-[#4a3224] font-sans selection:bg-[#b05d2e] selection:text-white flex flex-col justify-between">
+      
+      {/* Top Admin Active Banner (Visible across site when logged in) */}
+      {isAdmin && currentTab !== 'admin' && (
+        <div className="bg-[#1e140f] text-[#e8dcc4] text-xs py-2 px-4 flex items-center justify-between z-50 border-b border-[#3A1B12] shadow-md sticky top-0">
+          <div className="flex items-center gap-2 font-semibold">
+            <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+            <ShieldCheck className="w-4 h-4 text-emerald-400" />
+            <span>Modo Administrador Activo — Edición en Tiempo Real</span>
+          </div>
+          <div className="flex items-center gap-3">
+            <button 
+              onClick={() => setCurrentTab('admin')} 
+              className="inline-flex items-center gap-1 text-[#f3ece0] hover:text-white underline font-medium cursor-pointer"
+            >
+              <Edit3 className="w-3.5 h-3.5" />
+              <span>Panel General</span>
+            </button>
+            <button 
+              onClick={handleAdminLogout} 
+              className="inline-flex items-center gap-1 bg-[#e86014] hover:bg-[#d9530f] text-white px-2.5 py-1 rounded-full font-bold transition-all cursor-pointer"
+            >
+              <LogOut className="w-3 h-3" />
+              <span>Cerrar Sesión</span>
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Fixed Main Navigation Header */}
       {currentTab !== 'admin' && (
         <Navbar
@@ -79,6 +176,7 @@ export default function App() {
           lang={lang}
           onOpenAdmin={handleOpenAdmin}
           themeColor={headerThemeColor}
+          isAdmin={isAdmin}
         />
       )}
 
@@ -92,6 +190,9 @@ export default function App() {
             siteContent={siteContent}
             onSelectProduct={handleSelectProduct}
             onThemeColorChange={setHeaderThemeColor}
+            isAdmin={isAdmin}
+            onUpdateSiteContent={handleUpdateSiteContent}
+            onEditProduct={handleEditProductModal}
           />
         )}
 
@@ -111,6 +212,9 @@ export default function App() {
             onSelectProduct={handleSelectProduct}
             onOpenAuth={handleOpenAdmin}
             onThemeColorChange={setHeaderThemeColor}
+            isAdmin={isAdmin}
+            onEditProduct={handleEditProductModal}
+            onAddProduct={handleAddNewProductModal}
           />
         )}
 
@@ -121,6 +225,9 @@ export default function App() {
             onSelectProduct={handleSelectProduct}
             onOpenAuth={handleOpenAdmin}
             onThemeColorChange={setHeaderThemeColor}
+            isAdmin={isAdmin}
+            onEditProduct={handleEditProductModal}
+            onAddProduct={handleAddNewProductModal}
           />
         )}
 
@@ -167,6 +274,14 @@ export default function App() {
         onClose={handleCloseProduct}
         onRequestQuote={handleRequestQuote}
         lang={lang}
+      />
+
+      {/* Admin Inline Product Edit Modal */}
+      <ProductEditModal
+        product={editingProductModal}
+        onClose={() => setEditingProductModal(null)}
+        onSave={handleSaveProductModal}
+        onDelete={handleDeleteProductModal}
       />
     </div>
   );

@@ -4,7 +4,7 @@ import { TRANSLATIONS } from '../data/translations';
 import { 
   Menu, 
   X, 
-  Settings, 
+  UserCircle, 
   PhoneCall,
   Sparkles
 } from 'lucide-react';
@@ -16,6 +16,7 @@ interface NavbarProps {
   lang: Language;
   onOpenAdmin: () => void;
   themeColor?: string;
+  isAdmin?: boolean;
 }
 
 export const Navbar: React.FC<NavbarProps> = React.memo(({
@@ -23,7 +24,8 @@ export const Navbar: React.FC<NavbarProps> = React.memo(({
   setCurrentTab,
   lang,
   onOpenAdmin,
-  themeColor
+  themeColor,
+  isAdmin = false
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const t = TRANSLATIONS[lang].nav;
@@ -109,18 +111,19 @@ export const Navbar: React.FC<NavbarProps> = React.memo(({
           ))}
         </nav>
 
-        {/* Action Buttons: CMS Admin Button */}
-        <div className="hidden lg:flex items-center space-x-3 shrink-0">
-          {/* CMS Admin Button */}
-          <button
-            onClick={onOpenAdmin}
-            className="flex items-center gap-1.5 bg-[#f3ece0] hover:bg-[#e8dcc4] text-[#603813] font-semibold px-4 py-2 rounded-full text-sm border border-[#e8dcc4] transition-all duration-300 cursor-pointer"
-            title={t.adminPanel}
-          >
-            <Settings className="w-4 h-4 text-[#b05d2e]" />
-            {t.adminPanel}
-          </button>
-        </div>
+        {/* Action Buttons: Login Button (Hidden when logged in as Admin) */}
+        {!isAdmin && (
+          <div className="hidden lg:flex items-center space-x-3 shrink-0">
+            <button
+              onClick={onOpenAdmin}
+              className="flex items-center gap-1.5 bg-[#f3ece0] hover:bg-[#e8dcc4] text-[#603813] font-semibold px-4 py-2 rounded-full text-sm border border-[#e8dcc4] transition-all duration-300 cursor-pointer"
+              title="Login"
+            >
+              <UserCircle className="w-4 h-4 text-[#b05d2e]" />
+              Login
+            </button>
+          </div>
+        )}
 
         {/* Mobile Hamburger Toggle */}
         <div className="lg:hidden flex items-center space-x-2">

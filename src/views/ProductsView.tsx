@@ -12,7 +12,9 @@ import {
   Layers,
   Cookie,
   Beaker,
-  Factory
+  Factory,
+  Edit3,
+  Plus
 } from 'lucide-react';
 
 interface ProductsViewProps {
@@ -21,6 +23,9 @@ interface ProductsViewProps {
   onSelectProduct: (p: Product) => void;
   onOpenAuth?: () => void;
   onThemeColorChange?: (color: string) => void;
+  isAdmin?: boolean;
+  onEditProduct?: (p: Product) => void;
+  onAddProduct?: () => void;
 }
 
 // Category slide configuration with unique colors
@@ -102,7 +107,10 @@ export const ProductsView: React.FC<ProductsViewProps> = React.memo(({
   lang,
   onSelectProduct,
   onOpenAuth,
-  onThemeColorChange
+  onThemeColorChange,
+  isAdmin = false,
+  onEditProduct,
+  onAddProduct
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentSlide, setCurrentSlide] = useState(0);
@@ -372,7 +380,7 @@ export const ProductsView: React.FC<ProductsViewProps> = React.memo(({
 
         {/* Results Count */}
         <AnimatedSection animation="fade-in" delay={100} className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mt-8 mb-6">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-wrap items-center justify-between gap-4">
             <p className="text-sm text-[#8d6e63] font-medium">
               <span className="text-[#3d2516] font-bold">{filteredProducts.length}</span> producto{filteredProducts.length !== 1 ? 's' : ''} encontrado{filteredProducts.length !== 1 ? 's' : ''}
               {selectedFilter !== 'all' && (
@@ -381,14 +389,25 @@ export const ProductsView: React.FC<ProductsViewProps> = React.memo(({
                 </span>
               )}
             </p>
-            {selectedFilter !== 'all' && (
-              <button
-                onClick={() => setSelectedFilter('all')}
-                className="text-xs text-[#b05d2e] font-bold hover:underline cursor-pointer"
-              >
-                Ver todos
-              </button>
-            )}
+            <div className="flex items-center gap-3">
+              {isAdmin && (
+                <button
+                  onClick={onAddProduct}
+                  className="bg-[#b05d2e] hover:bg-[#8d461f] text-white px-4 py-2 rounded-full text-xs font-bold shadow-md border border-white/20 flex items-center gap-1.5 transition-transform hover:scale-105 cursor-pointer"
+                >
+                  <Plus className="w-4 h-4" />
+                  <span>Agregar Nuevo Producto</span>
+                </button>
+              )}
+              {selectedFilter !== 'all' && (
+                <button
+                  onClick={() => setSelectedFilter('all')}
+                  className="text-xs text-[#b05d2e] font-bold hover:underline cursor-pointer"
+                >
+                  Ver todos
+                </button>
+              )}
+            </div>
           </div>
         </AnimatedSection>
 
@@ -398,8 +417,8 @@ export const ProductsView: React.FC<ProductsViewProps> = React.memo(({
             {filteredProducts.map((p, idx) => (
               <AnimatedSection
                 key={p.id}
-                animation="fade-up"
-                delay={Math.min((idx % 4) * 40, 120)}
+                animation="scale-up"
+                delay={(idx % 8) * 90}
               >
                 {/* === TravelCard Style Product Card === */}
                 <div
@@ -421,8 +440,22 @@ export const ProductsView: React.FC<ProductsViewProps> = React.memo(({
                   {/* Content Container */}
                   <div className="relative flex h-full flex-col justify-between p-4 sm:p-5">
 
-                    {/* Top Section: Badges */}
-                    <div className="flex items-start justify-end">
+                    {/* Top Section: Badges & Admin Edit */}
+                    <div className="flex items-start justify-between w-full z-20">
+                      {isAdmin ? (
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onEditProduct?.(p);
+                          }}
+                          className="bg-[#e86014] hover:bg-[#d9530f] text-white px-2.5 py-1 rounded-full text-[10px] font-bold shadow-lg border border-white/40 flex items-center gap-1 transition-transform hover:scale-105 cursor-pointer"
+                          title="Editar este producto"
+                        >
+                          <Edit3 className="w-3 h-3" />
+                          <span>Editar</span>
+                        </button>
+                      ) : <div />}
+
                       {/* Featured Badge */}
                       {p.is_featured && (
                         <div className="flex items-center gap-1 bg-[#e86014] text-white text-[9px] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wider shadow-md border border-white/20">

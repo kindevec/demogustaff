@@ -31,6 +31,13 @@ export const adminLogout = async () => {
   await supabase.auth.signOut();
 };
 
+export const updateAdminPassword = async (newPassword: string) => {
+  if (!supabase) return { error: 'Supabase no configurado' };
+  const { data, error } = await supabase.auth.updateUser({ password: newPassword });
+  if (error) return { error: error.message };
+  return { success: true, data };
+};
+
 export const getAdminSession = async () => {
   if (!supabase) return { session: null };
   const { data, error } = await supabase.auth.getSession();
@@ -92,8 +99,15 @@ export const getStoredSiteContent = (): SiteContent => {
   }
 };
 
-export const saveStoredSiteContent = (content: SiteContent): void => {
+export const saveStoredSiteContent = async (content: SiteContent): Promise<void> => {
   localStorage.setItem(STORAGE_KEYS.SITE_CONTENT, JSON.stringify(content));
+  if (supabase) {
+    try {
+      await supabase.from('site_content').upsert({ id: 'main', content, updated_at: new Date().toISOString() });
+    } catch (e) {
+      console.warn('Could not sync site_content to Supabase:', e);
+    }
+  }
 };
 
 export const uploadProductImage = async (file: File): Promise<{ success: boolean; url?: string; error?: string }> => {

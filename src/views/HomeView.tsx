@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { translateProduct } from '../lib/translateProduct';
-import { Language, Product, SiteContent } from '../types';
+import { Language, Product, SiteContent, SlideConfig } from '../types';
 import { TRANSLATIONS } from '../data/translations';
 import { AnimatedSection } from '../components/AnimatedSection';
+import { uploadProductImage } from '../lib/supabase';
 import { 
   Sparkles, 
   Factory, 
@@ -10,11 +11,19 @@ import {
   Award, 
   ChevronRight, 
   ChevronLeft,
-  Lock, 
   ArrowRight, 
   ShieldCheck,
   Star,
-  Heart
+  Heart,
+  Edit3,
+  Upload,
+  X,
+  Save,
+  Image as ImageIcon,
+  Check,
+  Camera,
+  Move,
+  Hand
 } from 'lucide-react';
 
 interface HomeViewProps {
@@ -24,6 +33,9 @@ interface HomeViewProps {
   siteContent: SiteContent;
   onSelectProduct: (p: Product) => void;
   onThemeColorChange?: (color: string) => void;
+  isAdmin?: boolean;
+  onUpdateSiteContent?: (content: SiteContent) => void;
+  onEditProduct?: (p: Product) => void;
 }
 
 export const HomeView: React.FC<HomeViewProps> = React.memo(({
@@ -32,7 +44,10 @@ export const HomeView: React.FC<HomeViewProps> = React.memo(({
   products,
   siteContent,
   onSelectProduct,
-  onThemeColorChange
+  onThemeColorChange,
+  isAdmin = false,
+  onUpdateSiteContent,
+  onEditProduct
 }) => {
   const t = TRANSLATIONS[lang];
   const hp = t.homePage;
@@ -42,8 +57,8 @@ export const HomeView: React.FC<HomeViewProps> = React.memo(({
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
 
-  // Intelligent Slides Color & Edge-to-Edge WebP Banners Config
-  const slides = React.useMemo(() => [
+  // Intelligent Default Slides Config
+  const defaultSlides = React.useMemo(() => [
     {
       id: 1,
       tagline: hp.slide1Tagline,
@@ -130,6 +145,296 @@ export const HomeView: React.FC<HomeViewProps> = React.memo(({
     }
   ], [hp, lang, siteContent.home_headline, t.cmsFallback.home_headline, t.hero.btnCatalog]);
 
+  // Merge Custom Admin Slides with Defaults
+  const slides = React.useMemo(() => {
+    const custom = siteContent.home_slides || [];
+    return defaultSlides.map((def, idx) => {
+      const match = custom.find(c => c.id === def.id) || custom[idx];
+      if (!match) return def;
+      return {
+        ...def,
+        tagline: match.tagline || def.tagline,
+        titleLine1: match.titleLine1 || def.titleLine1,
+        titleAccent: match.titleAccent || def.titleAccent,
+        description: match.description || def.description,
+        image: match.image || def.image,
+        primaryBtnText: match.primaryBtnText || def.primaryBtnText,
+        primaryTab: match.primaryTab || def.primaryTab,
+        objectPosition: match.objectPosition || def.objectPosition
+      };
+    });
+  }, [defaultSlides, siteContent.home_slides]);
+
+  // Admin Inline Editing State
+  const [isEditingTextInline, setIsEditingTextInline] = useState(false);
+  const [isAdjustingImage, setIsAdjustingImage] = useState(false);
+  const [isUploadingSlideImage, setIsUploadingSlideImage] = useState(false);
+
+  // Facebook-Style Drag-to-Reposition Image State
+  const [isDraggingImage, setIsDraggingImage] = useState(false);
+  const [dragPos, setDragPos] = useState<{ x: number; y: number }>({ x: 50, y: 50 });
+  const dragStartRef = React.useRef<{ mouseX: number; mouseY: number; initialX: number; initialY: number } | null>(null);
+
+  const [inlineTextForm, setInlineTextForm] = useState<SlideConfig>({
+    id: 1,
+    tagline: '',
+    titleLine1: '',
+    titleAccent: '',
+    description: '',
+    image: '',
+    primaryBtnText: '',
+    primaryTab: '',
+    objectPosition: '50% 50%'
+  });
+
+  // Sync inline form state & drag position when slide changes or adjustment starts
+  useEffect(() => {
+    const s = slides[currentSlide];
+    if (s) {
+      setInlineTextForm({
+        id: s.id,
+        tagline: s.tagline,
+        titleLine1: s.titleLine1,
+        titleAccent: s.titleAccent,
+        description: s.description,
+        image: s.image,
+        primaryBtnText: s.primaryBtnText,
+        primaryTab: s.primaryTab,
+        objectPosition: s.objectPosition || '50% 50%'
+      });
+
+      const rawPos = s.objectPosition || '50% 50%';
+      let initX = 50;
+      let initY = 50;
+
+      if (rawPos.includes('%')) {
+        const parts = rawPos.replace(/object-|%/g, '').trim().split(/\s+/);
+        if (parts.length >= 2) {
+          initX = parseFloat(parts[0]);
+          initY = parseFloat(parts[1]);
+        }
+      } else if (rawPos.includes('top')) {
+        initY = 0;
+      } else if (rawPos.includes('bottom')) {
+        initY = 100;
+      } else if (rawPos.includes('left')) {
+        initX = 0;
+      } else if (rawPos.includes('right')) {
+        initX = 100;
+      }
+
+      setDragPos({ x: isNaN(initX) ? 50 : initX, y: isNaN(initY) ? 50 : initY });
+    }
+  }, [currentSlide, isAdjustingImage, slides]);
+
+  // GPU-Accelerated 60 FPS Drag Event Handlers with requestAnimationFrame
+  const animationFrameRef = React.useRef<number | null>(null);
+
+  const handleMouseDownDrag = (e: React.MouseEvent) => {
+    if (!isAdjustingImage) return;
+    e.preventDefault();
+    setIsDraggingImage(true);
+    dragStartRef.current = {
+      mouseX: e.clientX,
+      mouseY: e.clientY,
+      initialX: dragPos.x,
+      initialY: dragPos.y
+    };
+  };
+
+  const handleMouseMoveDrag = (e: React.MouseEvent) => {
+    if (!isDraggingImage || !dragStartRef.current) return;
+    const clientX = e.clientX;
+    const clientY = e.clientY;
+
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current);
+    }
+
+    animationFrameRef.current = requestAnimationFrame(() => {
+      if (!dragStartRef.current) return;
+      const deltaX = clientX - dragStartRef.current.mouseX;
+      const deltaY = clientY - dragStartRef.current.mouseY;
+
+      // Responsive 0.35 sensitivity for instant 1:1 feel
+      const newX = Math.max(0, Math.min(100, dragStartRef.current.initialX - deltaX * 0.35));
+      const newY = Math.max(0, Math.min(100, dragStartRef.current.initialY - deltaY * 0.35));
+
+      setDragPos({ x: Math.round(newX), y: Math.round(newY) });
+    });
+  };
+
+  const handleMouseUpDrag = () => {
+    if (isDraggingImage) {
+      setIsDraggingImage(false);
+      dragStartRef.current = null;
+    }
+  };
+
+  const handleTouchStartDrag = (e: React.TouchEvent) => {
+    if (!isAdjustingImage || e.touches.length !== 1) return;
+    const touch = e.touches[0];
+    setIsDraggingImage(true);
+    dragStartRef.current = {
+      mouseX: touch.clientX,
+      mouseY: touch.clientY,
+      initialX: dragPos.x,
+      initialY: dragPos.y
+    };
+  };
+
+  const handleTouchMoveDrag = (e: React.TouchEvent) => {
+    if (!isDraggingImage || !dragStartRef.current || e.touches.length !== 1) return;
+    const touch = e.touches[0];
+    const clientX = touch.clientX;
+    const clientY = touch.clientY;
+
+    if (animationFrameRef.current) {
+      cancelAnimationFrame(animationFrameRef.current);
+    }
+
+    animationFrameRef.current = requestAnimationFrame(() => {
+      if (!dragStartRef.current) return;
+      const deltaX = clientX - dragStartRef.current.mouseX;
+      const deltaY = clientY - dragStartRef.current.mouseY;
+
+      const newX = Math.max(0, Math.min(100, dragStartRef.current.initialX - deltaX * 0.35));
+      const newY = Math.max(0, Math.min(100, dragStartRef.current.initialY - deltaY * 0.35));
+
+      setDragPos({ x: Math.round(newX), y: Math.round(newY) });
+    });
+  };
+
+  // Save Dragged Position
+  const handleSaveDraggedPosition = () => {
+    const posString = `${dragPos.x}% ${dragPos.y}%`;
+    const targetSlide = slides[currentSlide];
+    const updatedSlideConfig: SlideConfig = {
+      id: targetSlide.id,
+      tagline: targetSlide.tagline,
+      titleLine1: targetSlide.titleLine1,
+      titleAccent: targetSlide.titleAccent,
+      description: targetSlide.description,
+      image: targetSlide.image,
+      primaryBtnText: targetSlide.primaryBtnText,
+      primaryTab: targetSlide.primaryTab,
+      objectPosition: posString
+    };
+
+    const existingSlides: SlideConfig[] = siteContent.home_slides
+      ? [...siteContent.home_slides]
+      : defaultSlides.map(s => ({
+          id: s.id,
+          tagline: s.tagline,
+          titleLine1: s.titleLine1,
+          titleAccent: s.titleAccent,
+          description: s.description,
+          image: s.image,
+          primaryBtnText: s.primaryBtnText,
+          primaryTab: s.primaryTab,
+          objectPosition: s.objectPosition
+        }));
+
+    const idx = existingSlides.findIndex(s => s.id === updatedSlideConfig.id);
+    if (idx !== -1) {
+      existingSlides[idx] = updatedSlideConfig;
+    } else {
+      existingSlides.push(updatedSlideConfig);
+    }
+
+    onUpdateSiteContent?.({
+      ...siteContent,
+      home_slides: existingSlides
+    });
+
+    setIsAdjustingImage(false);
+  };
+
+  // Direct Image Upload for Top-Right Button
+  const handleDirectImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, slideIndex: number) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploadingSlideImage(true);
+    const res = await uploadProductImage(file);
+    if (res.success && res.url) {
+      const targetSlide = slides[slideIndex];
+      const updatedSlideConfig: SlideConfig = {
+        id: targetSlide.id,
+        tagline: targetSlide.tagline,
+        titleLine1: targetSlide.titleLine1,
+        titleAccent: targetSlide.titleAccent,
+        description: targetSlide.description,
+        image: res.url,
+        primaryBtnText: targetSlide.primaryBtnText,
+        primaryTab: targetSlide.primaryTab,
+        objectPosition: targetSlide.objectPosition
+      };
+
+      const existingSlides: SlideConfig[] = siteContent.home_slides
+        ? [...siteContent.home_slides]
+        : defaultSlides.map(s => ({
+            id: s.id,
+            tagline: s.tagline,
+            titleLine1: s.titleLine1,
+            titleAccent: s.titleAccent,
+            description: s.description,
+            image: s.image,
+            primaryBtnText: s.primaryBtnText,
+            primaryTab: s.primaryTab,
+            objectPosition: s.objectPosition
+          }));
+
+      const idx = existingSlides.findIndex(s => s.id === updatedSlideConfig.id);
+      if (idx !== -1) {
+        existingSlides[idx] = updatedSlideConfig;
+      } else {
+        existingSlides.push(updatedSlideConfig);
+      }
+
+      onUpdateSiteContent?.({
+        ...siteContent,
+        home_slides: existingSlides
+      });
+    } else {
+      alert('Error al subir imagen: ' + (res.error || 'Ocurrió un error'));
+    }
+    setIsUploadingSlideImage(false);
+  };
+
+  // Save Inline Text Changes
+  const handleSaveInlineText = (e: React.FormEvent) => {
+    e.preventDefault();
+    const existingSlides: SlideConfig[] = siteContent.home_slides
+      ? [...siteContent.home_slides]
+      : defaultSlides.map(s => ({
+          id: s.id,
+          tagline: s.tagline,
+          titleLine1: s.titleLine1,
+          titleAccent: s.titleAccent,
+          description: s.description,
+          image: s.image,
+          primaryBtnText: s.primaryBtnText,
+          primaryTab: s.primaryTab,
+          objectPosition: s.objectPosition
+        }));
+
+    const idx = existingSlides.findIndex(s => s.id === inlineTextForm.id);
+    if (idx !== -1) {
+      existingSlides[idx] = inlineTextForm;
+    } else {
+      existingSlides.push(inlineTextForm);
+    }
+
+    onUpdateSiteContent?.({
+      ...siteContent,
+      home_slides: existingSlides,
+      home_headline: inlineTextForm.id === 1 ? inlineTextForm.description : siteContent.home_headline
+    });
+
+    setIsEditingTextInline(false);
+  };
+
   // Sync theme color to parent (Navbar)
   useEffect(() => {
     onThemeColorChange?.(slides[currentSlide]?.navColor || '#3A1B12');
@@ -138,14 +443,14 @@ export const HomeView: React.FC<HomeViewProps> = React.memo(({
     };
   }, [currentSlide, onThemeColorChange, slides]);
 
-  // Auto advance slides every 5 seconds
+  // Auto advance slides every 5 seconds (PAUSED automatically when editing text or adjusting image)
   useEffect(() => {
-    if (isPaused) return;
+    if (isPaused || isEditingTextInline || isAdjustingImage) return;
     const interval = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % slides.length);
     }, 5000);
     return () => clearInterval(interval);
-  }, [isPaused, slides.length]);
+  }, [isPaused, isEditingTextInline, isAdjustingImage, slides.length]);
 
   const nextSlide = () => {
     setCurrentSlide((prev) => (prev + 1) % slides.length);
@@ -165,11 +470,80 @@ export const HomeView: React.FC<HomeViewProps> = React.memo(({
           1. HERO SLIDER SECTION (Full Edge-to-Edge ProductsView Style)
          ========================================================================= */}
       <div 
-        className="relative overflow-hidden transition-colors duration-700 ease-in-out h-[580px] sm:h-[680px] lg:h-[784px] group"
+        className={`relative overflow-hidden transition-colors duration-700 ease-in-out h-[580px] sm:h-[680px] lg:h-[784px] group ${
+          isAdjustingImage 
+            ? (isDraggingImage ? 'cursor-grabbing select-none' : 'cursor-grab') 
+            : ''
+        }`}
         style={{ backgroundColor: slides[currentSlide]?.navColor || '#3A1B12' }}
         onMouseEnter={() => setIsPaused(true)}
         onMouseLeave={() => setIsPaused(false)}
+        onMouseDown={handleMouseDownDrag}
+        onMouseMove={handleMouseMoveDrag}
+        onMouseUp={handleMouseUpDrag}
+        onTouchStart={handleTouchStartDrag}
+        onTouchMove={handleTouchMoveDrag}
+        onTouchEnd={handleMouseUpDrag}
       >
+        {/* Top-Right Slider Image Edit Controls */}
+        {isAdmin && (
+          <div className="absolute top-6 right-6 z-40 flex items-center gap-2">
+            {/* Direct File Selector */}
+            <label className="bg-black/70 hover:bg-black/90 text-white px-3.5 py-2 rounded-full font-bold text-xs shadow-2xl flex items-center gap-1.5 border border-white/40 cursor-pointer backdrop-blur-md transition-all hover:scale-105">
+              <Camera className="w-4 h-4 text-[#e86014]" />
+              <span>{isUploadingSlideImage ? 'Subiendo Imagen...' : `📷 Cambiar Foto (Slide #${currentSlide + 1})`}</span>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => handleDirectImageUpload(e, currentSlide)}
+                className="hidden"
+                disabled={isUploadingSlideImage}
+              />
+            </label>
+
+            {/* Image Positioning Toggle */}
+            <button
+              onClick={() => setIsAdjustingImage(!isAdjustingImage)}
+              className={`px-3.5 py-2 rounded-full font-bold text-xs shadow-2xl flex items-center gap-1.5 border backdrop-blur-md transition-all hover:scale-105 cursor-pointer ${
+                isAdjustingImage
+                  ? 'bg-[#e86014] text-white border-white font-black'
+                  : 'bg-black/70 hover:bg-black/90 text-white border-white/40'
+              }`}
+              title="Arrastrar y mover la foto para reajustar posición"
+            >
+              <Move className="w-4 h-4 text-white" />
+              <span>{isAdjustingImage ? '✕ Cerrar Encuadre' : '📐 Mover / Reposicionar Foto'}</span>
+            </button>
+          </div>
+        )}
+
+        {/* Facebook-Style Drag Repositioning Instruction Bar */}
+        {isAdmin && isAdjustingImage && (
+          <div className="absolute top-16 sm:top-20 left-1/2 -translate-x-1/2 z-40 bg-black/90 backdrop-blur-xl border border-white/40 text-white px-5 py-3 rounded-full shadow-2xl flex flex-wrap items-center justify-center gap-3 animate-fade-in text-xs max-w-xl w-[90%] sm:w-auto">
+            <div className="flex items-center gap-2 text-[#e86014] font-bold">
+              <Hand className="w-4 h-4 animate-bounce" />
+              <span>Arrastra la foto hacia cualquier dirección para reajustar</span>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={handleSaveDraggedPosition}
+                className="bg-emerald-600 hover:bg-emerald-500 text-white px-4 py-1.5 rounded-full font-bold text-xs flex items-center gap-1 shadow-md transition-all cursor-pointer"
+              >
+                <Save className="w-3.5 h-3.5" />
+                <span>Guardar Posición</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => setIsAdjustingImage(false)}
+                className="bg-white/20 hover:bg-white/30 text-white px-3 py-1.5 rounded-full font-bold text-xs transition-colors cursor-pointer"
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        )}
+
         {/* Active Slide Renderer */}
         <div className="relative h-full">
           {slides.map((slide, idx) => (
@@ -179,11 +553,21 @@ export const HomeView: React.FC<HomeViewProps> = React.memo(({
                 idx === currentSlide ? 'opacity-100 z-10 scale-100 pointer-events-auto' : 'opacity-0 z-0 scale-105 pointer-events-none'
               }`}
             >
-              {/* Full Background Image Container (Edge-to-Edge Coverage with smooth zoom) */}
+              {/* Full Background Image Container (Edge-to-Edge Coverage with smooth zoom & drag repositioning) */}
               <img
                 src={slide.image}
                 alt={slide.titleLine1}
-                className={`absolute inset-0 w-full h-full ${slide.objectFit} transition-transform duration-700 ${idx === currentSlide ? 'animate-hero-zoom' : ''}`}
+                className={`absolute inset-0 w-full h-full object-cover ${
+                  isAdjustingImage 
+                    ? 'transition-none pointer-events-none select-none' 
+                    : 'transition-all duration-700'
+                } ${idx === currentSlide && !isAdjustingImage ? 'animate-hero-zoom' : ''}`}
+                style={{
+                  objectPosition: (isAdjustingImage && idx === currentSlide)
+                    ? `${dragPos.x}% ${dragPos.y}%`
+                    : (slide.objectPosition || 'center center'),
+                  willChange: isAdjustingImage ? 'object-position' : undefined
+                }}
                 fetchPriority={idx === 0 ? "high" : undefined}
                 loading={idx === 0 ? undefined : "lazy"}
               />
@@ -202,43 +586,138 @@ export const HomeView: React.FC<HomeViewProps> = React.memo(({
               {/* Text & Content Overlay */}
               <div className="relative z-20 h-full max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 flex flex-col justify-center text-left space-y-4 sm:space-y-5">
                 
-                {/* Tagline Badge */}
-                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[11px] font-extrabold tracking-wider uppercase w-fit border border-white/20 shadow-lg bg-[#e86014] text-white">
-                  <Sparkles className="w-4 h-4 text-white" />
-                  <span>{slide.tagline}</span>
-                </div>
+                {/* Admin Direct Inline Text Edit Toggle */}
+                {isAdmin && idx === currentSlide && (
+                  <div className="w-fit">
+                    <button
+                      onClick={() => setIsEditingTextInline(!isEditingTextInline)}
+                      className="bg-[#e86014] hover:bg-[#d9530f] text-white px-3.5 py-1.5 rounded-full font-bold text-xs shadow-xl flex items-center gap-1.5 border border-white/40 cursor-pointer transition-all hover:scale-105"
+                    >
+                      <Edit3 className="w-3.5 h-3.5" />
+                      <span>{isEditingTextInline ? '✕ Cerrar Edición' : '✏️ Editar Textos del Slide'}</span>
+                    </button>
+                  </div>
+                )}
 
-                {/* Headline Title */}
-                <h1 className="font-serif font-black text-3xl sm:text-5xl lg:text-6xl xl:text-7xl text-white leading-tight max-w-2xl drop-shadow-lg uppercase">
-                  {slide.titleLine1}
-                  <span className="block text-2xl sm:text-3xl lg:text-4xl font-bold mt-1 text-[#e86014]">
-                    {slide.titleAccent}
-                  </span>
-                </h1>
+                {isAdmin && idx === currentSlide && isEditingTextInline ? (
+                  /* Inline Text Editor Panel directly over the text block */
+                  <form onSubmit={handleSaveInlineText} className="bg-black/80 backdrop-blur-xl p-5 sm:p-6 rounded-3xl border border-white/20 max-w-xl space-y-3.5 shadow-2xl text-left text-xs sm:text-sm animate-fade-in z-30">
+                    <div className="flex items-center justify-between border-b border-white/10 pb-2">
+                      <span className="font-bold text-[#e86014] uppercase tracking-wider text-xs flex items-center gap-1.5">
+                        <Edit3 className="w-3.5 h-3.5" /> Edición Directa de Texto (Slide #{currentSlide + 1})
+                      </span>
+                      <button type="button" onClick={() => setIsEditingTextInline(false)} className="text-white/60 hover:text-white">
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
 
-                {/* Description Paragraph */}
-                <p className="text-sm sm:text-base text-white/80 max-w-md leading-relaxed drop-shadow-sm font-serif italic border-l-2 border-[#e86014] pl-3">
-                  "{slide.description}"
-                </p>
+                    <div>
+                      <label className="block text-white/70 text-[11px] font-semibold mb-1">Etiqueta Superior (Badge)</label>
+                      <input
+                        type="text"
+                        value={inlineTextForm.tagline}
+                        onChange={(e) => setInlineTextForm({ ...inlineTextForm, tagline: e.target.value })}
+                        className="w-full bg-white/10 border border-white/20 rounded-xl p-2 text-white focus:outline-none focus:border-[#e86014] text-xs font-semibold"
+                        required
+                      />
+                    </div>
 
-                {/* Action Buttons */}
-                <div className="flex flex-wrap items-center gap-3 pt-2">
-                  <button
-                    onClick={() => setCurrentTab(slide.primaryTab)}
-                    className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-bold text-white bg-[#e86014] shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-0.5 w-fit cursor-pointer group/btn"
-                  >
-                    <span>{slide.primaryBtnText}</span>
-                    <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
-                  </button>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                      <div>
+                        <label className="block text-white/70 text-[11px] font-semibold mb-1">Título Principal (Línea 1)</label>
+                        <input
+                          type="text"
+                          value={inlineTextForm.titleLine1}
+                          onChange={(e) => setInlineTextForm({ ...inlineTextForm, titleLine1: e.target.value })}
+                          className="w-full bg-white/10 border border-white/20 rounded-xl p-2 text-white focus:outline-none focus:border-[#e86014] text-xs uppercase font-bold"
+                          required
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-white/70 text-[11px] font-semibold mb-1">Acento Naranja (Línea 2)</label>
+                        <input
+                          type="text"
+                          value={inlineTextForm.titleAccent}
+                          onChange={(e) => setInlineTextForm({ ...inlineTextForm, titleAccent: e.target.value })}
+                          className="w-full bg-white/10 border border-white/20 rounded-xl p-2 text-[#e86014] font-bold focus:outline-none focus:border-[#e86014] text-xs"
+                          required
+                        />
+                      </div>
+                    </div>
 
-                  <button
-                    onClick={() => setCurrentTab('downloads')}
-                    className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-semibold text-white bg-black/40 hover:bg-black/60 border border-white/30 backdrop-blur-md transition-all duration-300 w-fit cursor-pointer"
-                  >
-                    <Lock className="w-4 h-4 text-[#e86014]" />
-                    <span>{t.hero.btnDownloads}</span>
-                  </button>
-                </div>
+                    <div>
+                      <label className="block text-white/70 text-[11px] font-semibold mb-1">Descripción del Slide</label>
+                      <textarea
+                        rows={2}
+                        value={inlineTextForm.description}
+                        onChange={(e) => setInlineTextForm({ ...inlineTextForm, description: e.target.value })}
+                        className="w-full bg-white/10 border border-white/20 rounded-xl p-2 text-white/90 focus:outline-none focus:border-[#e86014] text-xs italic"
+                        required
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-white/70 text-[11px] font-semibold mb-1">Texto del Botón Principal</label>
+                      <input
+                        type="text"
+                        value={inlineTextForm.primaryBtnText}
+                        onChange={(e) => setInlineTextForm({ ...inlineTextForm, primaryBtnText: e.target.value })}
+                        className="w-full bg-white/10 border border-white/20 rounded-xl p-2 text-white focus:outline-none focus:border-[#e86014] text-xs"
+                        required
+                      />
+                    </div>
+
+                    <div className="flex justify-end gap-2 pt-2 border-t border-white/10">
+                      <button
+                        type="button"
+                        onClick={() => setIsEditingTextInline(false)}
+                        className="px-3.5 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-white font-semibold text-xs transition-colors"
+                      >
+                        Cancelar
+                      </button>
+                      <button
+                        type="submit"
+                        className="px-4 py-1.5 rounded-xl bg-[#e86014] hover:bg-[#d9530f] text-white font-bold text-xs flex items-center gap-1.5 shadow-lg transition-all"
+                      >
+                        <Save className="w-3.5 h-3.5" />
+                        <span>Aplicar Cambios</span>
+                      </button>
+                    </div>
+                  </form>
+                ) : (
+                  /* Standard Rendered Slide Text Elements */
+                  <>
+                    {/* Tagline Badge */}
+                    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[11px] font-extrabold tracking-wider uppercase w-fit border border-white/20 shadow-lg bg-[#e86014] text-white">
+                      <Sparkles className="w-4 h-4 text-white" />
+                      <span>{slide.tagline}</span>
+                    </div>
+
+                    {/* Headline Title */}
+                    <h1 className="font-serif font-black text-3xl sm:text-5xl lg:text-6xl xl:text-7xl text-white leading-tight max-w-2xl drop-shadow-lg uppercase">
+                      {slide.titleLine1}
+                      <span className="block text-2xl sm:text-3xl lg:text-4xl font-bold mt-1 text-[#e86014]">
+                        {slide.titleAccent}
+                      </span>
+                    </h1>
+
+                    {/* Description Paragraph */}
+                    <p className="text-sm sm:text-base text-white/80 max-w-md leading-relaxed drop-shadow-sm font-serif italic border-l-2 border-[#e86014] pl-3">
+                      "{slide.description}"
+                    </p>
+
+                    {/* Action Buttons */}
+                    <div className="flex flex-wrap items-center gap-3 pt-2">
+                      <button
+                        onClick={() => setCurrentTab(slide.primaryTab)}
+                        className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-bold text-white bg-[#e86014] shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-0.5 w-fit cursor-pointer group/btn"
+                      >
+                        <span>{slide.primaryBtnText}</span>
+                        <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
+                      </button>
+                    </div>
+                  </>
+                )}
 
               </div>
 
@@ -378,6 +857,20 @@ export const HomeView: React.FC<HomeViewProps> = React.memo(({
             >
               {/* Product Image (Flush to top, left & right card edges) */}
               <div className="relative h-56 sm:h-60 overflow-hidden bg-[#fdf5e6]">
+                {/* Admin Direct Product Edit Button */}
+                {isAdmin && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onEditProduct?.(prod);
+                    }}
+                    className="absolute top-4 left-4 z-20 bg-[#e86014] hover:bg-[#d9530f] text-white px-3 py-1 rounded-full text-xs font-bold shadow-lg border border-white/40 flex items-center gap-1 transition-transform hover:scale-105 cursor-pointer"
+                  >
+                    <Edit3 className="w-3.5 h-3.5" />
+                    <span>Editar</span>
+                  </button>
+                )}
+
                 <img
                   src={prod.image}
                   alt={prod.name}

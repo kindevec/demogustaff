@@ -1,8 +1,41 @@
 @import "tailwindcss";
 
 /* =========================================================================
-   GPU-Accelerated Keyframe Animations
+   GPU-Accelerated Slow & Fluid Keyframe Animations
    ========================================================================= */
+
+@keyframes smoothEntrance {
+  from {
+    opacity: 0;
+    transform: scale(0.995) translateZ(0);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateZ(0);
+  }
+}
+
+@keyframes smoothSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px) translateZ(0);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) translateZ(0);
+  }
+}
+
+@keyframes smoothScaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95) translateZ(0);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1) translateZ(0);
+  }
+}
 
 @keyframes fadeInUp {
   from {
@@ -67,22 +100,40 @@
 }
 
 /* =========================================================================
-   Animation Utility Classes — GPU Layer Promoted
+   Animation Utility Classes — GPU Layer Promoted (Slow & Fluid)
    ========================================================================= */
 
+.animate-smooth-entrance {
+  animation: smoothEntrance 0.95s cubic-bezier(0.22, 1, 0.36, 1) both;
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+}
+
+.animate-smooth-slide-up {
+  animation: smoothSlideUp 0.85s cubic-bezier(0.22, 1, 0.36, 1) both;
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+}
+
+.animate-smooth-scale-in {
+  animation: smoothScaleIn 0.85s cubic-bezier(0.22, 1, 0.36, 1) both;
+  will-change: transform, opacity;
+  backface-visibility: hidden;
+}
+
 .animate-fade-in-up {
-  animation: fadeInUp 0.75s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: fadeInUp 0.85s cubic-bezier(0.16, 1, 0.3, 1) both;
   will-change: transform, opacity;
   backface-visibility: hidden;
 }
 
 .animate-fade-in {
-  animation: fadeIn 0.65s ease-out both;
+  animation: fadeIn 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
   will-change: opacity;
 }
 
 .animate-scale-up {
-  animation: scaleUp 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: scaleUp 0.85s cubic-bezier(0.16, 1, 0.3, 1) both;
   will-change: transform, opacity;
   backface-visibility: hidden;
 }
@@ -94,7 +145,7 @@
 }
 
 .animate-slide-up {
-  animation: slideUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+  animation: slideUp 0.65s cubic-bezier(0.16, 1, 0.3, 1) both;
   will-change: transform, opacity;
   backface-visibility: hidden;
 }
@@ -104,25 +155,53 @@
 }
 
 /* =========================================================================
-   Animation Delay Utilities
+   Animation Delay Utilities for Staggered Entrances
    ========================================================================= */
+
+.delay-75 {
+  animation-delay: 75ms;
+}
 
 .delay-100 {
   animation-delay: 100ms;
+}
+
+.delay-150 {
+  animation-delay: 150ms;
 }
 
 .delay-200 {
   animation-delay: 200ms;
 }
 
+.delay-225 {
+  animation-delay: 225ms;
+}
+
 .delay-300 {
   animation-delay: 300ms;
+}
+
+.delay-375 {
+  animation-delay: 375ms;
 }
 
 .delay-400 {
   animation-delay: 400ms;
 }
 
+.delay-450 {
+  animation-delay: 450ms;
+}
+
 .delay-500 {
   animation-delay: 500ms;
+}
+
+.delay-600 {
+  animation-delay: 600ms;
+}
+
+.delay-750 {
+  animation-delay: 750ms;
 }
