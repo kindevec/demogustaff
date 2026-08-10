@@ -13,6 +13,8 @@ import { ShieldCheck, LogOut, Edit3, Plus } from 'lucide-react';
 
 /* User-facing views — static imports for instant tab switching */
 import { HomeView } from './views/HomeView';
+import { MobileHomeView } from './views/mobile/MobileHomeView';
+import { useIsMobile } from './hooks/useIsMobile';
 import { AboutView } from './views/AboutView';
 import { ProductsView } from './views/ProductsView';
 import { IndustrialView } from './views/IndustrialView';
@@ -138,6 +140,8 @@ export default function App() {
     setCurrentTab('industrial');
   }, [setCurrentTab]);
 
+  const isMobile = useIsMobile();
+
   return (
     <div className="min-h-screen bg-[#fdfaf5] text-[#4a3224] font-sans selection:bg-[#b05d2e] selection:text-white flex flex-col justify-between">
       
@@ -183,17 +187,34 @@ export default function App() {
       {/* Main View Router Content */}
       <main className={`flex-1 ${currentTab !== 'admin' ? 'pb-16 lg:pb-0' : ''}`}>
         {currentTab === 'home' && (
-          <HomeView
-            setCurrentTab={setCurrentTab}
-            lang={lang}
-            products={products}
-            siteContent={siteContent}
-            onSelectProduct={handleSelectProduct}
-            onThemeColorChange={setHeaderThemeColor}
-            isAdmin={isAdmin}
-            onUpdateSiteContent={handleUpdateSiteContent}
-            onEditProduct={handleEditProductModal}
-          />
+          <>
+            <div className="block md:hidden">
+              <MobileHomeView
+                setCurrentTab={setCurrentTab}
+                lang={lang}
+                products={products}
+                siteContent={siteContent}
+                onSelectProduct={handleSelectProduct}
+                onThemeColorChange={setHeaderThemeColor}
+                isAdmin={isAdmin}
+                onUpdateSiteContent={handleUpdateSiteContent}
+                onEditProduct={handleEditProductModal}
+              />
+            </div>
+            <div className="hidden md:block">
+              <HomeView
+                setCurrentTab={setCurrentTab}
+                lang={lang}
+                products={products}
+                siteContent={siteContent}
+                onSelectProduct={handleSelectProduct}
+                onThemeColorChange={setHeaderThemeColor}
+                isAdmin={isAdmin}
+                onUpdateSiteContent={handleUpdateSiteContent}
+                onEditProduct={handleEditProductModal}
+              />
+            </div>
+          </>
         )}
 
         {currentTab === 'about' && (
