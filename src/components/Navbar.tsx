@@ -125,65 +125,28 @@ export const Navbar: React.FC<NavbarProps> = React.memo(({
           </div>
         )}
 
-        {/* Mobile Hamburger Toggle */}
+        {/* Mobile Social Icons (Facebook & Instagram replacing Hamburger menu) */}
         <div className="lg:hidden flex items-center space-x-2">
-          <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="p-2 rounded-xl bg-[#f3ece0] text-[#3d2516] border border-[#e8dcc4] focus:outline-none hover:bg-[#e8dcc4] transition-colors cursor-pointer"
-            aria-label={t.siteTools}
+          <a
+            href="https://www.facebook.com/gustaffecu/"
+            target="_blank"
+            rel="noreferrer"
+            className="p-2 rounded-xl bg-[#f3ece0] hover:bg-[#e8dcc4] text-[#3d2516] border border-[#e8dcc4] transition-colors flex items-center justify-center cursor-pointer"
+            aria-label="Facebook"
           >
-            {mobileMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
-          </button>
+            <FacebookIcon size={25} />
+          </a>
+          <a
+            href="https://www.instagram.com/gustaffec/"
+            target="_blank"
+            rel="noreferrer"
+            className="p-2 rounded-xl bg-[#f3ece0] hover:bg-[#e8dcc4] text-[#3d2516] border border-[#e8dcc4] transition-colors flex items-center justify-center cursor-pointer"
+            aria-label="Instagram"
+          >
+            <InstagramIcon size={25} />
+          </a>
         </div>
       </div>
-
-      {/* Mobile Tools & Portal Drawer */}
-      {mobileMenuOpen && (
-        <div className="lg:hidden bg-[#fdfaf5] border-b border-[#e8dcc4] px-4 pt-3 pb-6 space-y-4 animate-fadeIn shadow-lg max-h-[85vh] overflow-y-auto">
-          <div className="bg-white p-3.5 rounded-2xl border border-[#e8dcc4] space-y-3 shadow-sm">
-            <div className="flex items-center justify-between text-xs">
-              <a
-                href="tel:042255773"
-                className="flex items-center gap-1 text-[#603813] font-semibold hover:underline"
-              >
-                <PhoneCall className="w-3.5 h-3.5 text-[#b05d2e]" />
-                <span>042255773</span>
-              </a>
-
-              <a
-                href="https://wa.me/593969718045"
-                target="_blank"
-                rel="noreferrer"
-                className="flex items-center gap-1.5 text-emerald-700 font-bold hover:underline"
-              >
-                <WhatsAppIcon size={16} />
-                <span>WhatsApp</span>
-              </a>
-
-              <div className="flex items-center gap-2">
-                <a
-                  href="https://www.facebook.com/gustaffecu/"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="p-1 rounded-lg hover:bg-blue-50"
-                  aria-label="Facebook"
-                >
-                  <FacebookIcon size={18} />
-                </a>
-                <a
-                  href="https://www.instagram.com/gustaffec/"
-                  target="_blank"
-                  rel="noreferrer"
-                  className="p-1 rounded-lg hover:bg-pink-50"
-                  aria-label="Instagram"
-                >
-                  <InstagramIcon size={18} />
-                </a>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
     </header>
   );
 });

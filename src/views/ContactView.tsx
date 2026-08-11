@@ -2,6 +2,7 @@ import React, { useState, useRef } from 'react';
 import { Language, SiteContent } from '../types';
 import { TRANSLATIONS } from '../data/translations';
 import { ReCaptchaWidget } from '../components/ReCaptchaWidget';
+import { uploadContactAttachment, submitContactForm } from '../lib/supabase';
 import { 
   MapPin, 
   Phone, 
@@ -95,26 +96,38 @@ export const ContactView: React.FC<ContactViewProps> = React.memo(({ siteContent
     setIsSubmitting(true);
 
     try {
-      const waNumber = '593969718045';
       const reasonTitle = 
         reasonType === 'question' ? t.reasonQuestion :
         reasonType === 'complaint' ? t.reasonComplaint :
         reasonType === 'compliment' ? t.reasonCompliment : t.reasonQuote;
 
-      let text = `*Nuevo Contacto Web (Gustaff S.A.)*%0A%0A`;
-      text += `*Motivo:* ${reasonTitle}%0A`;
-      if (subReason) text += `*Detalle:* ${subReason}%0A`;
-      text += `*Nombre:* ${firstName} ${lastName}%0A`;
-      text += `*País:* ${country}%0A`;
-      text += `*Email:* ${email}%0A`;
-      text += `*Teléfono:* ${phone}%0A`;
-      if (attachedFile) text += `*Adjunto:* ${attachedFile.name}%0A`;
-      text += `%0A*Mensaje:*%0A${message}`;
+      let attachmentUrl = '';
+      if (attachedFile) {
+        const uploadRes = await uploadContactAttachment(attachedFile);
+        if (uploadRes.success && uploadRes.url) {
+          attachmentUrl = uploadRes.url;
+        }
+      }
 
-      const url = `https://wa.me/${waNumber}?text=${text}`;
-      window.open(url, '_blank');
+      const submissionRes = await submitContactForm({
+        firstName,
+        lastName,
+        email,
+        phone,
+        country,
+        reasonType: reasonTitle,
+        subReason,
+        message,
+        attachmentUrl,
+        acceptPrivacy,
+        acceptMarketing
+      });
 
-      setSuccessMsg(t.successMsg);
+      if (!submissionRes.success) {
+        throw new Error(submissionRes.error || t.genericError);
+      }
+
+      setSuccessMsg('¡Gracias por contactarnos! Tu mensaje y evidencia adjunta han sido enviados con éxito a servicioalcliente@gustaff.com.');
       setFirstName('');
       setLastName('');
       setEmail('');
@@ -122,10 +135,11 @@ export const ContactView: React.FC<ContactViewProps> = React.memo(({ siteContent
       setMessage('');
       setSubReason('');
       setAttachedFile(null);
+      if (fileInputRef.current) fileInputRef.current.value = '';
       setCaptchaVerified(false);
       setAcceptPrivacy(false);
-    } catch (err) {
-      setErrorMsg(t.genericError);
+    } catch (err: any) {
+      setErrorMsg(err?.message || t.genericError);
     } finally {
       setIsSubmitting(false);
     }

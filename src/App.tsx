@@ -16,8 +16,13 @@ import { HomeView } from './views/HomeView';
 import { MobileHomeView } from './views/mobile/MobileHomeView';
 import { useIsMobile } from './hooks/useIsMobile';
 import { AboutView } from './views/AboutView';
+import { MobileAboutView } from './views/mobile/MobileAboutView';
+
+/* User-facing views — static imports for instant tab switching */
 import { ProductsView } from './views/ProductsView';
+import { MobileProductsView } from './views/mobile/MobileProductsView';
 import { IndustrialView } from './views/IndustrialView';
+import { MobileIndustrialView } from './views/mobile/MobileIndustrialView';
 import { RecipesView } from './views/RecipesView';
 import { ContactView } from './views/ContactView';
 
@@ -218,38 +223,82 @@ export default function App() {
         )}
 
         {currentTab === 'about' && (
-          <AboutView 
-            siteContent={siteContent} 
-            lang={lang} 
-            setCurrentTab={setCurrentTab}
-            onThemeColorChange={setHeaderThemeColor} 
-          />
+          <>
+            <div className="hidden md:block">
+              <AboutView 
+                siteContent={siteContent} 
+                lang={lang} 
+                setCurrentTab={setCurrentTab}
+                onThemeColorChange={setHeaderThemeColor} 
+              />
+            </div>
+            <div className="block md:hidden">
+              <MobileAboutView 
+                siteContent={siteContent} 
+                lang={lang} 
+                setCurrentTab={setCurrentTab}
+                onThemeColorChange={setHeaderThemeColor} 
+              />
+            </div>
+          </>
         )}
 
         {currentTab === 'products' && (
-          <ProductsView
-            products={products}
-            lang={lang}
-            onSelectProduct={handleSelectProduct}
-            onOpenAuth={handleOpenAdmin}
-            onThemeColorChange={setHeaderThemeColor}
-            isAdmin={isAdmin}
-            onEditProduct={handleEditProductModal}
-            onAddProduct={handleAddNewProductModal}
-          />
+          <>
+            <div className="hidden md:block">
+              <ProductsView
+                products={products}
+                lang={lang}
+                onSelectProduct={handleSelectProduct}
+                onOpenAuth={handleOpenAdmin}
+                onThemeColorChange={setHeaderThemeColor}
+                isAdmin={isAdmin}
+                onEditProduct={handleEditProductModal}
+                onAddProduct={handleAddNewProductModal}
+              />
+            </div>
+            <div className="block md:hidden">
+              <MobileProductsView
+                products={products}
+                lang={lang}
+                onSelectProduct={handleSelectProduct}
+                onOpenAuth={handleOpenAdmin}
+                onThemeColorChange={setHeaderThemeColor}
+                isAdmin={isAdmin}
+                onEditProduct={handleEditProductModal}
+                onAddProduct={handleAddNewProductModal}
+              />
+            </div>
+          </>
         )}
 
         {currentTab === 'industrial' && (
-          <IndustrialView
-            products={products}
-            lang={lang}
-            onSelectProduct={handleSelectProduct}
-            onOpenAuth={handleOpenAdmin}
-            onThemeColorChange={setHeaderThemeColor}
-            isAdmin={isAdmin}
-            onEditProduct={handleEditProductModal}
-            onAddProduct={handleAddNewProductModal}
-          />
+          <>
+            <div className="hidden md:block">
+              <IndustrialView
+                products={products}
+                lang={lang}
+                onSelectProduct={handleSelectProduct}
+                onOpenAuth={handleOpenAdmin}
+                onThemeColorChange={setHeaderThemeColor}
+                isAdmin={isAdmin}
+                onEditProduct={handleEditProductModal}
+                onAddProduct={handleAddNewProductModal}
+              />
+            </div>
+            <div className="block md:hidden">
+              <MobileIndustrialView
+                products={products}
+                lang={lang}
+                onSelectProduct={handleSelectProduct}
+                onOpenAuth={handleOpenAdmin}
+                onThemeColorChange={setHeaderThemeColor}
+                isAdmin={isAdmin}
+                onEditProduct={handleEditProductModal}
+                onAddProduct={handleAddNewProductModal}
+              />
+            </div>
+          </>
         )}
 
         {currentTab === 'recipes' && (

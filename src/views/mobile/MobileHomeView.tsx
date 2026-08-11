@@ -211,7 +211,7 @@ export const MobileHomeView: React.FC<MobileHomeViewProps> = React.memo(({
   const prevSlide = () => setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
 
   return (
-    <div className="bg-[#fdfaf5] text-[#4a3224] font-sans selection:bg-[#b05d2e] selection:text-white space-y-5 pb-16">
+    <div className="bg-[#fdfaf5] text-[#4a3224] font-sans selection:bg-[#b05d2e] selection:text-white space-y-5 pb-0 -mb-[8px]">
       
       {/* =========================================================================
           1. HERO SLIDER SECTION - MOBILE EXCLUSIVE
@@ -351,30 +351,31 @@ export const MobileHomeView: React.FC<MobileHomeViewProps> = React.memo(({
       {/* =========================================================================
           2. FEATURE ICONS ROW - HORIZONTAL SIDE BY SIDE (Smooth Horizontal Expansion)
          ========================================================================= */}
-      <div className="relative z-30 !mt-[8px] mx-4 flex items-center justify-center gap-[8px] text-left" style={{ marginTop: '8px' }}>
-        {featureItems.map((item) => {
+      <div className="relative z-30 !mt-[8px] mx-4 h-13 flex items-center justify-center gap-[8px]" style={{ marginTop: '8px' }}>
+        {featureItems.map((item, index) => {
           const IconComp = item.icon;
           const isActive = activeFeature === item.id;
+          const isRightSide = index >= 2; // Icons on right side (3 & 4) expand left
 
           return (
             <div
               key={item.id}
               onClick={() => setActiveFeature(isActive ? null : item.id)}
-              className={`cursor-pointer overflow-hidden ${
+              className={`h-13 transition-all duration-300 ease-in-out cursor-pointer overflow-hidden flex items-center rounded-2xl border shadow-md ${
                 isActive 
-                  ? 'flex-1 bg-white/95 backdrop-blur-md rounded-2xl border border-[#b05d2e] shadow-lg p-2.5 flex items-center gap-2.5 min-w-0' 
-                  : 'aspect-square w-12 sm:w-14 shrink-0 flex items-center justify-center bg-[#f3ece0] text-[#b05d2e] rounded-2xl border border-[#e8dcc4] shadow-md'
+                  ? `flex-1 bg-white/95 border-[#b05d2e] p-2 min-w-0 ${isRightSide ? 'flex-row-reverse text-right' : 'flex-row text-left'}` 
+                  : 'w-13 shrink-0 justify-center bg-[#f3ece0] border-[#e8dcc4] p-0'
               }`}
               title={item.title}
             >
-              <div className={`shrink-0 flex items-center justify-center ${
-                isActive ? 'p-2 bg-[#f3ece0] text-[#b05d2e] rounded-xl border border-[#e8dcc4]' : ''
+              <div className={`shrink-0 w-9 h-9 flex items-center justify-center rounded-xl transition-all duration-300 ${
+                isActive ? 'bg-[#f3ece0] border border-[#e8dcc4]' : 'bg-transparent border-none'
               }`}>
                 <IconComp className="w-5 h-5 text-[#b05d2e]" />
               </div>
 
               {isActive && (
-                <div className="flex-1 min-w-0 pr-1">
+                <div className={`flex-1 min-w-0 ${isRightSide ? 'mr-1.5' : 'ml-1.5'}`}>
                   <h4 className="font-bold text-[11px] uppercase tracking-wider text-[#3d2516] truncate">
                     {item.title}
                   </h4>
@@ -393,62 +394,91 @@ export const MobileHomeView: React.FC<MobileHomeViewProps> = React.memo(({
          ========================================================================= */}
       <AnimatedSection animation="fade-up" delay={100} className="px-4 space-y-6">
         
-        <div className="text-center space-y-2">
-          <div className="inline-flex items-center gap-1.5 text-[#b05d2e] font-bold text-[10px] uppercase tracking-widest bg-[#f3ece0] px-3 py-1 rounded-full border border-[#e8dcc4]">
-            <span>{hp.featuredBadge}</span>
+        {/* Section Header with Top-Right Ir Button */}
+        <div className="relative flex items-center justify-between pt-1">
+          <div className="flex-1 text-center space-y-2">
+            <div className="inline-flex items-center gap-1.5 text-[#b05d2e] font-bold text-[10px] uppercase tracking-widest bg-[#f3ece0] px-3 py-1 rounded-full border border-[#e8dcc4]">
+              <span>{hp.featuredBadge}</span>
+            </div>
+            <h2 className="font-serif font-extrabold text-2xl text-[#3d2516]">
+              {hp.featuredTitle}
+            </h2>
           </div>
-          <h2 className="font-serif font-extrabold text-2xl text-[#3d2516]">
-            {hp.featuredTitle}
-          </h2>
+
+          <button
+            onClick={() => setCurrentTab('products')}
+            className="absolute right-0 bottom-1 translate-y-[25px] inline-flex items-center gap-1 bg-[#603813] active:bg-[#b05d2e] text-white font-bold px-3.5 py-1.5 rounded-full text-xs transition-colors shadow-sm cursor-pointer z-10"
+          >
+            <span>Ir</span>
+            <ArrowRight className="w-3.5 h-3.5" />
+          </button>
         </div>
 
-        {/* Product Cards Stack / Grid */}
-        <div className="grid grid-cols-1 gap-4">
+        {/* Product Cards Horizontal Carousel (Cards: 187px x 294.5px, 10px initial left offset) */}
+        <div className="flex overflow-x-auto snap-x snap-mandatory scrollbar-none gap-3.5 pl-[10px] pr-[10px] py-2 -mx-4 scroll-pl-[10px]">
           {featuredProducts.map((prod) => (
             <div
               key={prod.id}
               onClick={() => onSelectProduct(prod)}
-              className="bg-white rounded-2xl border border-[#e8dcc4] active:scale-[0.99] transition-all cursor-pointer overflow-hidden shadow-sm flex flex-row items-center p-3 gap-3"
+              className="w-[187px] h-[294.5px] shrink-0 snap-start bg-white rounded-2xl border border-[#e8dcc4] hover:border-[#b05d2e] active:scale-[0.98] transition-all cursor-pointer overflow-hidden shadow-sm flex flex-col justify-between relative group text-left"
             >
-              <div className="relative w-28 h-28 shrink-0 rounded-xl overflow-hidden bg-[#fdf5e6]">
+              {/* Product Image Box (Occupies full 100% card width flush to edges) */}
+              <div className="relative w-full h-[145px] shrink-0 overflow-hidden bg-[#fdf5e6]">
+                {isAdmin && (
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onEditProduct?.(prod);
+                    }}
+                    className="absolute top-2 left-2 z-20 bg-[#e86014] text-white px-2 py-0.5 rounded-full text-[9px] font-bold shadow-md flex items-center gap-1 cursor-pointer"
+                  >
+                    <Edit3 className="w-3 h-3" />
+                    <span>Editar</span>
+                  </button>
+                )}
+
                 <img
                   src={prod.image}
                   alt={prod.name}
-                  className="w-full h-full object-cover"
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                   loading="lazy"
                 />
-              </div>
 
-              <div className="flex-1 space-y-1 text-left min-w-0">
-                <h3 className="font-serif font-bold text-sm text-[#3d2516] truncate">
-                  {prod.name}
-                </h3>
-                
-                <span className="inline-block bg-[#f3ece0] text-[#b05d2e] font-bold text-[10px] px-2 py-0.5 rounded-full border border-[#e8dcc4]">
-                  {prod.package_size}
-                </span>
-
-                <p className="text-[11px] text-[#6d4c41] line-clamp-2 leading-tight">
-                  {prod.description}
-                </p>
-
-                <div className="pt-1 flex items-center gap-1 text-[11px] text-[#b05d2e] font-bold">
-                  <span>{hp.viewDetails}</span>
-                  <ChevronRight className="w-3.5 h-3.5" />
+                <div className="absolute top-2 right-2 w-6 h-6 rounded-full bg-[#b05d2e] text-white flex items-center justify-center shadow-sm">
+                  <Heart className="w-3 h-3 fill-white" />
                 </div>
               </div>
+
+              {/* Product Information Body (Clean internal padding) */}
+              <div className="p-3 pt-2.5 flex-1 flex flex-col justify-between space-y-1 text-left min-w-0">
+                <div>
+                  <h3 className="font-serif font-bold text-xs text-[#3d2516] truncate group-hover:text-[#b05d2e] transition-colors">
+                    {prod.name}
+                  </h3>
+
+                  <div className="flex items-center justify-between text-[10px] mt-1">
+                    <div className="flex items-center text-amber-500 gap-0.5">
+                      <Star className="w-3 h-3 fill-amber-500" />
+                      <span className="text-[#6d4c41] font-mono text-[9px]">(HACCP)</span>
+                    </div>
+                    <span className="bg-[#f3ece0] text-[#b05d2e] font-bold text-[9px] px-1.5 py-0.5 rounded-full border border-[#e8dcc4] truncate max-w-[75px]">
+                      {prod.package_size}
+                    </span>
+                  </div>
+
+                  <p className="text-[10px] text-[#6d4c41] line-clamp-2 leading-tight mt-1.5">
+                    {prod.description}
+                  </p>
+                </div>
+
+                <div className="pt-2 border-t border-[#e8dcc4] flex items-center justify-between text-[10px] text-[#b05d2e] font-bold">
+                  <span>{hp.viewDetails}</span>
+                  <ChevronRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
+                </div>
+              </div>
+
             </div>
           ))}
-        </div>
-
-        <div className="text-center pt-1">
-          <button
-            onClick={() => setCurrentTab('products')}
-            className="inline-flex items-center gap-2 bg-[#603813] active:bg-[#b05d2e] text-white font-bold px-6 py-3 rounded-full text-xs uppercase tracking-wider transition-colors shadow-md w-full justify-center"
-          >
-            <span>{hp.viewFullCatalog}</span>
-            <ArrowRight className="w-4 h-4" />
-          </button>
         </div>
 
       </AnimatedSection>
@@ -457,19 +487,8 @@ export const MobileHomeView: React.FC<MobileHomeViewProps> = React.memo(({
           4. ABOUT US SUMMARY FOR MOBILE
          ========================================================================= */}
       <AnimatedSection animation="fade-up" delay={150} className="px-4 py-2 space-y-4 text-left">
-        <div className="relative rounded-2xl overflow-hidden shadow-md border border-[#e8dcc4]">
-          <img
-            src="/images/bodegon/rapichoc_chocobanano_variedad_sabores.jpg"
-            alt="Fábrica Gustaff"
-            className="w-full h-52 object-cover"
-            loading="lazy"
-          />
-          <div className="absolute bottom-3 left-3 bg-[#b05d2e] text-white px-3 py-1.5 rounded-xl shadow-lg border border-white">
-            <span className="text-xl font-black font-serif leading-none block">{hp.yearsExpNumber}</span>
-            <span className="text-[9px] uppercase font-bold tracking-wider">{hp.yearsExpBadge}</span>
-          </div>
-        </div>
-
+        
+        {/* Title and Description OUTSIDE and ABOVE the card container */}
         <div className="space-y-2">
           <h2 className="font-serif font-extrabold text-2xl text-[#3d2516]">
             {hp.aboutHeading}
@@ -477,11 +496,31 @@ export const MobileHomeView: React.FC<MobileHomeViewProps> = React.memo(({
           <p className="text-xs text-[#603813] font-serif italic bg-[#f3ece0]/90 p-3 rounded-xl border-l-4 border-[#b05d2e]">
             "{lang === 'es' ? siteContent.home_quienes_somos : t.cmsFallback.home_quienes_somos}"
           </p>
+        </div>
+
+        {/* Card Container below title and description */}
+        <div className="relative rounded-2xl shadow-md border border-[#e8dcc4]">
+          <div className="relative rounded-2xl overflow-hidden">
+            <img
+              src="/images/bodegon/rapichoc_chocobanano_variedad_sabores.jpg"
+              alt="Fábrica Gustaff"
+              className="w-full h-52 object-cover"
+              loading="lazy"
+            />
+          </div>
+          
+          {/* Badge overlapped 50% on the card bottom-left edge */}
+          <div className="absolute bottom-0 translate-y-1/2 left-4 z-20 bg-[#b05d2e] text-white px-4 py-2 rounded-xl shadow-lg border-2 border-white text-center">
+            <span className="text-xl font-black font-serif leading-none block">25+</span>
+            <span className="text-[10px] uppercase font-extrabold tracking-wider block mt-0.5">AÑOS</span>
+          </div>
+
+          {/* CONÓCENOS Button overlapped 50% on the card bottom-right edge */}
           <button
             onClick={() => setCurrentTab('about')}
-            className="bg-[#603813] text-white font-bold px-6 py-2.5 rounded-full text-xs uppercase tracking-wider flex items-center gap-1.5 shadow-md w-full justify-center"
+            className="absolute bottom-0 translate-y-1/2 right-4 z-20 bg-[#603813] active:bg-[#b05d2e] text-white font-bold px-4 py-2.5 rounded-xl border-2 border-white text-xs uppercase tracking-wider flex items-center gap-1.5 shadow-lg cursor-pointer transition-colors"
           >
-            <span>{hp.fullHistoryBtn}</span>
+            <span>CONÓCENOS</span>
             <ChevronRight className="w-4 h-4" />
           </button>
         </div>
@@ -491,15 +530,8 @@ export const MobileHomeView: React.FC<MobileHomeViewProps> = React.memo(({
           5. INDUSTRIAL MAQUILA SUMMARY FOR MOBILE
          ========================================================================= */}
       <AnimatedSection animation="fade-up" delay={200} className="px-4 py-2 space-y-4 text-left">
-        <div className="relative rounded-2xl overflow-hidden shadow-md border border-[#e8dcc4]">
-          <img
-            src="/images/bodegon/crema_avellanas_con_chocolate_frasco.png"
-            alt="Maquila Gustaff"
-            className="w-full h-52 object-cover"
-            loading="lazy"
-          />
-        </div>
-
+        
+        {/* Title and Description OUTSIDE and ABOVE the card container */}
         <div className="space-y-2">
           <h2 className="font-serif font-extrabold text-2xl text-[#3d2516]">
             {hp.industrialHeading}
@@ -507,12 +539,31 @@ export const MobileHomeView: React.FC<MobileHomeViewProps> = React.memo(({
           <p className="text-xs text-[#603813] font-serif italic bg-[#f3ece0]/90 p-3 rounded-xl border-l-4 border-[#b05d2e]">
             "{lang === 'es' ? siteContent.home_industrial_summary : t.cmsFallback.home_industrial_summary}"
           </p>
+        </div>
+
+        {/* Card Container below title and description */}
+        <div className="relative rounded-2xl shadow-md border border-[#e8dcc4]">
+          <div className="relative rounded-2xl overflow-hidden">
+            <img
+              src="/images/bodegon/crema_avellanas_con_chocolate_frasco.png"
+              alt="Maquila Gustaff"
+              className="w-full h-52 object-cover"
+              loading="lazy"
+            />
+          </div>
+
+          {/* Badge overlapped 50% on the card bottom-left edge */}
+          <div className="absolute bottom-0 translate-y-1/2 left-4 z-20 bg-[#b05d2e] text-white px-3.5 py-1.5 rounded-xl shadow-lg border-2 border-white flex items-center gap-1.5 text-center">
+            <Factory className="w-4 h-4 text-white shrink-0" />
+            <span className="text-[10px] uppercase font-extrabold tracking-wider">MAQUILA A MEDIDA</span>
+          </div>
+
+          {/* EXPLORAR Button overlapped 50% on the card bottom-right edge */}
           <button
             onClick={() => setCurrentTab('industrial')}
-            className="bg-[#603813] text-white font-bold px-6 py-2.5 rounded-full text-xs uppercase tracking-wider flex items-center gap-1.5 shadow-md w-full justify-center"
+            className="absolute bottom-0 translate-y-1/2 right-4 z-20 bg-[#603813] active:bg-[#b05d2e] text-white font-bold px-4 py-2.5 rounded-xl border-2 border-white text-xs uppercase tracking-wider flex items-center gap-1.5 shadow-lg cursor-pointer transition-colors"
           >
-            <Package className="w-4 h-4 text-[#d4af37]" />
-            <span>{hp.exploreIndustrialBtn}</span>
+            <span>EXPLORAR</span>
             <ArrowRight className="w-4 h-4" />
           </button>
         </div>
@@ -522,23 +573,25 @@ export const MobileHomeView: React.FC<MobileHomeViewProps> = React.memo(({
           6. QUALITY BANNER FOR MOBILE
          ========================================================================= */}
       <AnimatedSection animation="scale-up" delay={250} className="px-4">
-        <div className="bg-white border border-[#e8dcc4] rounded-2xl p-5 space-y-3 text-left shadow-sm">
+        <div className="bg-white border border-[#e8dcc4] rounded-2xl p-5 space-y-3 text-left shadow-sm relative">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-[#f3ece0] text-[#b05d2e] rounded-xl border border-[#e8dcc4] shrink-0">
               <ShieldCheck className="w-6 h-6" />
             </div>
-            <h3 className="font-serif font-bold text-sm text-[#3d2516]">
+            <h3 className="font-serif font-bold text-sm text-[#3d2516] pr-16">
               {hp.qualityBannerTitle}
             </h3>
           </div>
-          <p className="text-xs text-[#6d4c41] leading-relaxed">
+          <p className="text-xs text-[#6d4c41] leading-relaxed pb-2">
             {hp.qualityBannerText}
           </p>
+          
           <button
             onClick={() => setCurrentTab('about')}
-            className="w-full bg-[#603813] text-white px-5 py-2.5 rounded-full text-xs font-bold transition-all"
+            className="absolute bottom-0 translate-y-1/2 left-4 z-20 bg-[#603813] active:bg-[#b05d2e] text-white px-4 py-2 rounded-xl border-2 border-white text-xs font-bold uppercase tracking-wider shadow-lg cursor-pointer transition-colors flex items-center gap-1"
           >
-            {hp.readQualityPolicyBtn}
+            <span>LEER</span>
+            <ChevronRight className="w-3.5 h-3.5" />
           </button>
         </div>
       </AnimatedSection>

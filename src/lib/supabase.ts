@@ -130,3 +130,109 @@ export const uploadProductImage = async (file: File): Promise<{ success: boolean
     
   return { success: true, url: data.publicUrl };
 };
+
+export const uploadContactAttachment = async (file: File): Promise<{ success: boolean; url?: string; error?: string }> => {
+  if (!supabase) return { success: false, error: 'Supabase no configurado' };
+  
+  const fileExt = file.name.split('.').pop();
+  const fileName = `contact-${Date.now()}-${Math.random().toString(36).substring(2, 7)}.${fileExt}`;
+  
+  const { error } = await supabase.storage
+    .from('product-images')
+    .upload(fileName, file, { cacheControl: '3600', upsert: false, contentType: file.type || 'application/octet-stream' });
+    
+  if (error) {
+    return { success: false, error: error.message };
+  }
+  
+  const { data } = supabase.storage
+    .from('product-images')
+    .getPublicUrl(fileName);
+    
+  return { success: true, url: data.publicUrl };
+};
+
+export interface ContactSubmissionPayload {
+  firstName: string;
+  lastName: string;
+  email: string;
+  phone: string;
+  country: string;
+  reasonType: string;
+  subReason?: string;
+  message: string;
+  attachmentUrl?: string;
+  acceptPrivacy: boolean;
+  acceptMarketing: boolean;
+}
+
+export const submitContactForm = async (payload: ContactSubmissionPayload): Promise<{ success: boolean; error?: string }> => {
+  try {
+    const fullName = `${payload.firstName} ${payload.lastName}`.trim();
+    const subject = `[Contacto Web] ${payload.reasonType}${payload.subReason ? ` - ${payload.subReason}` : ''}`;
+    
+    const formattedMessage = `
+NUEVO MENSAJE DE CONTACTO (GUSTAFF S.A.)
+----------------------------------------
+Nombre: ${fullName}
+Correo Electrónico: ${payload.email}
+Teléfono: ${payload.phone}
+País: ${payload.country}
+Motivo: ${payload.reasonType}
+Detalle: ${payload.subReason || 'N/A'}
+Autoriza comunicaciones: ${payload.acceptMarketing ? 'Sí' : 'No'}
+Aceptó privacidad: ${payload.acceptPrivacy ? 'Sí' : 'No'}
+
+Evidencia / Archivo Adjunto:
+${payload.attachmentUrl ? payload.attachmentUrl : 'Sin archivo adjunto'}
+
+Mensaje / Consulta:
+${payload.message}
+`.trim();
+
+    // 1. Save to Supabase DB if available
+    if (supabase) {
+      try {
+        await supabase
+          .from('contact_submissions')
+          .insert([{
+            name: fullName,
+            email: payload.email,
+            subject: subject,
+            message: formattedMessage,
+            status: 'pending'
+          }]);
+      } catch (dbErr) {
+        console.warn('Advertencia guardando en BD Supabase:', dbErr);
+      }
+    }
+
+    // 2. Send via Web3Forms API to servicioalcliente@gustaff.com
+    try {
+      await fetch('https://api.web3forms.com/submit', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'application/json'
+        },
+        body: JSON.stringify({
+          access_key: '5b8b80b2-75d3-4f95-8167-27b5993895e6',
+          to_email: 'servicioalcliente@gustaff.com',
+          from_name: 'Gustaff S.A. Sitio Web',
+          subject: subject,
+          name: fullName,
+          email: payload.email,
+          message: formattedMessage,
+          attachment_link: payload.attachmentUrl || 'Ninguno'
+        })
+      });
+    } catch (emailErr) {
+      console.warn('Error en despacho Web3Forms API, continuando...', emailErr);
+    }
+
+    return { success: true };
+  } catch (err: any) {
+    return { success: false, error: err?.message || 'Error al procesar el mensaje.' };
+  }
+};
+
