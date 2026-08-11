@@ -289,7 +289,7 @@ export const MobileAboutView: React.FC<MobileAboutViewProps> = React.memo(({ sit
             3. SECTION 2: METRICS BAR (Unified Single Container Auto-Scrolling Carousel)
            ========================================================================= */}
         <AnimatedSection animation="fade-up" delay={150}>
-          <div className="bg-white rounded-2xl border border-[#e8dcc4] shadow-md py-3.5 overflow-hidden">
+          <div className="-mx-4 bg-white border-y border-[#e8dcc4] shadow-md py-3.5 overflow-hidden">
             <div 
               ref={metricsRef}
               onTouchStart={() => setIsMetricsPaused(true)}

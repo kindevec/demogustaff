@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useId } from 'react';
 
 interface IconProps extends React.SVGProps<SVGSVGElement> {
   size?: number;
@@ -22,32 +22,36 @@ export const FacebookIcon: React.FC<IconProps> = ({ size = 20, className = '', .
   </svg>
 );
 
-export const InstagramIcon: React.FC<IconProps> = ({ size = 20, className = '', ...props }) => (
-  <svg
-    width={size}
-    height={size}
-    viewBox="0 0 24 24"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-    className={className}
-    {...props}
-  >
-    <defs>
-      <radialGradient id="ig-grad" cx="30%" cy="107%" r="130%">
-        <stop offset="0%" stopColor="#fdf497" />
-        <stop offset="5%" stopColor="#fdf497" />
-        <stop offset="45%" stopColor="#fd5949" />
-        <stop offset="60%" stopColor="#d6249f" />
-        <stop offset="90%" stopColor="#285AEB" />
-      </radialGradient>
-    </defs>
-    <rect width="24" height="24" rx="6" fill="url(#ig-grad)" />
-    <path
-      d="M12 7c-2.76 0-5 2.24-5 5s2.24 5 5 5 5-2.24 5-5-2.24-5-5-5zm0 8c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm5.25-8.75c-.55 0-1 .45-1 1s.45 1 1 1 1-.45 1-1-.45-1-1-1zm3.75 3c0-1.25-.13-2.14-.42-3.03-.29-.89-.72-1.65-1.45-2.38s-1.49-1.16-2.38-1.45c-.89-.29-1.78-.42-3.03-.42-1.25 0-2.14.13-3.03.42-.89.29-1.65.72-2.38 1.45s-1.16 1.49-1.45 2.38c-.29.89-.42 1.78-.42 3.03s.13 2.14.42 3.03c.29.89.72 1.65 1.45 2.38s1.49 1.16 2.38 1.45c.89.29 1.78.42 3.03.42s2.14-.13 3.03-.42c.89-.29 1.65-.72 2.38-1.45s1.16-1.49 1.45-2.38c.29-.89.42-1.78.42-3.03zm-2.02 6.64c-.21.54-.51.98-.94 1.41s-.87.73-1.41.94c-.66.26-1.57.34-3.13.34s-2.47-.08-3.13-.34c-.54-.21-.98-.51-1.41-.94s-.73-.87-.94-1.41c-.26-.66-.34-1.57-.34-3.13s.08-2.47.34-3.13c.21-.54.51-.98.94-1.41s.87-.73 1.41-.94c.66-.26 1.57-.34 3.13-.34s2.47.08 3.13.34c.54.21.98.51 1.41.94s.73.87.94 1.41c.26.66.34 1.57.34 3.13s-.08 2.47-.34 3.13z"
-      fill="#ffffff"
-    />
-  </svg>
-);
+export const InstagramIcon: React.FC<IconProps> = ({ size = 20, className = '', ...props }) => {
+  const rawId = useId();
+  const gradientId = `ig-grad-${rawId.replace(/:/g, '')}`;
+
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={className}
+      {...props}
+    >
+      <defs>
+        <linearGradient id={gradientId} x1="0%" y1="100%" x2="100%" y2="0%">
+          <stop offset="0%" stopColor="#fdf497" />
+          <stop offset="25%" stopColor="#f58529" />
+          <stop offset="50%" stopColor="#dd2a7b" />
+          <stop offset="75%" stopColor="#8134af" />
+          <stop offset="100%" stopColor="#515bd4" />
+        </linearGradient>
+      </defs>
+      <rect width="24" height="24" rx="6" fill={`url(#${gradientId})`} />
+      <rect x="5" y="5" width="14" height="14" rx="4" stroke="#ffffff" strokeWidth="1.6" fill="none" />
+      <circle cx="12" cy="12" r="3.2" stroke="#ffffff" strokeWidth="1.6" fill="none" />
+      <circle cx="16.25" cy="7.75" r="0.85" fill="#ffffff" />
+    </svg>
+  );
+};
 
 export const WhatsAppIcon: React.FC<IconProps> = ({ size = 20, className = '', ...props }) => (
   <svg

@@ -15,7 +15,8 @@ import {
   ChevronRight,
   ChevronLeft,
   Edit3,
-  Plus
+  Plus,
+  MessageCircle
 } from 'lucide-react';
 
 interface MobileIndustrialViewProps {
@@ -369,9 +370,21 @@ export const MobileIndustrialView: React.FC<MobileIndustrialViewProps> = React.m
                         </p>
                       </div>
 
-                      <div className="pt-2 border-t border-[#e8dcc4]/60 flex items-center justify-between text-[10px] text-[#b05d2e] font-bold">
-                        <span className="truncate pr-1">{p.package_size}</span>
-                        <ChevronRight className="w-3.5 h-3.5 shrink-0 group-hover:translate-x-0.5 transition-transform" />
+                      <div className="pt-2 border-t border-[#e8dcc4]/60 flex items-center justify-between gap-1 text-[10px]">
+                        <span className="truncate text-[#6d4c41] font-semibold">{p.package_size}</span>
+                        <button
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            const phone = '593969718045';
+                            const message = `Hola Gustaff S.A., me gustaría solicitar una cotización sobre el producto: *${p.name}* (Código: ${p.code}, Presentación: ${p.package_size}).`;
+                            const whatsappUrl = `https://wa.me/${phone}?text=${encodeURIComponent(message)}`;
+                            window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+                          }}
+                          className="inline-flex items-center px-3 py-1 rounded-full text-[10px] font-bold text-white bg-[#b05d2e] hover:bg-[#603813] shadow-sm transition-all cursor-pointer shrink-0 active:scale-95 border border-[#e8dcc4]"
+                          title="Cotizar producto"
+                        >
+                          <span>Cotizar</span>
+                        </button>
                       </div>
                     </div>
                   </div>

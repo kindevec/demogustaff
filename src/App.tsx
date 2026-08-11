@@ -24,6 +24,7 @@ import { MobileProductsView } from './views/mobile/MobileProductsView';
 import { IndustrialView } from './views/IndustrialView';
 import { MobileIndustrialView } from './views/mobile/MobileIndustrialView';
 import { RecipesView } from './views/RecipesView';
+import { MobileRecipesView } from './views/mobile/MobileRecipesView';
 import { ContactView } from './views/ContactView';
 
 /* Admin panel — lazy loaded (regular users never access it) */
@@ -302,7 +303,14 @@ export default function App() {
         )}
 
         {currentTab === 'recipes' && (
-          <RecipesView lang={lang} onThemeColorChange={setHeaderThemeColor} />
+          <>
+            <div className="hidden md:block">
+              <RecipesView lang={lang} onThemeColorChange={setHeaderThemeColor} />
+            </div>
+            <div className="block md:hidden">
+              <MobileRecipesView lang={lang} onThemeColorChange={setHeaderThemeColor} />
+            </div>
+          </>
         )}
 
         {currentTab === 'contact' && (
