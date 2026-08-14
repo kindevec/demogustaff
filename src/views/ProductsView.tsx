@@ -12,10 +12,12 @@ import {
   Layers,
   Cookie,
   Beaker,
+  FileText,
   Factory,
   Edit3,
   Plus
 } from 'lucide-react';
+import { CATALOG_PDF_URL } from '../data/catalogConfig';
 
 interface ProductsViewProps {
   products: Product[];
@@ -285,15 +287,18 @@ export const ProductsView: React.FC<ProductsViewProps> = React.memo(({
                   {s.description}
                 </p>
 
-                {/* CTA Button */}
-                <button
-                  onClick={handleCategoryFromSlider}
+                {/* CTA Button — Ver catálogo */}
+                <a
+                  href={CATALOG_PDF_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-bold text-white shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-0.5 w-fit cursor-pointer group/btn"
                   style={{ backgroundColor: s.accentColor }}
                 >
-                  <span>Ver productos de esta línea</span>
+                  <FileText className="w-4 h-4" />
+                  <span>{lang === 'en' ? 'View Catalog' : 'Ver catálogo'}</span>
                   <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
-                </button>
+                </a>
               </div>
             </div>
           ))}

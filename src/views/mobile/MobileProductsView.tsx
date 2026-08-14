@@ -17,8 +17,10 @@ import {
   Check,
   ChevronRight,
   ChevronLeft,
-  MessageCircle
+  MessageCircle,
+  FileText
 } from 'lucide-react';
+import { CATALOG_PDF_URL } from '../../data/catalogConfig';
 
 interface MobileProductsViewProps {
   products: Product[];
@@ -328,18 +330,19 @@ export const MobileProductsView: React.FC<MobileProductsViewProps> = React.memo(
                 "{s.description}"
               </p>
 
-              {/* Action Button */}
+              {/* Action Button — Ver catálogo */}
               <div className="pt-0 -mt-[5px] text-left flex items-center gap-2">
-                <button
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleCategoryFromSlider(s.id);
-                  }}
+                <a
+                  href={CATALOG_PDF_URL}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  onClick={(e) => e.stopPropagation()}
                   className="inline-flex items-center gap-2 px-5 py-1.5 rounded-full text-xs font-bold text-white bg-[#e86014] shadow-lg hover:shadow-xl transition-all cursor-pointer active:scale-95"
                 >
-                  <span>Explorar Categoría</span>
+                  <FileText className="w-3.5 h-3.5" />
+                  <span>{lang === 'en' ? 'View Catalog' : 'Ver catálogo'}</span>
                   <ArrowRight className="w-3.5 h-3.5" />
-                </button>
+                </a>
               </div>
 
             </div>

@@ -229,10 +229,10 @@ export const INITIAL_PRODUCTS: Product[] = [
   {
     id: 'prod-17',
     code: 'GUST-NEW-05',
-    name: 'Caja Exhibidora Wafer Cocada Gustaff 25g',
+    name: 'Caja Exhibidora Wafer Cocada Gustaff 18g',
     category: 'galletas',
     package_size: 'Empaque Individual',
-    description: 'Exquisito producto Gustaff: Caja Exhibidora Wafer Cocada Gustaff 25g. Ideal para toda la familia.',
+    description: 'Exquisito producto Gustaff: Caja Exhibidora Wafer Cocada Gustaff 18g. Ideal para toda la familia.',
     image: '/images/bodegon/caja_exhibidora_wafer_cocada_gustaff_25g.png',
     spec_sheet_url: '/docs/FT-GUST-NEW-05-Gustaff.pdf',
     features: ['Sabor delicioso', 'Calidad Gustaff'],
