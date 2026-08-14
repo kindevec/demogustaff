@@ -32,9 +32,9 @@ export const Navbar: React.FC<NavbarProps> = React.memo(({
 
   const navItems = React.useMemo(() => [
     { id: 'home', label: t.home },
-    { id: 'about', label: t.about },
     { id: 'products', label: t.products },
     { id: 'industrial', label: t.industrial, badge: t.productionBadge },
+    { id: 'about', label: t.about },
     { id: 'recipes', label: t.recipes },
     { id: 'contact', label: t.contact }
   ], [t]);

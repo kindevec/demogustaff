@@ -88,7 +88,17 @@ export const ProductDetailModal: React.FC<ProductDetailModalProps> = ({
                 {t.requestQuoteBtn}
               </button>
 
-              
+              {product.spec_sheet_url && (
+                <a
+                  href={product.spec_sheet_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full bg-[#f3ece0] hover:bg-[#e8dcc4] text-[#603813] font-bold py-2.5 px-4 rounded-xl text-xs flex items-center justify-center gap-2 border border-[#e8dcc4] transition-colors cursor-pointer text-center"
+                >
+                  <FileText className="w-4 h-4 text-[#b05d2e]" />
+                  <span>Descargar Ficha Técnica PDF</span>
+                </a>
+              )}
             </div>
           </div>
         </div>

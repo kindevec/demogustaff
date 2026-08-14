@@ -131,6 +131,27 @@ export const uploadProductImage = async (file: File): Promise<{ success: boolean
   return { success: true, url: data.publicUrl };
 };
 
+export const uploadSpecSheetFile = async (file: File): Promise<{ success: boolean; url?: string; error?: string }> => {
+  if (!supabase) return { success: false, error: 'Supabase no configurado' };
+  
+  const cleanName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+  const fileName = `ft-${Date.now()}-${cleanName}`;
+  
+  const { error } = await supabase.storage
+    .from('product-images')
+    .upload(fileName, file, { cacheControl: '3600', upsert: false, contentType: file.type || 'application/pdf' });
+    
+  if (error) {
+    return { success: false, error: error.message };
+  }
+  
+  const { data } = supabase.storage
+    .from('product-images')
+    .getPublicUrl(fileName);
+    
+  return { success: true, url: data.publicUrl };
+};
+
 export const uploadContactAttachment = async (file: File): Promise<{ success: boolean; url?: string; error?: string }> => {
   if (!supabase) return { success: false, error: 'Supabase no configurado' };
   

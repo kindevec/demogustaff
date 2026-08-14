@@ -13,6 +13,7 @@ import {
   getStoredSiteContent,
   saveStoredSiteContent,
   uploadProductImage,
+  uploadSpecSheetFile,
   updateAdminPassword
 } from '../lib/supabase';
 import { translateText, translateArray } from '../lib/translateAPI';
@@ -264,6 +265,7 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentTab, products, r
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [isSavedNotice, setIsSavedNotice] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [isUploadingPdf, setIsUploadingPdf] = useState(false);
   const [isTranslating, setIsTranslating] = useState(false);
 
   const [productSearch, setProductSearch] = useState('');
@@ -304,6 +306,20 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentTab, products, r
       alert('Error al subir imagen: ' + res.error);
     }
     setIsUploading(false);
+  };
+
+  const handlePdfUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !editingProduct) return;
+    
+    setIsUploadingPdf(true);
+    const res = await uploadSpecSheetFile(file);
+    if (res.success && res.url) {
+      setEditingProduct({ ...editingProduct, spec_sheet_url: res.url });
+    } else {
+      alert('Error al subir Ficha Técnica: ' + res.error);
+    }
+    setIsUploadingPdf(false);
   };
 
   const handleSaveProduct = async (e: React.FormEvent) => {
@@ -726,6 +742,73 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentTab, products, r
                                       Formatos: JPG, PNG, WEBP. <br className="hidden sm:block" />Peso máximo: 5MB.
                                     </p>
                                   </div>
+                                </div>
+                              </div>
+
+                              {/* FICHA TÉCNICA PDF */}
+                              <div>
+                                <div className="flex items-center justify-between mb-2">
+                                  <label className="block text-xs font-bold text-slate-700">FICHA TÉCNICA PDF (ACCESO PÚBLICO / CLIENTES)</label>
+                                  {editingProduct.spec_sheet_url && (
+                                    <a
+                                      href={editingProduct.spec_sheet_url}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="text-[11px] text-amber-700 hover:underline flex items-center gap-1 font-semibold"
+                                    >
+                                      <FileText className="w-3 h-3" /> Ver PDF actual
+                                    </a>
+                                  )}
+                                </div>
+                                <div className="p-3.5 bg-slate-50/50 border border-slate-200 rounded-xl space-y-2.5">
+                                  <div className="flex flex-col sm:flex-row items-center gap-3">
+                                    <label className="relative cursor-pointer inline-flex items-center justify-center gap-2 px-3.5 py-2 bg-white border border-slate-200 hover:border-amber-400 hover:bg-amber-50 text-slate-700 hover:text-amber-700 rounded-lg text-xs font-bold transition-all shadow-sm w-full sm:w-auto shrink-0">
+                                      <input
+                                        type="file"
+                                        accept=".pdf,application/pdf"
+                                        onChange={handlePdfUpload}
+                                        disabled={isUploadingPdf}
+                                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
+                                      />
+                                      {isUploadingPdf ? (
+                                        <>
+                                          <div className="w-3.5 h-3.5 border-2 border-amber-600 border-t-transparent rounded-full animate-spin"></div>
+                                          Subiendo PDF...
+                                        </>
+                                      ) : (
+                                        <>
+                                          <FileText className="w-3.5 h-3.5 text-amber-600" />
+                                          Subir Ficha PDF
+                                        </>
+                                      )}
+                                    </label>
+                                    <input
+                                      type="text"
+                                      value={editingProduct.spec_sheet_url || ''}
+                                      onChange={(e) => setEditingProduct({ ...editingProduct, spec_sheet_url: e.target.value })}
+                                      className="w-full bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500 font-medium"
+                                      placeholder="O pegar URL de Google Drive / enlace PDF..."
+                                    />
+                                  </div>
+                                  {editingProduct.spec_sheet_url ? (
+                                    <div className="flex items-center justify-between text-[11px] bg-emerald-50 text-emerald-800 px-3 py-1.5 rounded-lg border border-emerald-200">
+                                      <span className="flex items-center gap-1.5 font-medium truncate">
+                                        <CheckCircle className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                                        Ficha vinculada: <span className="font-mono truncate">{editingProduct.spec_sheet_url}</span>
+                                      </span>
+                                      <button
+                                        type="button"
+                                        onClick={() => setEditingProduct({ ...editingProduct, spec_sheet_url: '' })}
+                                        className="text-red-500 hover:text-red-700 font-bold ml-2 shrink-0 cursor-pointer"
+                                      >
+                                        Quitar
+                                      </button>
+                                    </div>
+                                  ) : (
+                                    <p className="text-[10px] text-slate-400">
+                                      💡 Puedes subir un PDF o ingresar una URL de Google Drive compartida.
+                                    </p>
+                                  )}
                                 </div>
                               </div>
                               

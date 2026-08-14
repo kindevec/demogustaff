@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { Product } from '../types';
-import { uploadProductImage } from '../lib/supabase';
-import { X, Save, Upload, Package, Edit3, Image as ImageIcon, Check, Trash2 } from 'lucide-react';
+import { uploadProductImage, uploadSpecSheetFile } from '../lib/supabase';
+import { X, Save, Upload, Package, Edit3, Image as ImageIcon, Check, Trash2, FileText, Download, ExternalLink } from 'lucide-react';
 
 interface ProductEditModalProps {
   product: Product | null;
@@ -20,6 +20,7 @@ export const ProductEditModal: React.FC<ProductEditModalProps> = ({
 
   const [form, setForm] = useState<Product>({ ...product });
   const [isUploading, setIsUploading] = useState(false);
+  const [isUploadingPdf, setIsUploadingPdf] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -34,6 +35,20 @@ export const ProductEditModal: React.FC<ProductEditModalProps> = ({
       alert('Error al subir imagen: ' + (res.error || 'Intente nuevamente'));
     }
     setIsUploading(false);
+  };
+
+  const handlePdfUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploadingPdf(true);
+    const res = await uploadSpecSheetFile(file);
+    if (res.success && res.url) {
+      setForm(prev => ({ ...prev, spec_sheet_url: res.url! }));
+    } else {
+      alert('Error al subir Ficha Técnica: ' + (res.error || 'Intente nuevamente'));
+    }
+    setIsUploadingPdf(false);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -180,6 +195,66 @@ export const ProductEditModal: React.FC<ProductEditModalProps> = ({
                   className="w-full bg-white border border-[#e8dcc4] rounded-xl px-3 py-1.5 text-xs text-[#3d2516] focus:outline-none focus:border-[#b05d2e]"
                 />
               </div>
+            </div>
+          </div>
+
+          {/* Ficha Técnica PDF */}
+          <div className="space-y-2">
+            <div className="flex items-center justify-between">
+              <label className="block font-bold text-[#3d2516]">Ficha Técnica PDF (Descarga de Clientes):</label>
+              {form.spec_sheet_url && (
+                <a
+                  href={form.spec_sheet_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[11px] text-[#b05d2e] hover:underline flex items-center gap-1 font-semibold"
+                >
+                  <ExternalLink className="w-3 h-3" /> Ver PDF actual
+                </a>
+              )}
+            </div>
+            <div className="p-3.5 bg-[#fdfaf5] border border-[#e8dcc4] rounded-2xl space-y-3">
+              <div className="flex flex-col sm:flex-row items-center gap-3">
+                <label className="cursor-pointer bg-[#f3ece0] hover:bg-[#e8dcc4] text-[#603813] font-bold px-3 py-2 rounded-xl text-xs border border-[#e8dcc4] flex items-center justify-center gap-1.5 transition-all text-center w-full sm:w-auto shrink-0">
+                  <FileText className="w-3.5 h-3.5 text-[#b05d2e]" />
+                  <span>{isUploadingPdf ? 'Subiendo PDF...' : '📄 Subir Archivo PDF'}</span>
+                  <input
+                    type="file"
+                    accept=".pdf,application/pdf"
+                    onChange={handlePdfUpload}
+                    className="hidden"
+                    disabled={isUploadingPdf}
+                  />
+                </label>
+                <div className="flex-1 w-full">
+                  <input
+                    type="text"
+                    value={form.spec_sheet_url || ''}
+                    onChange={e => setForm({ ...form, spec_sheet_url: e.target.value })}
+                    placeholder="O pegar enlace directo / Google Drive / /docs/FT-...pdf"
+                    className="w-full bg-white border border-[#e8dcc4] rounded-xl px-3 py-2 text-xs text-[#3d2516] focus:outline-none focus:border-[#b05d2e]"
+                  />
+                </div>
+              </div>
+              {form.spec_sheet_url ? (
+                <div className="flex items-center justify-between text-[11px] bg-emerald-50 text-emerald-800 px-3 py-1.5 rounded-xl border border-emerald-200">
+                  <span className="flex items-center gap-1.5 font-medium truncate">
+                    <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                    Ficha vinculada: <span className="font-mono truncate">{form.spec_sheet_url}</span>
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setForm({ ...form, spec_sheet_url: '' })}
+                    className="text-red-500 hover:text-red-700 font-bold ml-2 shrink-0 cursor-pointer"
+                  >
+                    Quitar
+                  </button>
+                </div>
+              ) : (
+                <p className="text-[10px] text-[#8d6e63]">
+                  💡 Puedes subir el archivo PDF directamente o pegar una URL de Google Drive compartida públicamente.
+                </p>
+              )}
             </div>
           </div>
 

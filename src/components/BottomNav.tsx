@@ -23,11 +23,6 @@ export const BottomNav: React.FC<BottomNavProps> = React.memo(({
       icon: Home
     },
     {
-      id: 'about',
-      label: t.about,
-      icon: Info
-    },
-    {
       id: 'products',
       label: t.products,
       icon: Package
@@ -36,6 +31,11 @@ export const BottomNav: React.FC<BottomNavProps> = React.memo(({
       id: 'industrial',
       label: t.industrial,
       icon: Building2
+    },
+    {
+      id: 'about',
+      label: t.about,
+      icon: Info
     },
     {
       id: 'recipes',

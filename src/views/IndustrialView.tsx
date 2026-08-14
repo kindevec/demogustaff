@@ -142,17 +142,6 @@ export const IndustrialView: React.FC<IndustrialViewProps> = React.memo(({
             "{t.subtitle}"
           </p>
 
-          {/* Action Button */}
-          <div className="pt-2 flex flex-wrap gap-3">
-            <button
-              onClick={onOpenAuth}
-              className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-bold text-white bg-[#e86014] shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-0.5 w-fit cursor-pointer group/btn"
-            >
-              <Lock className="w-4 h-4" />
-              <span>{t.downloadPdfClient}</span>
-            </button>
-          </div>
-
         </div>
       </div>
 
@@ -332,13 +321,25 @@ export const IndustrialView: React.FC<IndustrialViewProps> = React.memo(({
                   {t.viewTechSpecs}
                 </button>
 
-                <button
-                  onClick={onOpenAuth}
-                  className="w-full bg-[#603813] hover:bg-[#3d2516] text-white font-bold py-2.5 px-3 rounded-xl text-xs flex items-center justify-center gap-1.5 shadow-sm"
-                >
-                  <Download className="w-3.5 h-3.5 text-[#d4af37]" />
-                  {t.downloadTechPdf}
-                </button>
+                {p.spec_sheet_url ? (
+                  <a
+                    href={p.spec_sheet_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full bg-[#603813] hover:bg-[#3d2516] text-white font-bold py-2.5 px-3 rounded-xl text-xs flex items-center justify-center gap-1.5 shadow-sm transition-colors cursor-pointer"
+                  >
+                    <Download className="w-3.5 h-3.5 text-[#d4af37]" />
+                    <span>{t.downloadTechPdf}</span>
+                  </a>
+                ) : (
+                  <button
+                    onClick={() => onSelectProduct(p)}
+                    className="w-full bg-[#603813] hover:bg-[#3d2516] text-white font-bold py-2.5 px-3 rounded-xl text-xs flex items-center justify-center gap-1.5 shadow-sm transition-colors cursor-pointer"
+                  >
+                    <Download className="w-3.5 h-3.5 text-[#d4af37]" />
+                    <span>{t.downloadTechPdf}</span>
+                  </button>
+                )}
               </div>
             </div>
           </div>
