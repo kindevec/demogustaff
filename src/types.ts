@@ -57,6 +57,32 @@ export interface SlideConfig {
   primaryBtnText: string;
   primaryTab: string;
   objectPosition?: string;
+  isActive?: boolean;
+  bgZoom?: number;
+}
+
+export interface ProductSlideConfig {
+  id: string;
+  tagline: string;
+  titleLine1: string;
+  titleAccent: string;
+  description: string;
+  image: string;
+  bgColor: string;
+  navColor: string;
+  accentColor: string;
+  objectPosition?: string;
+  isActive?: boolean;
+  bgZoom?: number;
+}
+
+export interface IndustrialBannerConfig {
+  badge: string;
+  title: string;
+  subtitle: string;
+  image: string;
+  objectPosition?: string;
+  bgZoom?: number;
 }
 
 export interface SiteContent {
@@ -65,6 +91,8 @@ export interface SiteContent {
   home_productos_summary: string;
   home_industrial_summary: string;
   home_slides?: SlideConfig[];
+  products_slides?: ProductSlideConfig[];
+  industrial_banner?: IndustrialBannerConfig;
   about_title: string;
   about_history: string;
   about_mision: string;

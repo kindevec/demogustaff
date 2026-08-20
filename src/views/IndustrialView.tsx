@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { translateProduct } from '../lib/translateProduct';
-import { Product, Language } from '../types';
+import { Product, Language, SiteContent } from '../types';
 import { TRANSLATIONS } from '../data/translations';
 import { AnimatedSection } from '../components/AnimatedSection';
 import { 
@@ -22,6 +22,7 @@ import {
 interface IndustrialViewProps {
   products: Product[];
   lang: Language;
+  siteContent?: SiteContent;
   onSelectProduct: (p: Product) => void;
   onOpenAuth?: () => void;
   onThemeColorChange?: (color: string) => void;
@@ -33,6 +34,7 @@ interface IndustrialViewProps {
 export const IndustrialView: React.FC<IndustrialViewProps> = React.memo(({
   products,
   lang,
+  siteContent,
   onSelectProduct,
   onOpenAuth,
   onThemeColorChange,
@@ -107,9 +109,20 @@ export const IndustrialView: React.FC<IndustrialViewProps> = React.memo(({
       <div className="relative overflow-hidden transition-colors duration-700 ease-in-out h-[520px] sm:h-[620px] lg:h-[700px] bg-[#3A1B12] group">
         {/* Background Image (Absolute Fill) with smooth page load zoom */}
         <img
-          src="/images/bodegon/Maquila.webp"
+          src={siteContent?.industrial_banner?.image || '/images/bodegon/Maquila.webp'}
           alt="Maquila Industrial Gustaff S.A."
           className="absolute inset-0 w-full h-full object-cover object-center z-0 animate-hero-zoom"
+          style={{
+            objectPosition: siteContent?.industrial_banner?.objectPosition || 'center center',
+            transform: siteContent?.industrial_banner?.bgZoom && siteContent.industrial_banner.bgZoom > 100 ? (() => {
+              const zoomScale = siteContent.industrial_banner.bgZoom / 100;
+              const posParts = (siteContent.industrial_banner.objectPosition || '50% 50%').replace(/%/g, '').trim().split(/\s+/);
+              const px = parseFloat(posParts[0]) || 50;
+              const py = parseFloat(posParts[1]) || 50;
+              return `scale(${zoomScale}) translate(${((50 - px) * (1 - 1 / zoomScale))}%, ${((50 - py) * (1 - 1 / zoomScale))}%)`;
+            })() : undefined,
+            transformOrigin: 'center center'
+          }}
         />
         
         {/* Left Gradient Overlay — Exact ProductsView/AboutView Style */}
@@ -129,17 +142,17 @@ export const IndustrialView: React.FC<IndustrialViewProps> = React.memo(({
           {/* Badge */}
           <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[11px] font-extrabold tracking-wider uppercase w-fit border border-white/20 shadow-lg bg-[#e86014] text-white">
             <Package className="w-4 h-4 text-white" />
-            <span>{t.bannerBadge}</span>
+            <span>{siteContent?.industrial_banner?.badge || t.bannerBadge}</span>
           </div>
 
           {/* Main Title */}
           <h1 className="font-serif font-black text-3xl sm:text-5xl lg:text-6xl xl:text-7xl text-white leading-tight max-w-3xl drop-shadow-lg">
-            {t.bannerTitle}
+            {siteContent?.industrial_banner?.title || t.bannerTitle}
           </h1>
 
           {/* Subtitle / Description */}
           <p className="text-sm sm:text-base text-white/80 max-w-xl leading-relaxed drop-shadow-sm font-serif italic border-l-2 border-[#e86014] pl-3">
-            "{t.subtitle}"
+            "{siteContent?.industrial_banner?.subtitle || t.subtitle}"
           </p>
 
         </div>

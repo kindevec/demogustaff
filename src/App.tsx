@@ -250,10 +250,12 @@ export default function App() {
               <ProductsView
                 products={products}
                 lang={lang}
+                siteContent={siteContent}
                 onSelectProduct={handleSelectProduct}
                 onOpenAuth={handleOpenAdmin}
                 onThemeColorChange={setHeaderThemeColor}
                 isAdmin={isAdmin}
+                onUpdateSiteContent={handleUpdateSiteContent}
                 onEditProduct={handleEditProductModal}
                 onAddProduct={handleAddNewProductModal}
               />
@@ -262,10 +264,12 @@ export default function App() {
               <MobileProductsView
                 products={products}
                 lang={lang}
+                siteContent={siteContent}
                 onSelectProduct={handleSelectProduct}
                 onOpenAuth={handleOpenAdmin}
                 onThemeColorChange={setHeaderThemeColor}
                 isAdmin={isAdmin}
+                onUpdateSiteContent={handleUpdateSiteContent}
                 onEditProduct={handleEditProductModal}
                 onAddProduct={handleAddNewProductModal}
               />
@@ -279,6 +283,7 @@ export default function App() {
               <IndustrialView
                 products={products}
                 lang={lang}
+                siteContent={siteContent}
                 onSelectProduct={handleSelectProduct}
                 onOpenAuth={handleOpenAdmin}
                 onThemeColorChange={setHeaderThemeColor}
@@ -291,6 +296,7 @@ export default function App() {
               <MobileIndustrialView
                 products={products}
                 lang={lang}
+                siteContent={siteContent}
                 onSelectProduct={handleSelectProduct}
                 onOpenAuth={handleOpenAdmin}
                 onThemeColorChange={setHeaderThemeColor}

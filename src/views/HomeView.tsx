@@ -160,7 +160,8 @@ export const HomeView: React.FC<HomeViewProps> = React.memo(({
         image: match.image || def.image,
         primaryBtnText: match.primaryBtnText || def.primaryBtnText,
         primaryTab: match.primaryTab || def.primaryTab,
-        objectPosition: match.objectPosition || def.objectPosition
+        objectPosition: match.objectPosition || def.objectPosition,
+        bgZoom: match.bgZoom
       };
     });
   }, [defaultSlides, siteContent.home_slides]);
@@ -566,6 +567,14 @@ export const HomeView: React.FC<HomeViewProps> = React.memo(({
                   objectPosition: (isAdjustingImage && idx === currentSlide)
                     ? `${dragPos.x}% ${dragPos.y}%`
                     : (slide.objectPosition || 'center center'),
+                  transform: slide.bgZoom && slide.bgZoom > 100 ? (() => {
+                    const zoomScale = slide.bgZoom / 100;
+                    const posParts = (slide.objectPosition || '50% 50%').replace(/%/g, '').trim().split(/\s+/);
+                    const px = parseFloat(posParts[0]) || 50;
+                    const py = parseFloat(posParts[1]) || 50;
+                    return `scale(${zoomScale}) translate(${((50 - px) * (1 - 1 / zoomScale))}%, ${((50 - py) * (1 - 1 / zoomScale))}%)`;
+                  })() : undefined,
+                  transformOrigin: 'center center',
                   willChange: isAdjustingImage ? 'object-position' : undefined
                 }}
                 fetchPriority={idx === 0 ? "high" : undefined}

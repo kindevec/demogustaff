@@ -49,14 +49,17 @@ import {
   Smartphone,
   Mail,
   Camera,
-  Check
+  Check,
+  Sliders
 } from 'lucide-react';
+import { AdminBannersTab } from '../components/admin/AdminBannersTab';
 
 interface AdminViewProps {
   setCurrentTab: (tab: string) => void;
   lang?: Language;
   products: Product[];
   refreshProducts: () => void;
+  refreshSiteContent?: () => void;
 }
 
 export const AdminView: React.FC<AdminViewProps> = ({ setCurrentTab, products, refreshProducts, refreshSiteContent }) => {
@@ -95,7 +98,7 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentTab, products, r
     loadData();
   }, [authenticated]);
 
-  type AdminTab = 'products' | 'content' | 'profile' | 'security' | 'sessions' | 'preferences';
+  type AdminTab = 'products' | 'banners' | 'content' | 'profile' | 'security';
 
   const getActiveTab = (): AdminTab => {
     const hash = window.location.hash.replace('#', '');
@@ -211,53 +214,6 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentTab, products, r
       setSecurityStatus({ success: false, msg: res.error || 'Error al actualizar contraseña' });
     }
     setIsUpdatingPass(false);
-  };
-
-  const [preferencesForm, setPreferencesForm] = useState(() => {
-    try {
-      const saved = localStorage.getItem('gustaff_admin_preferences');
-      if (saved) return JSON.parse(saved);
-    } catch (e) {}
-    return {
-      notifyQuotes: true,
-      autoSave: true,
-      timezone: 'America/Guayaquil (GMT-5)',
-      lang: 'es'
-    };
-  });
-  const [prefNotice, setPrefNotice] = useState('');
-  const [dbStatusMsg, setDbStatusMsg] = useState('');
-
-  const handleTogglePreference = (key: 'autoSave' | 'notifyQuotes', value: boolean) => {
-    const updated = { ...preferencesForm, [key]: value };
-    setPreferencesForm(updated);
-    localStorage.setItem('gustaff_admin_preferences', JSON.stringify(updated));
-    setPrefNotice('Preferencias guardadas automáticamente.');
-    setTimeout(() => setPrefNotice(''), 3000);
-  };
-
-  const handleTestDbConnection = async () => {
-    setDbStatusMsg('Verificando latencia y estado de Supabase...');
-    const start = Date.now();
-    const { session } = await getAdminSession();
-    const elapsed = Date.now() - start;
-    setDbStatusMsg(`⚡ Conexión exitosa. Latencia: ${elapsed}ms — Estado: Operativo (Sesión: ${session ? 'Autenticada' : 'Pública'}).`);
-  };
-
-  const handleExportBackup = () => {
-    const backupData = {
-      siteContent,
-      products,
-      preferences: preferencesForm,
-      exportedAt: new Date().toISOString()
-    };
-    const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `gustaff_backup_${Date.now()}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
   };
 
   const [siteContent, setSiteContent] = useState<SiteContent>(() => getStoredSiteContent());
@@ -408,11 +364,10 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentTab, products, r
 
   const tabs = [
     { id: 'products', label: 'Gestión Catálogo', icon: Package, badge: products.length },
+    { id: 'banners', label: 'Banners y Portada', icon: Sliders },
     { id: 'content', label: 'Textos de Páginas', icon: FileText },
     { id: 'profile', label: 'Perfil Administrador', icon: User },
-    { id: 'security', label: 'Cambiar Contraseña', icon: Key },
-    { id: 'sessions', label: 'Actividad y Sesiones', icon: Shield },
-    { id: 'preferences', label: 'Preferencias Sistema', icon: Settings }
+    { id: 'security', label: 'Cambiar Contraseña', icon: Key }
   ];
 
   if (isCheckingAuth) {
@@ -595,7 +550,7 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentTab, products, r
 
         {/* Scrollable Content (Add pb-20 to avoid content being hidden by bottom nav) */}
         <div className="flex-1 overflow-y-auto w-full h-full custom-scrollbar">
-          <div key={activeTab} className="p-4 sm:p-6 lg:p-8 w-full max-w-6xl mx-auto pb-24 md:pb-8 animate-fade-in">
+          <div key={activeTab} className={`p-4 sm:p-6 lg:p-8 w-full ${activeTab === 'banners' ? 'max-w-none' : 'max-w-6xl mx-auto'} pb-24 md:pb-8 animate-fade-in`}>
           
           {/* Global Toast */}
           {isSavedNotice && (
@@ -961,6 +916,19 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentTab, products, r
             </div>
           )}
 
+          {/* TAB: BANNERS & PORTADA */}
+          {activeTab === 'banners' && (
+            <AdminBannersTab
+              siteContent={siteContent}
+              onUpdateSiteContent={async (newContent) => {
+                setSiteContent(newContent);
+                await saveStoredSiteContent(newContent);
+                if (refreshSiteContent) refreshSiteContent();
+                showNotice();
+              }}
+            />
+          )}
+
           {/* TAB: CMS CONTENT */}
           {activeTab === 'content' && (
             <div className="w-full animate-fadeIn pb-safe-bottom sm:pb-0">
@@ -1321,173 +1289,6 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentTab, products, r
                     </button>
                   </div>
                 </form>
-              </div>
-            </div>
-          )}
-
-          {/* TAB 5: SESSIONS */}
-          {activeTab === 'sessions' && (
-            <div className="space-y-6 animate-fadeIn">
-              <div>
-                <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Actividad y Sesiones Activas</h2>
-                <p className="text-sm text-slate-500 mt-1">Supervisa los dispositivos con acceso al panel y el registro de cambios.</p>
-              </div>
-
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {/* Dispositivo Actual */}
-                <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
-                  <h3 className="font-bold text-slate-900 text-base flex items-center gap-2">
-                    <Smartphone className="w-5 h-5 text-amber-500" />
-                    Sesión Actual
-                  </h3>
-
-                  <div className="p-4 bg-emerald-50/60 border border-emerald-200 rounded-xl flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="w-3 h-3 rounded-full bg-emerald-500 animate-pulse" />
-                      <div>
-                        <p className="text-sm font-bold text-slate-900">Navegador Web / Windows</p>
-                        <p className="text-xs text-slate-500">Dirección IP: Localhost (127.0.0.1)</p>
-                      </div>
-                    </div>
-                    <span className="text-[10px] font-extrabold uppercase bg-emerald-100 text-emerald-800 px-2.5 py-1 rounded-full">
-                      En Línea
-                    </span>
-                  </div>
-
-                  <p className="text-xs text-slate-500 leading-relaxed">
-                    Esta sesión está autenticada mediante token JWT seguro en Supabase Auth.
-                  </p>
-
-                  <button
-                    onClick={handleLogout}
-                    className="w-full py-2.5 bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 rounded-xl text-xs font-bold transition-colors flex items-center justify-center gap-2 cursor-pointer"
-                  >
-                    <LogOut className="w-4 h-4" />
-                    <span>Cerrar Sesión Global</span>
-                  </button>
-                </div>
-
-                {/* Historial de Cambios Recientes */}
-                <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 space-y-4">
-                  <h3 className="font-bold text-slate-900 text-base flex items-center gap-2">
-                    <Activity className="w-5 h-5 text-amber-500" />
-                    Registro de Actividad Reciente
-                  </h3>
-
-                  <div className="space-y-3 text-xs">
-                    {[
-                      { action: 'Edición en Vivo de Slide Hero', time: 'Hace un momento', detail: 'Posicionamiento drag-and-drop guardado' },
-                      { action: 'Actualización de Catálogo', time: 'Hace 10 min', detail: 'Edición in-situ de tarjeta de producto' },
-                      { action: 'Inicio de Sesión Exitoso', time: 'Hace 30 min', detail: 'Autenticación con Supabase Auth' }
-                    ].map((item, idx) => (
-                      <div key={idx} className="p-3 bg-slate-50 border border-slate-100 rounded-xl flex items-center justify-between">
-                        <div>
-                          <p className="font-bold text-slate-800">{item.action}</p>
-                          <p className="text-slate-400 text-[11px]">{item.detail}</p>
-                        </div>
-                        <span className="text-slate-400 font-mono text-[10px] whitespace-nowrap">{item.time}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* TAB 6: PREFERENCES */}
-          {activeTab === 'preferences' && (
-            <div className="space-y-6 animate-fadeIn">
-              <div>
-                <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Preferencias y Estado del Sistema</h2>
-                <p className="text-sm text-slate-500 mt-1">Configuración técnica de entorno, zona horaria y herramientas de diagnóstico.</p>
-              </div>
-
-              <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-8 space-y-6 max-w-2xl">
-                {prefNotice && (
-                  <div className="p-4 bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm font-medium rounded-xl flex items-center gap-2">
-                    <CheckCircle className="w-5 h-5 text-emerald-500" />
-                    <span>{prefNotice}</span>
-                  </div>
-                )}
-
-                {/* Conexión Base de Datos */}
-                <div className="p-4 bg-amber-50/50 border border-amber-200 rounded-xl space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <ShieldCheck className="w-6 h-6 text-amber-600" />
-                      <div>
-                        <p className="text-sm font-bold text-slate-900">Estado de Base de Datos Supabase Cloud</p>
-                        <p className="text-xs text-slate-500 font-mono">https://tdxyafwphzugteejefcg.supabase.co</p>
-                      </div>
-                    </div>
-                    <span className="text-[10px] font-extrabold uppercase bg-emerald-100 text-emerald-800 px-3 py-1 rounded-full shrink-0">
-                      ✅ 100% Operativo
-                    </span>
-                  </div>
-
-                  {dbStatusMsg && (
-                    <div className="p-2.5 bg-white border border-amber-200 rounded-lg text-xs font-mono text-amber-900">
-                      {dbStatusMsg}
-                    </div>
-                  )}
-
-                  <div className="flex items-center gap-2 pt-1">
-                    <button
-                      type="button"
-                      onClick={handleTestDbConnection}
-                      className="px-4 py-2 bg-white border border-amber-300 hover:bg-amber-100 text-amber-900 rounded-xl text-xs font-bold transition-all shadow-sm flex items-center gap-1.5 cursor-pointer"
-                    >
-                      <RefreshCw className="w-3.5 h-3.5 text-amber-600" />
-                      <span>Probar Latencia & Conexión DB</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={handleExportBackup}
-                      className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold transition-all shadow-sm flex items-center gap-1.5 cursor-pointer"
-                    >
-                      <Download className="w-3.5 h-3.5 text-amber-400" />
-                      <span>Exportar Respaldos (JSON)</span>
-                    </button>
-                  </div>
-                </div>
-
-                <div className="space-y-4 pt-2">
-                  <div className="flex items-center justify-between py-3 border-b border-slate-100">
-                    <div>
-                      <p className="text-sm font-bold text-slate-900">Guardado Automático de Cambios</p>
-                      <p className="text-xs text-slate-500">Sincroniza en tiempo real con Supabase y almacenamiento local.</p>
-                    </div>
-                    <input
-                      type="checkbox"
-                      checked={preferencesForm.autoSave}
-                      onChange={e => handleTogglePreference('autoSave', e.target.checked)}
-                      className="w-5 h-5 text-amber-500 rounded border-slate-300 focus:ring-amber-500 cursor-pointer"
-                    />
-                  </div>
-
-                  <div className="flex items-center justify-between py-3 border-b border-slate-100">
-                    <div>
-                      <p className="text-sm font-bold text-slate-900">Notificaciones de Cotizaciones WhatsApp</p>
-                      <p className="text-xs text-slate-500">Formatea mensajes al solicitar cotizaciones o fichas técnicas.</p>
-                    </div>
-                    <input
-                      type="checkbox"
-                      checked={preferencesForm.notifyQuotes}
-                      onChange={e => handleTogglePreference('notifyQuotes', e.target.checked)}
-                      className="w-5 h-5 text-amber-500 rounded border-slate-300 focus:ring-amber-500 cursor-pointer"
-                    />
-                  </div>
-
-                  <div className="pt-2">
-                    <label className="block text-xs font-bold text-slate-700 mb-1.5 uppercase">Zona Horaria Predeterminada</label>
-                    <input
-                      type="text"
-                      value={preferencesForm.timezone}
-                      readOnly
-                      className="w-full bg-slate-100 border border-slate-200 rounded-xl p-3 text-xs text-slate-700 font-mono"
-                    />
-                  </div>
-                </div>
               </div>
             </div>
           )}

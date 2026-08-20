@@ -221,6 +221,7 @@ ${payload.message}
             email: payload.email,
             subject: subject,
             message: formattedMessage,
+            attachment_url: payload.attachmentUrl || null,
             status: 'pending'
           }]);
       } catch (dbErr) {

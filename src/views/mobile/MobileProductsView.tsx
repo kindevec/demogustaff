@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { Product, Language } from '../../types';
+import { Product, Language, SiteContent } from '../../types';
 import { TRANSLATIONS } from '../../data/translations';
 import { AnimatedSection } from '../../components/AnimatedSection';
 import {
@@ -25,12 +25,14 @@ import { CATALOG_PDF_URL } from '../../data/catalogConfig';
 interface MobileProductsViewProps {
   products: Product[];
   lang: Language;
+  siteContent?: SiteContent;
   onSelectProduct: (p: Product) => void;
   onOpenAuth?: () => void;
   onThemeColorChange?: (color: string) => void;
   isAdmin?: boolean;
   onEditProduct?: (p: Product) => void;
   onAddProduct?: () => void;
+  onUpdateSiteContent?: (content: SiteContent) => void;
 }
 
 // Category slide configuration matching desktop structure
@@ -90,19 +92,42 @@ const normalizeString = (str?: string | null): string => {
 export const MobileProductsView: React.FC<MobileProductsViewProps> = React.memo(({
   products,
   lang,
+  siteContent,
   onSelectProduct,
   onOpenAuth,
   onThemeColorChange,
   isAdmin = false,
   onEditProduct,
-  onAddProduct
+  onAddProduct,
+  onUpdateSiteContent
 }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [selectedFilter, setSelectedFilter] = useState<string>('all');
 
-  const slide = CATEGORY_SLIDES[currentSlide];
+  const slides = React.useMemo(() => {
+    const custom = siteContent?.products_slides || [];
+    if (custom.length === 0) return CATEGORY_SLIDES;
+    return CATEGORY_SLIDES.map((def) => {
+      const match = custom.find(c => c.id === def.id);
+      if (!match) return def;
+      return {
+        ...def,
+        tagline: match.tagline || def.tagline,
+        titleLine1: match.titleLine1 || def.titleLine1,
+        titleAccent: match.titleAccent || def.titleAccent,
+        description: match.description || def.description,
+        image: match.image || def.image,
+        bgColor: match.bgColor || def.bgColor,
+        navColor: match.navColor || def.navColor,
+        objectPosition: match.objectPosition || def.objectPosition,
+        bgZoom: match.bgZoom
+      };
+    });
+  }, [siteContent?.products_slides]);
+
+  const slide = slides[currentSlide];
 
   // Sync theme color to parent (Navbar)
   useEffect(() => {
@@ -116,10 +141,10 @@ export const MobileProductsView: React.FC<MobileProductsViewProps> = React.memo(
   useEffect(() => {
     if (isPaused) return;
     const interval = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % CATEGORY_SLIDES.length);
+      setCurrentSlide((prev) => (prev + 1) % slides.length);
     }, 5000);
     return () => clearInterval(interval);
-  }, [isPaused]);
+  }, [isPaused, slides.length]);
 
   // Swipe Gesture Handling (Touch & Mouse Drag)
   const [touchStartX, setTouchStartX] = useState<number | null>(null);
@@ -127,12 +152,12 @@ export const MobileProductsView: React.FC<MobileProductsViewProps> = React.memo(
   const [isMouseDown, setIsMouseDown] = useState(false);
 
   const nextSlide = useCallback(() => {
-    setCurrentSlide((prev) => (prev + 1) % CATEGORY_SLIDES.length);
-  }, []);
+    setCurrentSlide((prev) => (prev + 1) % slides.length);
+  }, [slides.length]);
 
   const prevSlide = useCallback(() => {
-    setCurrentSlide((prev) => (prev - 1 + CATEGORY_SLIDES.length) % CATEGORY_SLIDES.length);
-  }, []);
+    setCurrentSlide((prev) => (prev - 1 + slides.length) % slides.length);
+  }, [slides.length]);
 
   const handleTouchStart = (e: React.TouchEvent | React.MouseEvent) => {
     setIsPaused(true);
@@ -286,7 +311,7 @@ export const MobileProductsView: React.FC<MobileProductsViewProps> = React.memo(
         onMouseLeave={handleTouchEnd}
       >
         {/* Render All Category Slides for Smooth Fade Transitions */}
-        {CATEGORY_SLIDES.map((s, idx) => (
+        {slides.map((s, idx) => (
           <div
             key={s.id}
             className={`absolute inset-0 transition-opacity duration-700 ease-in-out ${
@@ -298,6 +323,17 @@ export const MobileProductsView: React.FC<MobileProductsViewProps> = React.memo(
               src={encodeURI(s.image)}
               alt={s.titleLine1}
               className="absolute inset-0 w-full h-full object-cover object-center"
+              style={{
+                objectPosition: s.objectPosition || 'center center',
+                transform: s.bgZoom && s.bgZoom > 100 ? (() => {
+                  const zoomScale = s.bgZoom / 100;
+                  const posParts = (s.objectPosition || '50% 50%').replace(/%/g, '').trim().split(/\s+/);
+                  const px = parseFloat(posParts[0]) || 50;
+                  const py = parseFloat(posParts[1]) || 50;
+                  return `scale(${zoomScale}) translate(${((50 - px) * (1 - 1 / zoomScale))}%, ${((50 - py) * (1 - 1 / zoomScale))}%)`;
+                })() : undefined,
+                transformOrigin: 'center center'
+              }}
               loading={idx === 0 ? "eager" : "lazy"}
             />
 
@@ -351,7 +387,7 @@ export const MobileProductsView: React.FC<MobileProductsViewProps> = React.memo(
 
         {/* Slider Indicator Dots (Bottom Right) */}
         <div className="absolute bottom-3 right-4 z-30 flex items-center gap-1.5 bg-black/40 backdrop-blur-md px-2.5 py-1 rounded-full border border-white/10">
-          {CATEGORY_SLIDES.map((_, idx) => (
+          {slides.map((_, idx) => (
             <button
               key={idx}
               onClick={(e) => {

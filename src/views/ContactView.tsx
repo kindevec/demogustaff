@@ -109,6 +109,7 @@ export const ContactView: React.FC<ContactViewProps> = React.memo(({ siteContent
         }
       }
 
+      const fullName = `${firstName} ${lastName}`.trim();
       const submissionRes = await submitContactForm({
         firstName,
         lastName,
@@ -127,7 +128,36 @@ export const ContactView: React.FC<ContactViewProps> = React.memo(({ siteContent
         throw new Error(submissionRes.error || t.genericError);
       }
 
-      setSuccessMsg('¡Gracias por contactarnos! Tu mensaje y evidencia adjunta han sido enviados con éxito a servicioalcliente@gustaff.com.');
+      // Format WhatsApp message including the stored file link
+      const waMessage = `*NUEVO MENSAJE DE CONTACTO (GUSTAFF S.A.)*
+----------------------------------------
+👤 *Nombre:* ${fullName}
+📧 *Email:* ${email}
+📱 *Teléfono:* ${phone}
+🌎 *País:* ${country}
+📌 *Motivo:* ${reasonTitle}${subReason ? ` - ${subReason}` : ''}
+
+💬 *Mensaje:*
+${message}
+${attachmentUrl ? `\n📎 *Archivo Adjunto (Base de Datos):*\n${attachmentUrl}` : ''}
+`.trim();
+
+      // Cleanly extract valid WhatsApp phone number (handles "0969718045 (+593 96 971 8045)" cleanly)
+      const parseWhatsAppPhone = (phoneStr?: string): string => {
+        if (!phoneStr) return '593969718045';
+        const digits = phoneStr.replace(/\D/g, '');
+        if (digits.includes('969718045')) return '593969718045';
+        if (digits.startsWith('593') && digits.length >= 12) return digits.substring(0, 12);
+        if (digits.startsWith('09') && digits.length >= 10) return '593' + digits.substring(1, 10);
+        if (digits.startsWith('9') && digits.length >= 9) return '593' + digits.substring(0, 9);
+        return '593969718045';
+      };
+
+      const waPhone = parseWhatsAppPhone(siteContent.contact_whatsapp);
+      const whatsappUrl = `https://api.whatsapp.com/send?phone=${waPhone}&text=${encodeURIComponent(waMessage)}`;
+      window.open(whatsappUrl, '_blank', 'noopener,noreferrer');
+
+      setSuccessMsg('¡Mensaje y archivo guardados con éxito en la base de datos! Redirigiendo a WhatsApp...');
       setFirstName('');
       setLastName('');
       setEmail('');

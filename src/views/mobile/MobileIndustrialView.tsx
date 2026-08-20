@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { translateProduct } from '../../lib/translateProduct';
-import { Product, Language } from '../../types';
+import { Product, Language, SiteContent } from '../../types';
 import { TRANSLATIONS } from '../../data/translations';
 import { AnimatedSection } from '../../components/AnimatedSection';
 import { 
@@ -22,6 +22,7 @@ import {
 interface MobileIndustrialViewProps {
   products: Product[];
   lang: Language;
+  siteContent?: SiteContent;
   onSelectProduct: (p: Product) => void;
   onOpenAuth?: () => void;
   onThemeColorChange?: (color: string) => void;
@@ -39,6 +40,7 @@ const normalizeString = (str?: string | null): string => {
 export const MobileIndustrialView: React.FC<MobileIndustrialViewProps> = React.memo(({
   products,
   lang,
+  siteContent,
   onSelectProduct,
   onOpenAuth,
   onThemeColorChange,
@@ -170,9 +172,20 @@ export const MobileIndustrialView: React.FC<MobileIndustrialViewProps> = React.m
       >
         {/* Full Width Background Image */}
         <img
-          src="/images/bodegon/Maquila.webp"
+          src={siteContent?.industrial_banner?.image || '/images/bodegon/Maquila.webp'}
           alt="Maquila Industrial Gustaff S.A."
           className="absolute inset-0 w-full h-full object-cover object-center transition-all duration-700"
+          style={{
+            objectPosition: siteContent?.industrial_banner?.objectPosition || 'center center',
+            transform: siteContent?.industrial_banner?.bgZoom && siteContent.industrial_banner.bgZoom > 100 ? (() => {
+              const zoomScale = siteContent.industrial_banner.bgZoom / 100;
+              const posParts = (siteContent.industrial_banner.objectPosition || '50% 50%').replace(/%/g, '').trim().split(/\s+/);
+              const px = parseFloat(posParts[0]) || 50;
+              const py = parseFloat(posParts[1]) || 50;
+              return `scale(${zoomScale}) translate(${((50 - px) * (1 - 1 / zoomScale))}%, ${((50 - py) * (1 - 1 / zoomScale))}%)`;
+            })() : undefined,
+            transformOrigin: 'center center'
+          }}
         />
 
         {/* Gradient Shade for High Text Contrast */}
@@ -191,17 +204,17 @@ export const MobileIndustrialView: React.FC<MobileIndustrialViewProps> = React.m
           {/* Tagline Badge */}
           <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-extrabold tracking-wider uppercase text-left border border-white/20 shadow-md bg-[#e86014] text-white">
             <Package className="w-3.5 h-3.5 text-white shrink-0" />
-            <span className="truncate">{t.bannerBadge}</span>
+            <span className="truncate">{siteContent?.industrial_banner?.badge || t.bannerBadge}</span>
           </div>
 
           {/* Title Line 1 + Accent */}
           <h1 className="font-serif font-black text-2xl xs:text-3xl sm:text-4xl text-white leading-tight uppercase text-left drop-shadow-md">
-            {t.bannerTitle}
+            {siteContent?.industrial_banner?.title || t.bannerTitle}
           </h1>
 
           {/* Description Paragraph (+20px width, occupies +20px bottom space) */}
           <p className="text-xs xs:text-sm text-white/90 leading-relaxed font-serif italic border-l-2 border-[#e86014] pl-3 text-left max-w-[185px] drop-shadow-sm line-clamp-4 mt-2">
-            "{t.subtitle}"
+            "{siteContent?.industrial_banner?.subtitle || t.subtitle}"
           </p>
 
         </div>
