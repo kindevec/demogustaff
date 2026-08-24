@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, Suspense, lazy } from 'react';
 import { Language, Product, SiteContent } from './types';
-import { fetchProducts, getStoredSiteContent, saveStoredSiteContent, getAdminSession, adminLogout } from './lib/supabase';
+import { fetchProducts, fetchSiteContent, getStoredSiteContent, saveStoredSiteContent, getAdminSession, adminLogout } from './lib/supabase';
 import { Navbar } from './components/Navbar';
 import { BottomNav } from './components/BottomNav';
 import { Footer } from './components/Footer';
@@ -83,12 +83,22 @@ export default function App() {
     setProducts(data);
   }, []);
 
+  const [siteContent, setSiteContent] = useState<SiteContent>(() => getStoredSiteContent());
+  
+  const loadSiteContent = useCallback(async () => {
+    const data = await fetchSiteContent();
+    setSiteContent(data);
+  }, []);
+
   useEffect(() => {
     loadProducts();
-  }, [loadProducts]);
+    loadSiteContent();
+  }, [loadProducts, loadSiteContent]);
 
-  const [siteContent, setSiteContent] = useState<SiteContent>(() => getStoredSiteContent());
-  const refreshSiteContent = useCallback(() => setSiteContent(getStoredSiteContent()), []);
+  const refreshSiteContent = useCallback(async () => {
+    const data = await fetchSiteContent();
+    setSiteContent(data);
+  }, []);
 
   const handleUpdateSiteContent = useCallback(async (newContent: SiteContent) => {
     setSiteContent(newContent);

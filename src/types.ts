@@ -1,11 +1,17 @@
 export type Language = 'es' | 'en';
 
 
+export interface CategoryItem {
+  id: string;
+  name: string;
+  name_en?: string;
+}
+
 export interface Product {
   id: string;
   code: string;
   name: string;
-  category: 'industrial' | 'consumer' | 'coberturas' | 'galletas' | 'cocoa';
+  category: string;
   package_size: string;
   description: string;
   image: string;
@@ -57,6 +63,8 @@ export interface SlideConfig {
   primaryBtnText: string;
   primaryTab: string;
   objectPosition?: string;
+  bgPositionX?: number;
+  bgPositionY?: number;
   isActive?: boolean;
   bgZoom?: number;
 }
@@ -72,6 +80,8 @@ export interface ProductSlideConfig {
   navColor: string;
   accentColor: string;
   objectPosition?: string;
+  bgPositionX?: number;
+  bgPositionY?: number;
   isActive?: boolean;
   bgZoom?: number;
 }
@@ -82,6 +92,8 @@ export interface IndustrialBannerConfig {
   subtitle: string;
   image: string;
   objectPosition?: string;
+  bgPositionX?: number;
+  bgPositionY?: number;
   bgZoom?: number;
 }
 

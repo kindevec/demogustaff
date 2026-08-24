@@ -124,25 +124,32 @@ export const ProductsView: React.FC<ProductsViewProps> = React.memo(({
   const [selectedFilter, setSelectedFilter] = useState<string>('all');
 
   const slides = React.useMemo(() => {
-    const custom = siteContent?.products_slides || [];
-    if (custom.length === 0) return CATEGORY_SLIDES;
-    return CATEGORY_SLIDES.map((def) => {
-      const match = custom.find(c => c.id === def.id);
-      if (!match) return def;
-      return {
-        ...def,
-        tagline: match.tagline || def.tagline,
-        titleLine1: match.titleLine1 || def.titleLine1,
-        titleAccent: match.titleAccent || def.titleAccent,
-        description: match.description || def.description,
-        image: match.image || def.image,
-        bgColor: match.bgColor || def.bgColor,
-        navColor: match.navColor || def.navColor,
-        accentColor: match.accentColor || def.accentColor,
-        objectPosition: match.objectPosition || def.objectPosition,
-        bgZoom: match.bgZoom
-      };
-    });
+    const custom = siteContent?.products_slides;
+    if (custom && custom.length > 0) {
+      return custom.map((c, idx) => {
+        const def = CATEGORY_SLIDES.find(d => d.id === c.id) || CATEGORY_SLIDES[idx] || CATEGORY_SLIDES[0];
+        return {
+          ...def,
+          ...c,
+          id: c.id || `prod-${idx}`,
+          tagline: c.tagline || def.tagline,
+          titleLine1: c.titleLine1 || def.titleLine1,
+          titleAccent: c.titleAccent || def.titleAccent,
+          description: c.description || def.description,
+          image: c.image || def.image,
+          bgColor: c.bgColor || def.bgColor || '#3A1B12',
+          navColor: c.navColor || def.navColor || '#3A1B12',
+          accentColor: c.accentColor || def.accentColor || '#e86014',
+          gradientFrom: c.bgColor || def.gradientFrom || '#3A1B12',
+          gradientVia: def.gradientVia || '#7A5230',
+          filterCategories: def.filterCategories || ['all'],
+          icon: def.icon || Package,
+          objectPosition: c.objectPosition || def.objectPosition || 'center center',
+          bgZoom: c.bgZoom
+        };
+      });
+    }
+    return CATEGORY_SLIDES;
   }, [siteContent?.products_slides]);
 
   const slide = slides[currentSlide];

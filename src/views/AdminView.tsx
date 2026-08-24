@@ -3,6 +3,8 @@ import { HomeView } from './HomeView';
 import { AboutView } from './AboutView';
 import { ContactView } from './ContactView';
 import { Product, SiteContent, Language } from '../types';
+import { CategorySelector } from '../components/admin/CategorySelector';
+import { getAllCategories } from '../data/categories';
 import { 
   addProduct,
   updateProduct,
@@ -50,7 +52,9 @@ import {
   Mail,
   Camera,
   Check,
-  Sliders
+  Sliders,
+  Upload,
+  ExternalLink
 } from 'lucide-react';
 import { AdminBannersTab } from '../components/admin/AdminBannersTab';
 
@@ -225,7 +229,7 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentTab, products, r
   const [isTranslating, setIsTranslating] = useState(false);
 
   const [productSearch, setProductSearch] = useState('');
-  const [productCategoryFilter, setProductCategoryFilter] = useState<'all' | 'industrial' | 'consumer' | 'coberturas' | 'galletas' | 'cocoa'>('all');
+  const [productCategoryFilter, setProductCategoryFilter] = useState<string>('all');
   const [productToDelete, setProductToDelete] = useState<Product | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
 
@@ -550,252 +554,335 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentTab, products, r
 
         {/* Scrollable Content (Add pb-20 to avoid content being hidden by bottom nav) */}
         <div className="flex-1 overflow-y-auto w-full h-full custom-scrollbar">
-          <div key={activeTab} className={`p-4 sm:p-6 lg:p-8 w-full ${activeTab === 'banners' ? 'max-w-none' : 'max-w-6xl mx-auto'} pb-24 md:pb-8 animate-fade-in`}>
+          <div key={activeTab} className="p-[15px] w-full max-w-none pb-24 md:pb-8 animate-fade-in">
           
-          {/* Global Toast */}
+          {/* Global Floating Toast Card in Corner */}
           {isSavedNotice && (
-            <div className="mb-6 p-4 bg-emerald-50 border border-emerald-200 rounded-2xl shadow-sm flex items-center gap-3 animate-fadeIn">
-              <CheckCircle className="w-5 h-5 text-emerald-500 shrink-0" />
-              <span className="text-emerald-800 text-sm font-medium">Cambios guardados correctamente.</span>
+            <div className="fixed top-6 right-6 z-50 flex items-center gap-3 bg-slate-900/95 text-white px-4 sm:px-5 py-3 rounded-2xl shadow-2xl border border-slate-700/60 backdrop-blur-md animate-slideDown duration-300 pointer-events-none">
+              <div className="w-7 h-7 rounded-xl bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center shrink-0">
+                <CheckCircle className="w-4 h-4 text-emerald-400 stroke-[2.5]" />
+              </div>
+              <div>
+                <p className="text-xs font-bold text-white tracking-wide">¡Guardado con éxito!</p>
+                <p className="text-[11px] text-slate-400">Los cambios están sincronizados.</p>
+              </div>
             </div>
           )}
 
           {/* TAB: PRODUCTS */}
           {activeTab === 'products' && (
-            <div className="space-y-6 animate-fadeIn">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                <div>
-                  <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Catálogo de Productos</h2>
-                  <p className="text-sm text-slate-500 mt-1">Gestiona los productos mostrados en la web pública.</p>
-                </div>
-                <button
-                  onClick={() =>
-                    setEditingProduct({
-                      id: `prod_${Date.now()}`,
-                      code: 'GUST-NEW',
-                      name: '',
-                      category: 'industrial',
-                      package_size: '',
-                      description: '',
-                      image: '',
-                      order: products.length + 1
-                    })
-                  }
-                  className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-sm font-bold transition-all shadow-sm shadow-amber-500/20"
-                >
-                  <Plus className="w-4 h-4" />
-                  Nuevo Producto
-                </button>
-              </div>
+            <div className="space-y-6 animate-fadeIn pb-12">
+              {editingProduct ? (
+                /* VISTA DIRECTA SOBRE EL LIENZO (SIN CONTENEDORES DE TARJETA) */
+                <form onSubmit={handleSaveProduct} className="space-y-6 animate-fadeIn">
+                  {/* Barra Superior: Botón Volver a la izquierda y Cancelar/Guardar en la esquina superior derecha */}
+                  <div className="flex items-center justify-between gap-4 py-2 border-b border-slate-200/80 pb-4">
+                    <button
+                      type="button"
+                      onClick={() => setEditingProduct(null)}
+                      className="px-4 py-2.5 bg-white hover:bg-slate-50 text-slate-700 hover:text-amber-700 border border-slate-300 hover:border-amber-400 rounded-xl transition-all flex items-center gap-2 cursor-pointer font-bold text-xs sm:text-sm shadow-xs"
+                      title="Volver al catálogo"
+                    >
+                      <ArrowLeft className="w-4 h-4 sm:w-5 sm:h-5" />
+                      <span>Volver</span>
+                    </button>
 
-              {editingProduct && (
-                <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-6 bg-slate-900/60 backdrop-blur-sm animate-fadeIn">
-                  <div className="bg-white w-full sm:w-[95%] max-w-4xl h-[95vh] sm:h-auto sm:max-h-[90vh] flex flex-col relative rounded-t-3xl sm:rounded-2xl shadow-2xl overflow-hidden animate-scaleIn">
-                    <div className="absolute top-0 left-0 w-full h-1.5 bg-gradient-to-r from-amber-400 to-amber-600" />
-                    
-                    <div className="p-5 sm:p-6 border-b border-slate-100 flex items-center justify-between bg-white shrink-0 sticky top-0 z-10">
-                      <div>
-                        <h3 className="font-bold text-slate-900 text-lg sm:text-xl flex items-center gap-2.5">
-                          <div className="p-2 bg-amber-50 rounded-lg text-amber-500">
-                            <Package className="w-5 h-5" />
-                          </div>
-                          {editingProduct.id.startsWith('prod_') ? 'Crear Nuevo Producto' : 'Editar Producto'}
-                        </h3>
-                        <p className="text-xs text-slate-500 mt-1 ml-12 hidden sm:block">Completa la información del producto para el catálogo público.</p>
-                      </div>
-                      <button type="button" onClick={() => setEditingProduct(null)} className="p-2 bg-slate-50 text-slate-400 hover:bg-slate-100 hover:text-slate-700 rounded-xl transition-colors">
-                        <X className="w-5 h-5" />
+                    <div className="flex items-center gap-3">
+                      <button
+                        type="button"
+                        onClick={() => setEditingProduct(null)}
+                        className="px-5 py-2.5 sm:px-6 sm:py-3 text-slate-700 bg-white hover:bg-slate-100 border border-slate-300 rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer shadow-xs"
+                      >
+                        CANCELAR
+                      </button>
+                      <button
+                        type="submit"
+                        disabled={isTranslating}
+                        className="px-6 py-2.5 sm:px-8 sm:py-3 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white rounded-xl text-xs sm:text-sm font-bold flex items-center gap-2 shadow-md shadow-amber-500/25 transition-all cursor-pointer disabled:opacity-60 uppercase tracking-wide"
+                      >
+                        {isTranslating ? (
+                          <>
+                            <RefreshCw className="w-4 h-4 animate-spin" />
+                            <span>Guardando...</span>
+                          </>
+                        ) : (
+                          <>
+                            <Save className="w-4 h-4" />
+                            <span>GUARDAR</span>
+                          </>
+                        )}
                       </button>
                     </div>
-                    
-                    <div className="overflow-y-auto p-5 sm:p-6 sm:px-8 bg-slate-50/50 flex-1">
-                      <form onSubmit={handleSaveProduct} className="flex flex-col h-full">
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 flex-1">
-                          
-                          {/* Columna Izquierda: Información Básica */}
-                          <div className="space-y-5">
-                            <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-5">
-                              <h4 className="text-sm font-bold text-slate-900 mb-2 flex items-center gap-2">
-                                <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-                                Información Básica
-                              </h4>
-                              
-                              <div>
-                                <label className="block text-xs font-bold text-slate-700 mb-1.5">CÓDIGO INTERNO</label>
-                                <input type="text" value={editingProduct.code} onChange={(e) => setEditingProduct({ ...editingProduct, code: e.target.value })} className="w-full bg-slate-50 hover:bg-white border border-slate-200 hover:border-amber-300 rounded-xl p-3 text-sm text-slate-900 focus:bg-white focus:outline-none focus:ring-4 focus:ring-amber-500/10 focus:border-amber-500 transition-all font-medium" placeholder="Ej: GUST-IND-01" required />
-                              </div>
-                              
-                              <div>
-                                <label className="block text-xs font-bold text-slate-700 mb-1.5">NOMBRE DEL PRODUCTO</label>
-                                <input type="text" value={editingProduct.name} onChange={(e) => setEditingProduct({ ...editingProduct, name: e.target.value })} className="w-full bg-slate-50 hover:bg-white border border-slate-200 hover:border-amber-300 rounded-xl p-3 text-sm text-slate-900 focus:bg-white focus:outline-none focus:ring-4 focus:ring-amber-500/10 focus:border-amber-500 transition-all font-medium" placeholder="Ej: Azúcar impalpable" required />
-                              </div>
-                              
-                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                                <div>
-                                  <label className="block text-xs font-bold text-slate-700 mb-1.5">CATEGORÍA</label>
-                                  <select value={editingProduct.category} onChange={(e) => setEditingProduct({ ...editingProduct, category: e.target.value as any })} className="w-full bg-slate-50 hover:bg-white border border-slate-200 hover:border-amber-300 rounded-xl p-3 text-sm text-slate-900 focus:bg-white focus:outline-none focus:ring-4 focus:ring-amber-500/10 focus:border-amber-500 transition-all cursor-pointer font-medium">
-                                    <option value="industrial">Industrial</option>
-                                    <option value="consumer">Consumo</option>
-                                    <option value="coberturas">Coberturas</option>
-                                    <option value="galletas">Galletas</option>
-                                    <option value="cocoa">Cocoa</option>
-                                  </select>
-                                </div>
-                                <div>
-                                  <label className="block text-xs font-bold text-slate-700 mb-1.5">PRESENTACIÓN</label>
-                                  <input type="text" value={editingProduct.package_size} onChange={(e) => setEditingProduct({ ...editingProduct, package_size: e.target.value })} className="w-full bg-slate-50 hover:bg-white border border-slate-200 hover:border-amber-300 rounded-xl p-3 text-sm text-slate-900 focus:bg-white focus:outline-none focus:ring-4 focus:ring-amber-500/10 focus:border-amber-500 transition-all font-medium" placeholder="Ej: Sacos de 25 kg" required />
-                                </div>
-                              </div>
-                            </div>
-                          </div>
-
-                          {/* Columna Derecha: Imagen y Detalles */}
-                          <div className="space-y-5">
-                            <div className="bg-white p-5 rounded-2xl border border-slate-200 shadow-sm space-y-5">
-                              <h4 className="text-sm font-bold text-slate-900 mb-2 flex items-center gap-2">
-                                <span className="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
-                                Imagen y Detalles
-                              </h4>
-                              
-                              <div>
-                                <label className="block text-xs font-bold text-slate-700 mb-2">FOTOGRAFÍA DEL PRODUCTO</label>
-                                <div className="flex flex-col sm:flex-row items-center gap-5 p-4 bg-slate-50/50 border border-slate-200 border-dashed rounded-xl transition-all hover:bg-slate-50 hover:border-amber-300">
-                                  {editingProduct.image ? (
-                                    <div className="relative group">
-                                      <img src={editingProduct.image} alt="Preview" className="w-24 h-24 sm:w-20 sm:h-20 rounded-xl object-cover border border-slate-200 bg-white shadow-sm shrink-0" />
-                                      <div className="absolute inset-0 bg-black/40 rounded-xl opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                                        <Edit3 className="w-5 h-5 text-white" />
-                                      </div>
-                                    </div>
-                                  ) : (
-                                    <div className="w-24 h-24 sm:w-20 sm:h-20 rounded-xl border-2 border-dashed border-slate-300 bg-white flex flex-col items-center justify-center text-slate-400 shrink-0">
-                                      <Package className="w-6 h-6 mb-1 opacity-50" />
-                                      <span className="text-[10px] font-medium">Sin foto</span>
-                                    </div>
-                                  )}
-                                  <div className="flex-1 w-full text-center sm:text-left">
-                                    <label className="relative cursor-pointer inline-flex items-center justify-center gap-2 px-4 py-2 bg-white border border-slate-200 hover:border-amber-400 hover:bg-amber-50 text-slate-700 hover:text-amber-700 rounded-lg text-xs font-bold transition-all shadow-sm w-full sm:w-auto mb-2">
-                                      <input
-                                        type="file"
-                                        accept="image/*"
-                                        onChange={handleImageUpload}
-                                        disabled={isUploading}
-                                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
-                                      />
-                                      {isUploading ? (
-                                        <>
-                                          <div className="w-3.5 h-3.5 border-2 border-amber-600 border-t-transparent rounded-full animate-spin"></div>
-                                          Subiendo...
-                                        </>
-                                      ) : (
-                                        <>
-                                          Subir Nueva Imagen
-                                        </>
-                                      )}
-                                    </label>
-                                    <p className="text-slate-400 text-[10px] leading-tight px-2 sm:px-0">
-                                      Formatos: JPG, PNG, WEBP. <br className="hidden sm:block" />Peso máximo: 5MB.
-                                    </p>
-                                  </div>
-                                </div>
-                              </div>
-
-                              {/* FICHA TÉCNICA PDF */}
-                              <div>
-                                <div className="flex items-center justify-between mb-2">
-                                  <label className="block text-xs font-bold text-slate-700">FICHA TÉCNICA PDF (ACCESO PÚBLICO / CLIENTES)</label>
-                                  {editingProduct.spec_sheet_url && (
-                                    <a
-                                      href={editingProduct.spec_sheet_url}
-                                      target="_blank"
-                                      rel="noopener noreferrer"
-                                      className="text-[11px] text-amber-700 hover:underline flex items-center gap-1 font-semibold"
-                                    >
-                                      <FileText className="w-3 h-3" /> Ver PDF actual
-                                    </a>
-                                  )}
-                                </div>
-                                <div className="p-3.5 bg-slate-50/50 border border-slate-200 rounded-xl space-y-2.5">
-                                  <div className="flex flex-col sm:flex-row items-center gap-3">
-                                    <label className="relative cursor-pointer inline-flex items-center justify-center gap-2 px-3.5 py-2 bg-white border border-slate-200 hover:border-amber-400 hover:bg-amber-50 text-slate-700 hover:text-amber-700 rounded-lg text-xs font-bold transition-all shadow-sm w-full sm:w-auto shrink-0">
-                                      <input
-                                        type="file"
-                                        accept=".pdf,application/pdf"
-                                        onChange={handlePdfUpload}
-                                        disabled={isUploadingPdf}
-                                        className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
-                                      />
-                                      {isUploadingPdf ? (
-                                        <>
-                                          <div className="w-3.5 h-3.5 border-2 border-amber-600 border-t-transparent rounded-full animate-spin"></div>
-                                          Subiendo PDF...
-                                        </>
-                                      ) : (
-                                        <>
-                                          <FileText className="w-3.5 h-3.5 text-amber-600" />
-                                          Subir Ficha PDF
-                                        </>
-                                      )}
-                                    </label>
-                                    <input
-                                      type="text"
-                                      value={editingProduct.spec_sheet_url || ''}
-                                      onChange={(e) => setEditingProduct({ ...editingProduct, spec_sheet_url: e.target.value })}
-                                      className="w-full bg-white border border-slate-200 rounded-lg px-3 py-1.5 text-xs text-slate-900 focus:outline-none focus:border-amber-500 font-medium"
-                                      placeholder="O pegar URL de Google Drive / enlace PDF..."
-                                    />
-                                  </div>
-                                  {editingProduct.spec_sheet_url ? (
-                                    <div className="flex items-center justify-between text-[11px] bg-emerald-50 text-emerald-800 px-3 py-1.5 rounded-lg border border-emerald-200">
-                                      <span className="flex items-center gap-1.5 font-medium truncate">
-                                        <CheckCircle className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
-                                        Ficha vinculada: <span className="font-mono truncate">{editingProduct.spec_sheet_url}</span>
-                                      </span>
-                                      <button
-                                        type="button"
-                                        onClick={() => setEditingProduct({ ...editingProduct, spec_sheet_url: '' })}
-                                        className="text-red-500 hover:text-red-700 font-bold ml-2 shrink-0 cursor-pointer"
-                                      >
-                                        Quitar
-                                      </button>
-                                    </div>
-                                  ) : (
-                                    <p className="text-[10px] text-slate-400">
-                                      💡 Puedes subir un PDF o ingresar una URL de Google Drive compartida.
-                                    </p>
-                                  )}
-                                </div>
-                              </div>
-                              
-                              <div>
-                                <label className="block text-xs font-bold text-slate-700 mb-1.5">DESCRIPCIÓN COMERCIAL</label>
-                                <textarea rows={4} value={editingProduct.description} onChange={(e) => setEditingProduct({ ...editingProduct, description: e.target.value })} className="w-full bg-slate-50 hover:bg-white border border-slate-200 hover:border-amber-300 rounded-xl p-3 text-sm text-slate-900 focus:bg-white focus:outline-none focus:ring-4 focus:ring-amber-500/10 focus:border-amber-500 transition-all resize-none font-medium" placeholder="Escribe una descripción atractiva para el producto..." required />
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-
-                        <div className="mt-8 pt-5 border-t border-slate-200 flex flex-col sm:flex-row items-center justify-end gap-3 pb-6 sm:pb-0">
-                          <button type="button" onClick={() => setEditingProduct(null)} className="w-full sm:w-auto px-6 py-2.5 text-slate-600 bg-white hover:bg-slate-100 border border-slate-200 rounded-xl text-sm font-bold transition-all active:scale-[0.98]">
-                            Cancelar
-                          </button>
-                          <button 
-                            type="submit" 
-                            disabled={isTranslating}
-                            className="w-full sm:w-auto justify-center px-8 py-2.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-600 hover:to-amber-700 text-white rounded-xl text-sm font-bold flex items-center gap-2 shadow-md shadow-amber-500/25 transition-all active:scale-[0.98] disabled:opacity-70 disabled:cursor-not-allowed"
-                          >
-                            {isTranslating ? (
-                              <><RefreshCw className="w-4 h-4 animate-spin" /> Traduciendo...</>
-                            ) : (
-                              <><Save className="w-4 h-4" /> Guardar Cambios</>
-                            )}
-                          </button>
-                        </div>
-                      </form>
-                    </div>
                   </div>
-                </div>
-              )}
+
+                  {/* BLOQUES DIRECTOS SOBRE EL LIENZO EN 2 COLUMNAS SIMÉTRICAS Y AMPLIAS */}
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 lg:gap-8 items-start">
+                    
+                    {/* COLUMNA IZQUIERDA: INFORMACIÓN COMERCIAL */}
+                    <div className="space-y-5">
+                      
+                      {/* Fila 1: Código y Presentación */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <div>
+                          <label className="block text-xs sm:text-sm font-bold text-slate-800 mb-1.5 uppercase tracking-wide">
+                            Código Interno *
+                          </label>
+                          <input
+                            type="text"
+                            value={editingProduct.code}
+                            onChange={(e) => setEditingProduct({ ...editingProduct, code: e.target.value })}
+                            className="w-full bg-white border border-slate-300 hover:border-amber-400 rounded-xl p-3.5 sm:p-4 text-sm sm:text-base text-slate-900 focus:bg-white focus:outline-none focus:ring-4 focus:ring-amber-500/10 focus:border-amber-500 transition-all font-medium shadow-2xs"
+                            placeholder="Ej: GUST-IND-01"
+                            required
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-xs sm:text-sm font-bold text-slate-800 mb-1.5 uppercase tracking-wide">
+                            Presentación / Empaque *
+                          </label>
+                          <input
+                            type="text"
+                            value={editingProduct.package_size}
+                            onChange={(e) => setEditingProduct({ ...editingProduct, package_size: e.target.value })}
+                            className="w-full bg-white border border-slate-300 hover:border-amber-400 rounded-xl p-3.5 sm:p-4 text-sm sm:text-base text-slate-900 focus:bg-white focus:outline-none focus:ring-4 focus:ring-amber-500/10 focus:border-amber-500 transition-all font-medium shadow-2xs"
+                            placeholder="Ej: Sacos de 25 kg"
+                            required
+                          />
+                        </div>
+                      </div>
+
+                      {/* Fila 2: Nombre del Producto y Categoría (Uno al lado del otro) */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-start">
+                        <div>
+                          <label className="block text-xs sm:text-sm font-bold text-slate-800 mb-1.5 uppercase tracking-wide">
+                            Nombre del Producto *
+                          </label>
+                          <input
+                            type="text"
+                            value={editingProduct.name}
+                            onChange={(e) => setEditingProduct({ ...editingProduct, name: e.target.value })}
+                            className="w-full bg-white border border-slate-300 hover:border-amber-400 rounded-xl p-3.5 sm:p-4 text-sm sm:text-base text-slate-900 focus:bg-white focus:outline-none focus:ring-4 focus:ring-amber-500/10 focus:border-amber-500 transition-all font-medium shadow-2xs"
+                            placeholder="Ej: Cobertura Semiamarga"
+                            required
+                          />
+                        </div>
+
+                        <div>
+                          <CategorySelector
+                            value={editingProduct.category}
+                            onChange={(cat) => setEditingProduct({ ...editingProduct, category: cat })}
+                            products={products}
+                            theme="slate"
+                            labelClassName="block text-xs sm:text-sm font-bold text-slate-800 uppercase tracking-wide mb-1.5"
+                            selectClassName="w-full bg-white border border-slate-300 hover:border-amber-400 rounded-xl p-3.5 sm:p-4 text-sm sm:text-base text-slate-900 focus:bg-white focus:outline-none focus:ring-4 focus:ring-amber-500/10 focus:border-amber-500 transition-all cursor-pointer font-medium shadow-2xs"
+                          />
+                        </div>
+                      </div>
+
+                      {/* Fila 3: Descripción Comercial */}
+                      <div>
+                        <label className="block text-xs sm:text-sm font-bold text-slate-800 mb-1.5 uppercase tracking-wide">
+                          Descripción Comercial *
+                        </label>
+                        <textarea
+                          rows={5}
+                          value={editingProduct.description}
+                          onChange={(e) => setEditingProduct({ ...editingProduct, description: e.target.value })}
+                          className="w-full bg-white border border-slate-300 hover:border-amber-400 rounded-xl p-3.5 sm:p-4 text-sm sm:text-base text-slate-900 focus:bg-white focus:outline-none focus:ring-4 focus:ring-amber-500/10 focus:border-amber-500 transition-all resize-none font-medium leading-relaxed shadow-2xs min-h-[140px]"
+                          placeholder="Notas de sabor, fluidez, aplicaciones y ventajas técnicas del producto..."
+                          required
+                        />
+                      </div>
+
+                      {/* Fila 4: Checkbox Destacado */}
+                      <div className="pt-1">
+                        <label className="flex items-center gap-3 p-3.5 sm:p-4 bg-amber-50/70 hover:bg-amber-50 border border-amber-200/80 rounded-xl cursor-pointer transition-colors group">
+                          <input
+                            type="checkbox"
+                            checked={Boolean(editingProduct.is_featured)}
+                            onChange={(e) => setEditingProduct({ ...editingProduct, is_featured: e.target.checked })}
+                            className="w-5 h-5 rounded text-amber-600 focus:ring-amber-500 border-slate-300 cursor-pointer"
+                          />
+                          <span className="text-xs sm:text-sm font-bold text-slate-900 group-hover:text-amber-900">
+                            ⭐ Mostrar como Producto Destacado en Página de Inicio
+                          </span>
+                        </label>
+                      </div>
+                    </div>
+
+                    {/* COLUMNA DERECHA: FOTOGRAFÍA Y FICHA TÉCNICA PDF (LADO A LADO) */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 lg:gap-5 items-start">
+                      
+                      {/* APARTADO 1: FOTOGRAFÍA DEL PRODUCTO */}
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <label className="block text-xs sm:text-sm font-bold text-slate-800 uppercase tracking-wide">
+                            Fotografía
+                          </label>
+                          <span className="text-[11px] font-semibold text-amber-700 bg-amber-50 border border-amber-200/80 px-2 py-0.5 rounded-md">
+                            WebP / JPG • Máx. 1 MB
+                          </span>
+                        </div>
+
+                        <div className="flex flex-col items-center gap-3.5 p-4 sm:p-5 bg-white border border-slate-300 rounded-2xl shadow-2xs">
+                          {/* Preview Grande de Imagen */}
+                          <div className="relative w-full h-[190px] sm:h-[210px] bg-slate-50 rounded-2xl border border-slate-200 overflow-hidden flex items-center justify-center shadow-xs">
+                            {editingProduct.image ? (
+                              <img
+                                src={editingProduct.image}
+                                alt={editingProduct.name || 'Preview'}
+                                className="w-full h-full object-cover"
+                              />
+                            ) : (
+                              <div className="flex flex-col items-center justify-center text-slate-400 p-4 text-center">
+                                <Package className="w-12 h-12 mb-2 opacity-40" />
+                                <span className="text-xs font-semibold">Sin imagen</span>
+                              </div>
+                            )}
+                            {isUploading && (
+                              <div className="absolute inset-0 bg-black/65 backdrop-blur-xs flex flex-col items-center justify-center text-white text-xs font-bold gap-2">
+                                <div className="w-6 h-6 border-3 border-white border-t-transparent rounded-full animate-spin" />
+                                <span>Subiendo foto...</span>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Botón Subir Fotografía Debajo de la Imagen */}
+                          <label className="relative cursor-pointer w-full py-3 px-3 bg-amber-500 hover:bg-amber-600 active:scale-[0.98] text-white rounded-xl text-xs sm:text-sm font-bold transition-all shadow-sm flex items-center justify-center gap-2 text-center">
+                            <input
+                              type="file"
+                              accept="image/webp,image/jpeg,image/png,image/jpg"
+                              onChange={handleImageUpload}
+                              disabled={isUploading}
+                              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
+                            />
+                            <Upload className="w-4 h-4" />
+                            <span>{isUploading ? 'Subiendo...' : 'Subir Fotografía'}</span>
+                          </label>
+
+                          {/* Recomendación de Optimización de Imagen */}
+                          <div className="w-full p-2.5 bg-slate-50 border border-slate-200/80 rounded-xl text-[11px] text-slate-600 leading-relaxed">
+                            <p className="font-bold text-slate-700 mb-0.5">⚡ Formato y tamaño recomendado:</p>
+                            <p className="text-slate-500">
+                              Sube en <strong className="text-amber-800 font-semibold">WebP</strong> o <strong className="text-slate-700 font-semibold">JPG</strong> (800×800 px, máx. <strong className="text-slate-700 font-semibold">1 MB</strong>) para carga ultrarrápida y óptimo rendimiento.
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* APARTADO 2: FICHA TÉCNICA PDF (CON MINIATURA) */}
+                      <div className="space-y-3">
+                        <div className="flex items-center justify-between">
+                          <label className="block text-xs sm:text-sm font-bold text-slate-800 uppercase tracking-wide">
+                            Ficha Técnica PDF
+                          </label>
+                          <div className="flex items-center gap-2">
+                            <span className="text-[11px] font-semibold text-slate-700 bg-slate-100 border border-slate-200 px-2 py-0.5 rounded-md">
+                              PDF • Máx. 5 MB
+                            </span>
+                            {editingProduct.spec_sheet_url && (
+                              <button
+                                type="button"
+                                onClick={() => setEditingProduct({ ...editingProduct, spec_sheet_url: '' })}
+                                className="text-[11px] text-red-500 hover:text-red-700 font-bold hover:underline cursor-pointer"
+                                title="Quitar ficha técnica"
+                              >
+                                Quitar
+                              </button>
+                            )}
+                          </div>
+                        </div>
+
+                        <div className="flex flex-col items-center gap-3.5 p-4 sm:p-5 bg-white border border-slate-300 rounded-2xl shadow-2xs">
+                          {/* Miniatura / Preview del Documento PDF */}
+                          <div className="relative w-full h-[190px] sm:h-[210px] bg-slate-50 rounded-2xl border border-slate-200 overflow-hidden flex flex-col items-center justify-center shadow-xs p-4 text-center">
+                            {editingProduct.spec_sheet_url ? (
+                              <div className="flex flex-col items-center justify-center space-y-2.5">
+                                <div className="p-3 bg-rose-50 border border-rose-200 rounded-2xl text-rose-600 shadow-xs">
+                                  <FileText className="w-10 h-10" />
+                                </div>
+                                <span className="text-xs font-bold text-slate-800 line-clamp-1 max-w-[170px]">
+                                  Ficha Técnica PDF
+                                </span>
+                                <a
+                                  href={editingProduct.spec_sheet_url}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="inline-flex items-center gap-1.5 px-3 py-1 bg-rose-100 hover:bg-rose-200 text-rose-700 rounded-lg text-xs font-bold transition-colors"
+                                >
+                                  <span>Ver Documento</span>
+                                  <ExternalLink className="w-3.5 h-3.5" />
+                                </a>
+                              </div>
+                            ) : (
+                              <div className="flex flex-col items-center justify-center text-slate-400 p-4 text-center">
+                                <FileText className="w-12 h-12 mb-2 opacity-40" />
+                                <span className="text-xs font-semibold">Sin archivo PDF</span>
+                              </div>
+                            )}
+
+                            {isUploadingPdf && (
+                              <div className="absolute inset-0 bg-black/65 backdrop-blur-xs flex flex-col items-center justify-center text-white text-xs font-bold gap-2">
+                                <div className="w-6 h-6 border-3 border-white border-t-transparent rounded-full animate-spin" />
+                                <span>Subiendo PDF...</span>
+                              </div>
+                            )}
+                          </div>
+
+                          {/* Botón Subir Archivo PDF Debajo de la Miniatura */}
+                          <label className="relative cursor-pointer w-full py-3 px-3 bg-slate-800 hover:bg-slate-900 active:scale-[0.98] text-white rounded-xl text-xs sm:text-sm font-bold transition-all shadow-sm flex items-center justify-center gap-2 text-center">
+                            <input
+                              type="file"
+                              accept=".pdf,application/pdf"
+                              onChange={handlePdfUpload}
+                              disabled={isUploadingPdf}
+                              className="absolute inset-0 w-full h-full opacity-0 cursor-pointer disabled:cursor-not-allowed"
+                            />
+                            <FileText className="w-4 h-4 text-amber-400" />
+                            <span>{isUploadingPdf ? 'Subiendo PDF...' : 'Subir Archivo PDF'}</span>
+                          </label>
+
+                          {/* Recomendación de Optimización de PDF */}
+                          <div className="w-full p-2.5 bg-slate-50 border border-slate-200/80 rounded-xl text-[11px] text-slate-600 leading-relaxed">
+                            <p className="font-bold text-slate-700 mb-0.5">⚡ Formato y tamaño recomendado:</p>
+                            <p className="text-slate-500">
+                              Documento <strong className="text-rose-800 font-semibold">PDF estándar o web</strong> (máx. <strong className="text-slate-700 font-semibold">5 MB</strong>) para descarga veloz en dispositivos móviles y ahorro en Supabase.
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+
+                    </div>
+
+                  </div>
+                </form>
+              ) : (
+                /* GRID REGULAR DEL CATÁLOGO DE PRODUCTOS */
+                <>
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                      <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Catálogo de Productos</h2>
+                      <p className="text-sm text-slate-500 mt-1">Gestiona los productos mostrados en la web pública.</p>
+                    </div>
+                    <button
+                      onClick={() =>
+                        setEditingProduct({
+                          id: `prod_${Date.now()}`,
+                          code: 'GUST-NEW',
+                          name: '',
+                          category: 'industrial',
+                          package_size: '',
+                          description: '',
+                          image: '',
+                          order: products.length + 1
+                        })
+                      }
+                      className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 bg-amber-500 hover:bg-amber-600 text-white rounded-xl text-sm font-bold transition-all shadow-sm shadow-amber-500/20 cursor-pointer"
+                    >
+                      <Plus className="w-4 h-4" />
+                      Nuevo Producto
+                    </button>
+                  </div>
 
               <div className="flex flex-col sm:flex-row gap-4 items-center justify-between mb-6">
                 <div className="relative w-full sm:max-w-sm">
@@ -812,15 +899,13 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentTab, products, r
                 <div className="relative w-full sm:w-auto">
                   <select
                     value={productCategoryFilter}
-                    onChange={(e) => setProductCategoryFilter(e.target.value as any)}
+                    onChange={(e) => setProductCategoryFilter(e.target.value)}
                     className="w-full sm:w-[220px] appearance-none pl-5 pr-10 py-3 bg-white border border-slate-200 hover:border-amber-300 rounded-xl text-sm font-bold text-slate-700 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 shadow-sm transition-all cursor-pointer"
                   >
                     <option value="all">Todas las Categorías</option>
-                    <option value="industrial">Línea Industrial</option>
-                    <option value="consumer">Consumo Masivo</option>
-                    <option value="coberturas">Coberturas</option>
-                    <option value="galletas">Galletas</option>
-                    <option value="cocoa">Cacao en Polvo</option>
+                    {getAllCategories(products).map(cat => (
+                      <option key={cat.id} value={cat.id}>{cat.name}</option>
+                    ))}
                   </select>
                   <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-4 text-slate-400">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -838,8 +923,13 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentTab, products, r
                     <div className="flex items-start gap-4 mb-3">
                       <img src={prod.image} alt={prod.name} className="w-16 h-16 rounded-xl object-cover bg-slate-50 border border-slate-100 shrink-0" />
                       <div>
-                        <div className="inline-flex items-center px-2 py-0.5 rounded text-[9px] font-bold bg-slate-100 text-slate-500 uppercase tracking-wider mb-1">
-                          {prod.code}
+                        <div className="flex items-center gap-1.5 mb-1 flex-wrap">
+                          <span className="inline-flex items-center px-2 py-0.5 rounded text-[9px] font-bold bg-slate-100 text-slate-600 uppercase tracking-wider">
+                            {prod.code}
+                          </span>
+                          <span className="inline-flex items-center px-2 py-0.5 rounded text-[9px] font-bold bg-amber-50 text-amber-700 border border-amber-200/60 uppercase tracking-wider">
+                            {getAllCategories(products).find(c => c.id.toLowerCase() === (prod.category || '').toLowerCase())?.name || prod.category}
+                          </span>
                         </div>
                         <h4 className="font-bold text-slate-900 text-sm leading-tight">{prod.name}</h4>
                       </div>
@@ -913,8 +1003,10 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentTab, products, r
                   </div>
                 </div>
               )}
-            </div>
+            </>
           )}
+        </div>
+      )}
 
           {/* TAB: BANNERS & PORTADA */}
           {activeTab === 'banners' && (

@@ -42,6 +42,8 @@ export const ContactView: React.FC<ContactViewProps> = React.memo(({ siteContent
   const [acceptMarketing, setAcceptMarketing] = useState(true);
 
   const [captchaVerified, setCaptchaVerified] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState('');
+  const [captchaResetSignal, setCaptchaResetSignal] = useState(0);
   const [errorMsg, setErrorMsg] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -106,6 +108,9 @@ export const ContactView: React.FC<ContactViewProps> = React.memo(({ siteContent
         const uploadRes = await uploadContactAttachment(attachedFile);
         if (uploadRes.success && uploadRes.url) {
           attachmentUrl = uploadRes.url;
+        } else {
+          console.error('Error al subir archivo adjunto:', uploadRes.error);
+          throw new Error(`Error al guardar el archivo (${attachedFile.name}) en la base de datos: ${uploadRes.error || 'No se pudo subir a Supabase Storage'}`);
         }
       }
 
@@ -121,7 +126,8 @@ export const ContactView: React.FC<ContactViewProps> = React.memo(({ siteContent
         message,
         attachmentUrl,
         acceptPrivacy,
-        acceptMarketing
+        acceptMarketing,
+        recaptchaToken: captchaToken
       });
 
       if (!submissionRes.success) {
@@ -167,6 +173,8 @@ ${attachmentUrl ? `\n📎 *Archivo Adjunto (Base de Datos):*\n${attachmentUrl}` 
       setAttachedFile(null);
       if (fileInputRef.current) fileInputRef.current.value = '';
       setCaptchaVerified(false);
+      setCaptchaToken('');
+      setCaptchaResetSignal(prev => prev + 1);
       setAcceptPrivacy(false);
     } catch (err: any) {
       setErrorMsg(err?.message || t.genericError);
@@ -533,7 +541,15 @@ ${attachmentUrl ? `\n📎 *Archivo Adjunto (Base de Datos):*\n${attachmentUrl}` 
 
                 {/* Google reCAPTCHA Protection */}
                 <div className="pt-2">
-                  <ReCaptchaWidget verified={captchaVerified} onVerify={setCaptchaVerified} lang={lang} />
+                  <ReCaptchaWidget
+                    verified={captchaVerified}
+                    onVerify={(verified, token) => {
+                      setCaptchaVerified(verified);
+                      setCaptchaToken(token || '');
+                    }}
+                    lang={lang}
+                    resetSignal={captchaResetSignal}
+                  />
                 </div>
 
                 {/* Botón de Envío */}

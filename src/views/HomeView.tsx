@@ -147,23 +147,27 @@ export const HomeView: React.FC<HomeViewProps> = React.memo(({
 
   // Merge Custom Admin Slides with Defaults
   const slides = React.useMemo(() => {
-    const custom = siteContent.home_slides || [];
-    return defaultSlides.map((def, idx) => {
-      const match = custom.find(c => c.id === def.id) || custom[idx];
-      if (!match) return def;
-      return {
-        ...def,
-        tagline: match.tagline || def.tagline,
-        titleLine1: match.titleLine1 || def.titleLine1,
-        titleAccent: match.titleAccent || def.titleAccent,
-        description: match.description || def.description,
-        image: match.image || def.image,
-        primaryBtnText: match.primaryBtnText || def.primaryBtnText,
-        primaryTab: match.primaryTab || def.primaryTab,
-        objectPosition: match.objectPosition || def.objectPosition,
-        bgZoom: match.bgZoom
-      };
-    });
+    const custom = siteContent.home_slides;
+    if (custom && custom.length > 0) {
+      return custom.map((c, idx) => {
+        const def = defaultSlides.find(d => d.id === c.id) || defaultSlides[idx] || defaultSlides[0];
+        return {
+          ...def,
+          ...c,
+          id: c.id || idx + 1,
+          tagline: c.tagline || def.tagline,
+          titleLine1: c.titleLine1 || def.titleLine1,
+          titleAccent: c.titleAccent || def.titleAccent,
+          description: c.description || def.description,
+          image: c.image || def.image,
+          primaryBtnText: c.primaryBtnText || def.primaryBtnText,
+          primaryTab: c.primaryTab || def.primaryTab,
+          objectPosition: c.objectPosition || def.objectPosition,
+          bgZoom: c.bgZoom
+        };
+      });
+    }
+    return defaultSlides;
   }, [defaultSlides, siteContent.home_slides]);
 
   // Admin Inline Editing State

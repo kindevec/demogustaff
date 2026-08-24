@@ -99,11 +99,37 @@ export const getStoredSiteContent = (): SiteContent => {
   }
 };
 
+export const fetchSiteContent = async (): Promise<SiteContent> => {
+  if (!supabase) return getStoredSiteContent();
+  try {
+    const { data, error } = await supabase
+      .from('site_content')
+      .select('*')
+      .or('key.eq.main,id.eq.main')
+      .maybeSingle();
+
+    if (!error && data && data.content) {
+      const parsed = typeof data.content === 'string' ? JSON.parse(data.content) : data.content;
+      const merged = { ...INITIAL_SITE_CONTENT, ...parsed };
+      localStorage.setItem(STORAGE_KEYS.SITE_CONTENT, JSON.stringify(merged));
+      return merged;
+    }
+  } catch (e) {
+    console.warn('Error cargando site_content de Supabase:', e);
+  }
+  return getStoredSiteContent();
+};
+
 export const saveStoredSiteContent = async (content: SiteContent): Promise<void> => {
   localStorage.setItem(STORAGE_KEYS.SITE_CONTENT, JSON.stringify(content));
   if (supabase) {
     try {
-      await supabase.from('site_content').upsert({ id: 'main', content, updated_at: new Date().toISOString() });
+      await supabase.from('site_content').upsert({ 
+        key: 'main', 
+        id: 'main', 
+        content: JSON.stringify(content), 
+        updated_at: new Date().toISOString() 
+      }, { onConflict: 'key' });
     } catch (e) {
       console.warn('Could not sync site_content to Supabase:', e);
     }
@@ -115,20 +141,28 @@ export const uploadProductImage = async (file: File): Promise<{ success: boolean
   
   const fileExt = file.name.split('.').pop();
   const fileName = `img-${Date.now()}-${Math.random().toString(36).substring(2, 7)}.${fileExt}`;
+  const targetBuckets = ['product-images', 'images', 'documents', 'public'];
   
-  const { error } = await supabase.storage
-    .from('product-images')
-    .upload(fileName, file, { cacheControl: '3600', upsert: false, contentType: file.type || 'image/jpeg' });
-    
-  if (error) {
-    return { success: false, error: error.message };
+  let lastError = '';
+  for (const bucket of targetBuckets) {
+    try {
+      const { error } = await supabase.storage
+        .from(bucket)
+        .upload(fileName, file, { cacheControl: '3600', upsert: true, contentType: file.type || 'image/jpeg' });
+        
+      if (!error) {
+        const { data } = supabase.storage
+          .from(bucket)
+          .getPublicUrl(fileName);
+        return { success: true, url: data.publicUrl };
+      }
+      lastError = error.message;
+    } catch (e: any) {
+      lastError = e?.message || 'Error al subir imagen';
+    }
   }
   
-  const { data } = supabase.storage
-    .from('product-images')
-    .getPublicUrl(fileName);
-    
-  return { success: true, url: data.publicUrl };
+  return { success: false, error: lastError || 'Error al subir imagen' };
 };
 
 export const uploadSpecSheetFile = async (file: File): Promise<{ success: boolean; url?: string; error?: string }> => {
@@ -136,41 +170,61 @@ export const uploadSpecSheetFile = async (file: File): Promise<{ success: boolea
   
   const cleanName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
   const fileName = `ft-${Date.now()}-${cleanName}`;
+  const targetBuckets = ['product-images', 'spec-sheets', 'documents', 'technical-sheets'];
   
-  const { error } = await supabase.storage
-    .from('product-images')
-    .upload(fileName, file, { cacheControl: '3600', upsert: false, contentType: file.type || 'application/pdf' });
-    
-  if (error) {
-    return { success: false, error: error.message };
+  let lastError = '';
+  for (const bucket of targetBuckets) {
+    try {
+      const { error } = await supabase.storage
+        .from(bucket)
+        .upload(fileName, file, { cacheControl: '3600', upsert: true, contentType: file.type || 'application/pdf' });
+        
+      if (!error) {
+        const { data } = supabase.storage
+          .from(bucket)
+          .getPublicUrl(fileName);
+        return { success: true, url: data.publicUrl };
+      }
+      lastError = error.message;
+    } catch (e: any) {
+      lastError = e?.message || 'Error al subir archivo';
+    }
   }
   
-  const { data } = supabase.storage
-    .from('product-images')
-    .getPublicUrl(fileName);
-    
-  return { success: true, url: data.publicUrl };
+  return { success: false, error: lastError || 'Error al subir archivo PDF.' };
 };
 
 export const uploadContactAttachment = async (file: File): Promise<{ success: boolean; url?: string; error?: string }> => {
   if (!supabase) return { success: false, error: 'Supabase no configurado' };
   
-  const fileExt = file.name.split('.').pop();
-  const fileName = `contact-${Date.now()}-${Math.random().toString(36).substring(2, 7)}.${fileExt}`;
+  const cleanName = file.name.replace(/[^a-zA-Z0-9.-]/g, '_');
+  const fileName = `contact-${Date.now()}-${cleanName}`;
+  const targetBuckets = ['product-images', 'attachments', 'documents', 'spec-sheets'];
   
-  const { error } = await supabase.storage
-    .from('product-images')
-    .upload(fileName, file, { cacheControl: '3600', upsert: false, contentType: file.type || 'application/octet-stream' });
-    
-  if (error) {
-    return { success: false, error: error.message };
+  let lastError = '';
+  for (const bucket of targetBuckets) {
+    try {
+      const { error } = await supabase.storage
+        .from(bucket)
+        .upload(fileName, file, { 
+          cacheControl: '3600', 
+          upsert: true, 
+          contentType: file.type || 'application/octet-stream' 
+        });
+        
+      if (!error) {
+        const { data } = supabase.storage
+          .from(bucket)
+          .getPublicUrl(fileName);
+        return { success: true, url: data.publicUrl };
+      }
+      lastError = error.message;
+    } catch (e: any) {
+      lastError = e?.message || 'Error al subir archivo adjunto';
+    }
   }
   
-  const { data } = supabase.storage
-    .from('product-images')
-    .getPublicUrl(fileName);
-    
-  return { success: true, url: data.publicUrl };
+  return { success: false, error: lastError || 'Error al subir archivo adjunto a Supabase Storage' };
 };
 
 export interface ContactSubmissionPayload {
@@ -185,6 +239,7 @@ export interface ContactSubmissionPayload {
   attachmentUrl?: string;
   acceptPrivacy: boolean;
   acceptMarketing: boolean;
+  recaptchaToken?: string;
 }
 
 export const submitContactForm = async (payload: ContactSubmissionPayload): Promise<{ success: boolean; error?: string }> => {
@@ -231,22 +286,29 @@ ${payload.message}
 
     // 2. Send via Web3Forms API to servicioalcliente@gustaff.com
     try {
+      const web3FormsBody: Record<string, any> = {
+        access_key: '5b8b80b2-75d3-4f95-8167-27b5993895e6',
+        to_email: 'servicioalcliente@gustaff.com',
+        from_name: 'Gustaff S.A. Sitio Web',
+        subject: subject,
+        name: fullName,
+        email: payload.email,
+        message: formattedMessage,
+        attachment_link: payload.attachmentUrl || 'Ninguno'
+      };
+
+      if (payload.recaptchaToken) {
+        web3FormsBody['g-recaptcha-response'] = payload.recaptchaToken;
+        web3FormsBody['recaptcha_token'] = payload.recaptchaToken;
+      }
+
       await fetch('https://api.web3forms.com/submit', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
           'Accept': 'application/json'
         },
-        body: JSON.stringify({
-          access_key: '5b8b80b2-75d3-4f95-8167-27b5993895e6',
-          to_email: 'servicioalcliente@gustaff.com',
-          from_name: 'Gustaff S.A. Sitio Web',
-          subject: subject,
-          name: fullName,
-          email: payload.email,
-          message: formattedMessage,
-          attachment_link: payload.attachmentUrl || 'Ninguno'
-        })
+        body: JSON.stringify(web3FormsBody)
       });
     } catch (emailErr) {
       console.warn('Error en despacho Web3Forms API, continuando...', emailErr);

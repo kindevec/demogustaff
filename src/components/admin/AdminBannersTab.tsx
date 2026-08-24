@@ -149,7 +149,7 @@ export const DEFAULT_INDUSTRIAL_BANNER: IndustrialBannerConfig = {
   bgZoom: 100
 };
 
-// Robust helper to parse position coordinates safely
+// Helper to parse position coordinates safely
 const getPosFromSlide = (slide: any): { x: number; y: number } => {
   if (!slide) return { x: 50, y: 50 };
   if (slide.bgPositionX !== undefined && slide.bgPositionY !== undefined) {
@@ -180,55 +180,82 @@ export const AdminBannersTab: React.FC<AdminBannersTabProps> = ({ siteContent, o
   const [saveSuccess, setSaveSuccess] = useState(false);
   const [isEditingBg, setIsEditingBg] = useState(false);
   const [isPanning, setIsPanning] = useState(false);
+  const [slideToDelete, setSlideToDelete] = useState<number | null>(null);
   
   const panStartRef = useRef<{ x: number; y: number; posX: number; posY: number } | null>(null);
   const canvasRef = useRef<HTMLDivElement>(null);
   const rafRef = useRef<number>(0);
 
-  // Merge custom slides with full default data
+  // Dynamic slides data with defaults fallback
   const homeSlides = useMemo(() => {
-    const custom = siteContent.home_slides || [];
-    return DEFAULT_HOME_SLIDES.map((def, idx) => {
-      const match = custom.find((c: any) => c.id === def.id) || custom[idx];
-      if (!match) return def;
-      const pos = getPosFromSlide(match);
+    const custom = siteContent.home_slides;
+    if (custom && custom.length > 0) {
+      return custom.map((c: any, idx: number) => {
+        const def = DEFAULT_HOME_SLIDES[idx] || DEFAULT_HOME_SLIDES[0];
+        const pos = getPosFromSlide(c);
+        return {
+          ...def,
+          ...c,
+          id: c.id || idx + 1,
+          tagline: c.tagline || def.tagline,
+          titleLine1: c.titleLine1 || def.titleLine1,
+          titleAccent: c.titleAccent || def.titleAccent,
+          description: (c.description && !c.description.endsWith('...')) ? c.description : def.description,
+          image: c.image || def.image,
+          primaryBtnText: c.primaryBtnText || def.primaryBtnText,
+          primaryTab: c.primaryTab || def.primaryTab,
+          objectPosition: c.objectPosition || `${pos.x}% ${pos.y}%`,
+          bgPositionX: pos.x,
+          bgPositionY: pos.y,
+          bgZoom: c.bgZoom || def.bgZoom
+        };
+      });
+    }
+    return DEFAULT_HOME_SLIDES.map((def) => {
+      const pos = getPosFromSlide(def);
       return {
         ...def,
-        tagline: match.tagline || def.tagline,
-        titleLine1: match.titleLine1 || def.titleLine1,
-        titleAccent: match.titleAccent || def.titleAccent,
-        description: (match.description && !match.description.endsWith('...')) ? match.description : def.description,
-        image: match.image || def.image,
-        primaryBtnText: match.primaryBtnText || def.primaryBtnText,
-        primaryTab: match.primaryTab || def.primaryTab,
-        objectPosition: match.objectPosition || `${pos.x}% ${pos.y}%`,
+        objectPosition: `${pos.x}% ${pos.y}%`,
         bgPositionX: pos.x,
         bgPositionY: pos.y,
-        bgZoom: match.bgZoom || def.bgZoom
+        bgZoom: def.bgZoom
       };
     });
   }, [siteContent.home_slides]);
 
   const productSlides = useMemo(() => {
-    const custom = siteContent.products_slides || [];
-    return DEFAULT_PRODUCT_SLIDES.map((def, idx) => {
-      const match = custom.find((c: any) => c.id === def.id) || custom[idx];
-      if (!match) return def;
-      const pos = getPosFromSlide(match);
+    const custom = siteContent.products_slides;
+    if (custom && custom.length > 0) {
+      return custom.map((c: any, idx: number) => {
+        const def = DEFAULT_PRODUCT_SLIDES.find((d) => d.id === c.id) || DEFAULT_PRODUCT_SLIDES[idx] || DEFAULT_PRODUCT_SLIDES[0];
+        const pos = getPosFromSlide(c);
+        return {
+          ...def,
+          ...c,
+          id: c.id || `prod-${idx}`,
+          tagline: c.tagline || def.tagline,
+          titleLine1: c.titleLine1 || def.titleLine1,
+          titleAccent: c.titleAccent || def.titleAccent,
+          description: (c.description && !c.description.endsWith('...')) ? c.description : def.description,
+          image: c.image || def.image,
+          bgColor: c.bgColor || def.bgColor,
+          navColor: c.navColor || def.navColor,
+          accentColor: c.accentColor || def.accentColor,
+          objectPosition: c.objectPosition || `${pos.x}% ${pos.y}%`,
+          bgPositionX: pos.x,
+          bgPositionY: pos.y,
+          bgZoom: c.bgZoom || def.bgZoom
+        };
+      });
+    }
+    return DEFAULT_PRODUCT_SLIDES.map((def) => {
+      const pos = getPosFromSlide(def);
       return {
         ...def,
-        tagline: match.tagline || def.tagline,
-        titleLine1: match.titleLine1 || def.titleLine1,
-        titleAccent: match.titleAccent || def.titleAccent,
-        description: (match.description && !match.description.endsWith('...')) ? match.description : def.description,
-        image: match.image || def.image,
-        bgColor: match.bgColor || def.bgColor,
-        navColor: match.navColor || def.navColor,
-        accentColor: match.accentColor || def.accentColor,
-        objectPosition: match.objectPosition || `${pos.x}% ${pos.y}%`,
+        objectPosition: `${pos.x}% ${pos.y}%`,
         bgPositionX: pos.x,
         bgPositionY: pos.y,
-        bgZoom: match.bgZoom || def.bgZoom
+        bgZoom: def.bgZoom
       };
     });
   }, [siteContent.products_slides]);
@@ -259,11 +286,11 @@ export const AdminBannersTab: React.FC<AdminBannersTabProps> = ({ siteContent, o
 
   const sectionData = getSectionData();
 
-  // Load slide into editedSlide only when section or slide index changes
+  // Load slide into editedSlide when activeSection or activeSlideIndex changes
   useEffect(() => {
     if (activeSection) {
       const data = activeSection === 'inicio' ? homeSlides : activeSection === 'productos' ? productSlides : [industrialBanner];
-      const safeIndex = Math.min(activeSlideIndex, data.length - 1);
+      const safeIndex = Math.max(0, Math.min(activeSlideIndex, data.length - 1));
       const target = data[safeIndex] || data[0];
       if (target) {
         const pos = getPosFromSlide(target);
@@ -279,9 +306,10 @@ export const AdminBannersTab: React.FC<AdminBannersTabProps> = ({ siteContent, o
     } else {
       setEditedSlide(null);
     }
-  }, [activeSection, activeSlideIndex]);
+  }, [activeSection, activeSlideIndex, homeSlides.length, productSlides.length]);
 
-  const currentOriginalSlide = sectionData[activeSlideIndex] || sectionData[0];
+  const safeCurrentIndex = Math.max(0, Math.min(activeSlideIndex, sectionData.length - 1));
+  const currentOriginalSlide = sectionData[safeCurrentIndex] || sectionData[0];
   const currentSlide = editedSlide || currentOriginalSlide;
 
   const isDirty = editedSlide && currentOriginalSlide
@@ -319,11 +347,11 @@ export const AdminBannersTab: React.FC<AdminBannersTabProps> = ({ siteContent, o
     
     if (activeSection === 'inicio') {
       const newSlides = [...homeSlides];
-      newSlides[activeSlideIndex] = slideToSave;
+      newSlides[safeCurrentIndex] = slideToSave;
       updatedContent.home_slides = newSlides;
     } else if (activeSection === 'productos') {
       const newSlides = [...productSlides];
-      newSlides[activeSlideIndex] = slideToSave;
+      newSlides[safeCurrentIndex] = slideToSave;
       updatedContent.products_slides = newSlides;
     } else if (activeSection === 'industrial') {
       updatedContent.industrial_banner = slideToSave;
@@ -335,6 +363,85 @@ export const AdminBannersTab: React.FC<AdminBannersTabProps> = ({ siteContent, o
       setSaveSuccess(false);
       setIsSaving(false);
     }, 3000);
+  };
+
+  // Add new slide handler
+  const handleAddSlide = () => {
+    if (!activeSection) return;
+
+    if (activeSection === 'inicio') {
+      const newSlide: SlideConfig = {
+        id: Date.now(),
+        tagline: '✦ NUEVA DIAPOSITIVA',
+        titleLine1: 'NUEVO PRODUCTO O LÍNEA',
+        titleAccent: '& SABOR EXCEPCIONAL',
+        description: 'Formuladas para resistir altas temperaturas de horneado y congelación sin perder su sabor, brillo ni textura excepcional.',
+        image: '/images/Slider de publicidad/COBERTURAS DE CHOCOLATE.webp',
+        primaryBtnText: 'Ver Catálogo Industrial',
+        primaryTab: 'industrial',
+        objectPosition: '50% 50%',
+        bgPositionX: 50,
+        bgPositionY: 50,
+        bgZoom: 100
+      };
+      const updated = [...homeSlides, newSlide];
+      onUpdateSiteContent({
+        ...siteContent,
+        home_slides: updated
+      });
+      setActiveSlideIndex(homeSlides.length);
+      setIsEditingBg(false);
+    } else if (activeSection === 'productos') {
+      const newSlide: ProductSlideConfig = {
+        id: `categoria-${Date.now()}`,
+        tagline: '✦ NUEVA CATEGORÍA',
+        titleLine1: 'NUEVA CATEGORÍA',
+        titleAccent: '& LÍNEA DE PRODUCTOS',
+        description: 'Botones, gotas termoestables y palillos formulados con los más altos estándares de calidad para la industria de confitería y panificación.',
+        image: '/images/Slider de publicidad/COBERTURAS DE CHOCOLATE.webp',
+        bgColor: '#3A1B12',
+        navColor: '#3A1B12',
+        accentColor: '#e86014',
+        objectPosition: '50% 50%',
+        bgPositionX: 50,
+        bgPositionY: 50,
+        bgZoom: 100
+      };
+      const updated = [...productSlides, newSlide];
+      onUpdateSiteContent({
+        ...siteContent,
+        products_slides: updated
+      });
+      setActiveSlideIndex(productSlides.length);
+      setIsEditingBg(false);
+    }
+  };
+
+  // Delete slide handler (via custom modal confirmation)
+  const handleConfirmDeleteSlide = () => {
+    if (slideToDelete === null || !activeSection) return;
+    const targetIdx = slideToDelete;
+    setSlideToDelete(null);
+
+    if (activeSection === 'inicio') {
+      const updated = homeSlides.filter((_, idx) => idx !== targetIdx);
+      onUpdateSiteContent({
+        ...siteContent,
+        home_slides: updated
+      });
+      const nextIdx = Math.max(0, Math.min(targetIdx - 1, updated.length - 1));
+      setActiveSlideIndex(nextIdx);
+      setIsEditingBg(false);
+    } else if (activeSection === 'productos') {
+      const updated = productSlides.filter((_, idx) => idx !== targetIdx);
+      onUpdateSiteContent({
+        ...siteContent,
+        products_slides: updated
+      });
+      const nextIdx = Math.max(0, Math.min(targetIdx - 1, updated.length - 1));
+      setActiveSlideIndex(nextIdx);
+      setIsEditingBg(false);
+    }
   };
 
   // 2D Pan handlers
@@ -438,9 +545,9 @@ export const AdminBannersTab: React.FC<AdminBannersTabProps> = ({ siteContent, o
     return '#3A1B12';
   };
 
+  const currentPos = getPosFromSlide(currentSlide);
   const zoomPercent = Math.max(100, Math.min(250, currentSlide?.bgZoom ?? 100));
   const zoomScale = zoomPercent / 100;
-  const currentPos = getPosFromSlide(currentSlide);
 
   // =========================================================================
   // VIEW 1: HUB DE SECCIONES (3 TARJETAS GRANDES A TODO EL ANCHO)
@@ -458,7 +565,7 @@ export const AdminBannersTab: React.FC<AdminBannersTabProps> = ({ siteContent, o
               Personalización de Encabezados Principales
             </h2>
             <p className="text-sm text-slate-500 mt-1.5 leading-relaxed">
-              Modifica en tiempo real los sliders, banners de portada, imágenes de fondo con zoom y textos de las 3 páginas principales del sitio web.
+              Modifica en tiempo real los sliders, banners de portada, imágenes de fondo con zoom, agrega o elimina diapositivas de las 3 páginas principales del sitio web.
             </p>
           </div>
         </div>
@@ -489,7 +596,7 @@ export const AdminBannersTab: React.FC<AdminBannersTabProps> = ({ siteContent, o
               </div>
               <div className="absolute top-3.5 right-3.5 z-10">
                 <span className="bg-amber-500 text-white text-[11px] font-black px-2.5 py-0.5 rounded-full shadow-md">
-                  {homeSlides.length} Banners
+                  {homeSlides.length} {homeSlides.length === 1 ? 'Banner' : 'Banners'}
                 </span>
               </div>
               <div className="absolute bottom-3 left-4 right-4 z-10">
@@ -504,7 +611,7 @@ export const AdminBannersTab: React.FC<AdminBannersTabProps> = ({ siteContent, o
                   Carrusel Principal
                 </span>
                 <p className="text-xs text-slate-600 mt-1 line-clamp-2 leading-relaxed">
-                  Carrusel interactivo de {homeSlides.length} diapositivas que reciben al visitante en la portada.
+                  Carrusel interactivo de {homeSlides.length} {homeSlides.length === 1 ? 'diapositiva' : 'diapositivas'} que reciben al visitante en la portada.
                 </p>
               </div>
               <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
@@ -544,7 +651,7 @@ export const AdminBannersTab: React.FC<AdminBannersTabProps> = ({ siteContent, o
               </div>
               <div className="absolute top-3.5 right-3.5 z-10">
                 <span className="bg-amber-500 text-white text-[11px] font-black px-2.5 py-0.5 rounded-full shadow-md">
-                  {productSlides.length} Categorías
+                  {productSlides.length} {productSlides.length === 1 ? 'Categoría' : 'Categorías'}
                 </span>
               </div>
               <div className="absolute bottom-3 left-4 right-4 z-10">
@@ -559,7 +666,7 @@ export const AdminBannersTab: React.FC<AdminBannersTabProps> = ({ siteContent, o
                   Slider de Categorías
                 </span>
                 <p className="text-xs text-slate-600 mt-1 line-clamp-2 leading-relaxed">
-                  Encabezado dinámico con {productSlides.length} categorías que introduce el catálogo comercial.
+                  Encabezado dinámico con {productSlides.length} {productSlides.length === 1 ? 'categoría' : 'categorías'} que introduce el catálogo comercial.
                 </p>
               </div>
               <div className="pt-3 border-t border-slate-100 flex items-center justify-between">
@@ -657,33 +764,44 @@ export const AdminBannersTab: React.FC<AdminBannersTabProps> = ({ siteContent, o
 
       <div className="space-y-4 w-full">
         {/* BARRA SUPERIOR DE PESTAÑAS DE SLIDES Y ACCIONES */}
-        <div className="flex items-center justify-between gap-3 bg-white p-3 sm:p-4 rounded-2xl border border-slate-200 shadow-sm w-full">
+        <div className="flex flex-wrap items-center justify-between gap-3 bg-white p-3 sm:p-4 rounded-2xl border border-slate-200 shadow-sm w-full">
           <div className="flex items-center gap-2 overflow-x-auto pr-2">
             {(activeSection === 'inicio' || activeSection === 'productos') && (
               <>
-                <span className="text-xs font-black text-slate-400 uppercase tracking-wider pl-1 pr-2">
+                <span className="text-xs font-black text-slate-400 uppercase tracking-wider pl-1 pr-1 shrink-0">
                   Diapositivas:
                 </span>
                 {sectionData.map((s, idx) => {
-                  const isActive = idx === activeSlideIndex;
+                  const isActive = idx === safeCurrentIndex;
                   return (
                     <button
                       key={idx}
                       type="button"
                       onClick={() => { setActiveSlideIndex(idx); setIsEditingBg(false); }}
-                      className={`px-4 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer ${
+                      className={`px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-2 cursor-pointer shrink-0 ${
                         isActive
                           ? 'bg-[#3A1B12] text-white shadow-md scale-102 ring-2 ring-amber-500'
                           : 'bg-slate-50 text-slate-700 hover:bg-slate-100 border border-slate-200'
                       }`}
                     >
                       <span>#{idx + 1}</span>
-                      <span className="max-w-[130px] truncate hidden sm:inline">
+                      <span className="max-w-[120px] truncate hidden sm:inline">
                         {s.titleLine1 || `Slide ${idx + 1}`}
                       </span>
                     </button>
                   );
                 })}
+
+                {/* Botón Agregar Nueva Diapositiva */}
+                <button
+                  type="button"
+                  onClick={handleAddSlide}
+                  className="px-3.5 py-2 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer bg-amber-50 hover:bg-amber-100 text-amber-800 border border-dashed border-amber-300 hover:border-amber-500 shrink-0 shadow-sm"
+                  title="Añadir una nueva diapositiva a este carrusel"
+                >
+                  <Plus className="w-3.5 h-3.5 text-amber-600 stroke-[2.5]" />
+                  <span>Agregar Diapositiva</span>
+                </button>
               </>
             )}
             {activeSection === 'industrial' && (
@@ -695,6 +813,19 @@ export const AdminBannersTab: React.FC<AdminBannersTabProps> = ({ siteContent, o
           </div>
 
           <div className="flex items-center gap-2 shrink-0">
+            {/* Botón Eliminar Diapositiva */}
+            {(activeSection === 'inicio' || activeSection === 'productos') && sectionData.length > 1 && (
+              <button
+                type="button"
+                onClick={() => setSlideToDelete(safeCurrentIndex)}
+                className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-xl transition-colors cursor-pointer border border-transparent hover:border-red-200 flex items-center gap-1 text-xs font-bold"
+                title={`Eliminar diapositiva #${safeCurrentIndex + 1}`}
+              >
+                <Trash2 className="w-4 h-4 text-red-500" />
+                <span className="hidden md:inline text-red-600">Eliminar</span>
+              </button>
+            )}
+
             {isDirty && (
               <button
                 type="button"
@@ -751,7 +882,7 @@ export const AdminBannersTab: React.FC<AdminBannersTabProps> = ({ siteContent, o
             onTouchMove={isEditingBg ? handlePanMove : undefined}
             onTouchEnd={isEditingBg ? handlePanEnd : undefined}
           >
-            {/* Imagen de Fondo con Posición y Zoom limpios sin transform conflict */}
+            {/* Imagen de Fondo con Posición y Zoom limpios */}
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
               <img
                 src={currentSlide.image || '/images/bodegon/Maquila.webp'}
@@ -1051,6 +1182,41 @@ export const AdminBannersTab: React.FC<AdminBannersTabProps> = ({ siteContent, o
           </div>
         )}
       </div>
+
+      {/* MODAL EMERGENTE DE CONFIRMACIÓN PARA ELIMINAR DIAPOSITIVA */}
+      {slideToDelete !== null && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fadeIn">
+          <div className="bg-white rounded-3xl p-6 sm:p-7 max-w-sm w-full shadow-2xl border border-slate-200 text-center space-y-4 animate-scaleUp">
+            <div className="w-14 h-14 rounded-2xl bg-red-50 text-red-600 flex items-center justify-center mx-auto border border-red-100 shadow-sm">
+              <Trash2 className="w-7 h-7 stroke-[2]" />
+            </div>
+            
+            <div className="space-y-1.5">
+              <h3 className="text-base font-bold text-slate-900">¿Eliminar Diapositiva #{slideToDelete + 1}?</h3>
+              <p className="text-xs text-slate-500 leading-relaxed">
+                Esta diapositiva será removida del carrusel de forma permanente.
+              </p>
+            </div>
+
+            <div className="flex items-center justify-center gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setSlideToDelete(null)}
+                className="flex-1 py-2.5 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs rounded-xl transition-colors cursor-pointer"
+              >
+                Cancelar
+              </button>
+              <button
+                type="button"
+                onClick={handleConfirmDeleteSlide}
+                className="flex-1 py-2.5 px-4 bg-red-600 hover:bg-red-700 text-white font-bold text-xs rounded-xl shadow-md transition-colors cursor-pointer"
+              >
+                Sí, Eliminar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
