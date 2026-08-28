@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
-import { Language } from '../types';
+import { Language, ClientProfile } from '../types';
 import { TRANSLATIONS } from '../data/translations';
 import { 
   Menu, 
   X, 
   UserCircle, 
   PhoneCall,
-  Sparkles
+  Sparkles,
+  User
 } from 'lucide-react';
 import { FacebookIcon, InstagramIcon, WhatsAppIcon } from './SocialIcons';
 
@@ -17,6 +18,7 @@ interface NavbarProps {
   onOpenAdmin: () => void;
   themeColor?: string;
   isAdmin?: boolean;
+  clientProfile?: ClientProfile | null;
 }
 
 export const Navbar: React.FC<NavbarProps> = React.memo(({
@@ -25,7 +27,8 @@ export const Navbar: React.FC<NavbarProps> = React.memo(({
   lang,
   onOpenAdmin,
   themeColor,
-  isAdmin = false
+  isAdmin = false,
+  clientProfile = null
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const t = TRANSLATIONS[lang].nav;
@@ -111,22 +114,51 @@ export const Navbar: React.FC<NavbarProps> = React.memo(({
           ))}
         </nav>
 
-        {/* Action Buttons: Login Button (Hidden when logged in as Admin) */}
+        {/* Action Buttons: Client Profile / Login Button (Hidden when logged in as Admin) */}
         {!isAdmin && (
           <div className="hidden lg:flex items-center space-x-3 shrink-0">
-            <button
-              onClick={onOpenAdmin}
-              className="flex items-center gap-1.5 bg-[#f3ece0] hover:bg-[#e8dcc4] text-[#603813] font-semibold px-4 py-2 rounded-full text-sm border border-[#e8dcc4] transition-all duration-300 cursor-pointer"
-              title="Login"
-            >
-              <UserCircle className="w-4 h-4 text-[#b05d2e]" />
-              Login
-            </button>
+            {clientProfile ? (
+              <button
+                onClick={() => setCurrentTab('profile')}
+                className="flex items-center gap-2 bg-[#f3ece0] hover:bg-[#e8dcc4] text-[#603813] font-bold px-4 py-2 rounded-full text-sm border border-[#d4af37]/60 shadow-xs transition-all duration-300 cursor-pointer group"
+                title="Ver mi perfil"
+              >
+                <div className="w-5 h-5 rounded-full bg-[#b05d2e] text-white flex items-center justify-center text-[10px] font-black">
+                  {clientProfile.name.charAt(0).toUpperCase()}
+                </div>
+                <span className="truncate max-w-[120px]">{clientProfile.name.split(' ')[0]}</span>
+              </button>
+            ) : (
+              <button
+                onClick={() => setCurrentTab('login')}
+                className="flex items-center gap-1.5 bg-[#f3ece0] hover:bg-[#e8dcc4] text-[#603813] font-bold px-4 py-2 rounded-full text-sm border border-[#e8dcc4] transition-all duration-300 cursor-pointer"
+                title="Acceso de Clientes y Empresas"
+              >
+                <UserCircle className="w-4 h-4 text-[#b05d2e]" />
+                <span>Login</span>
+              </button>
+            )}
           </div>
         )}
 
-        {/* Mobile Social Icons (Facebook & Instagram replacing Hamburger menu) */}
+        {/* Mobile Social Icons + User Profile / Login */}
         <div className="lg:hidden flex items-center space-x-2">
+          {!isAdmin && (
+            <button
+              onClick={() => setCurrentTab(clientProfile ? 'profile' : 'login')}
+              className="p-2 rounded-xl bg-[#f3ece0] hover:bg-[#e8dcc4] text-[#3d2516] border border-[#e8dcc4] transition-colors flex items-center justify-center cursor-pointer"
+              aria-label={clientProfile ? 'Mi Perfil' : 'Login'}
+              title={clientProfile ? 'Mi Perfil' : 'Login'}
+            >
+              {clientProfile ? (
+                <div className="w-6 h-6 rounded-full bg-[#b05d2e] text-white flex items-center justify-center text-xs font-black">
+                  {clientProfile.name.charAt(0).toUpperCase()}
+                </div>
+              ) : (
+                <UserCircle className="w-6 h-6 text-[#b05d2e]" />
+              )}
+            </button>
+          )}
           <a
             href="https://www.facebook.com/gustaffecu/"
             target="_blank"
@@ -134,7 +166,7 @@ export const Navbar: React.FC<NavbarProps> = React.memo(({
             className="p-2 rounded-xl bg-[#f3ece0] hover:bg-[#e8dcc4] text-[#3d2516] border border-[#e8dcc4] transition-colors flex items-center justify-center cursor-pointer"
             aria-label="Facebook"
           >
-            <FacebookIcon size={25} />
+            <FacebookIcon size={24} />
           </a>
           <a
             href="https://www.instagram.com/gustaffec/"
@@ -143,7 +175,7 @@ export const Navbar: React.FC<NavbarProps> = React.memo(({
             className="p-2 rounded-xl bg-[#f3ece0] hover:bg-[#e8dcc4] text-[#3d2516] border border-[#e8dcc4] transition-colors flex items-center justify-center cursor-pointer"
             aria-label="Instagram"
           >
-            <InstagramIcon size={25} />
+            <InstagramIcon size={24} />
           </a>
         </div>
       </div>

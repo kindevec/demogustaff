@@ -97,6 +97,22 @@ export interface IndustrialBannerConfig {
   bgZoom?: number;
 }
 
+export interface ClientProfile {
+  id: string;
+  email: string;
+  name: string;
+  lastName?: string;
+  businessName?: string;
+  rucDni?: string;
+  phone?: string;
+  address?: string;
+  city?: string;
+  role: 'client' | 'admin';
+  terms_accepted: boolean;
+  terms_accepted_at?: string;
+  created_at?: string;
+}
+
 export interface SiteContent {
   home_headline: string;
   home_quienes_somos: string;
@@ -114,4 +130,5 @@ export interface SiteContent {
   contact_address: string;
   contact_phones: string;
   contact_whatsapp: string;
+  terms_document_url?: string;
 }

@@ -69,6 +69,24 @@ CREATE TABLE IF NOT EXISTS public.site_content (
     updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
+-- 7. TABLA DE PERFILES DE CLIENTES (PERSONAS NATURALES Y EMPRESAS)
+CREATE TABLE IF NOT EXISTS public.client_profiles (
+    id TEXT PRIMARY KEY,
+    email TEXT UNIQUE NOT NULL,
+    name TEXT NOT NULL,
+    last_name TEXT,
+    business_name TEXT,
+    ruc_dni TEXT,
+    phone TEXT,
+    address TEXT,
+    city TEXT,
+    role TEXT DEFAULT 'client' CHECK (role IN ('client', 'admin')),
+    terms_accepted BOOLEAN DEFAULT true,
+    terms_accepted_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
 -- ================================================================
 -- REGISTRAR POLÍTICAS DE SEGURIDAD (ROW LEVEL SECURITY - RLS)
 -- ================================================================
@@ -78,6 +96,17 @@ ALTER TABLE public.contact_submissions ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.products ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.technical_sheets ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.site_content ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.client_profiles ENABLE ROW LEVEL SECURITY;
+
+-- Permitir inserción y actualización para perfiles de cliente
+CREATE POLICY "Permitir inserción de perfiles de clientes" 
+ON public.client_profiles FOR INSERT TO anon, authenticated WITH CHECK (true);
+
+CREATE POLICY "Permitir lectura de perfiles" 
+ON public.client_profiles FOR SELECT TO anon, authenticated USING (true);
+
+CREATE POLICY "Permitir actualización de perfiles" 
+ON public.client_profiles FOR UPDATE TO anon, authenticated USING (true);
 
 -- Permitir inserción pública para captación de prospectos y formulario de contacto
 CREATE POLICY "Permitir registro público de prospectos" 

@@ -1,6 +1,15 @@
 import React, { useState, useEffect, useCallback, Suspense, lazy } from 'react';
-import { Language, Product, SiteContent } from './types';
-import { fetchProducts, fetchSiteContent, getStoredSiteContent, saveStoredSiteContent, getAdminSession, adminLogout } from './lib/supabase';
+import { Language, Product, SiteContent, ClientProfile } from './types';
+import { 
+  fetchProducts, 
+  fetchSiteContent, 
+  getStoredSiteContent, 
+  saveStoredSiteContent, 
+  getAdminSession, 
+  adminLogout,
+  getClientSession,
+  clientLogout 
+} from './lib/supabase';
 import { Navbar } from './components/Navbar';
 import { BottomNav } from './components/BottomNav';
 import { Footer } from './components/Footer';
@@ -26,6 +35,8 @@ import { MobileIndustrialView } from './views/mobile/MobileIndustrialView';
 import { RecipesView } from './views/RecipesView';
 import { MobileRecipesView } from './views/mobile/MobileRecipesView';
 import { ContactView } from './views/ContactView';
+import { AuthView } from './views/AuthView';
+import { ClientProfileView } from './views/ClientProfileView';
 
 /* Admin panel — lazy loaded (regular users never access it) */
 const AdminView = lazy(() => import('./views/AdminView').then(m => ({ default: m.AdminView })));
@@ -49,11 +60,15 @@ export default function App() {
     } catch {}
     return false;
   });
+  const [clientProfile, setClientProfile] = useState<ClientProfile | null>(() => getClientSession());
 
-  // Check admin auth status
+  // Check admin and client auth status
   const checkAuth = useCallback(async () => {
     const { session } = await getAdminSession();
-    setIsAdmin(Boolean(session));
+    const cSession = getClientSession();
+    const isUserAdmin = Boolean(session) || Boolean(cSession && (cSession.role === 'admin' || cSession.email?.includes('admin')));
+    setIsAdmin(isUserAdmin);
+    setClientProfile(cSession);
   }, []);
 
   useEffect(() => {
@@ -156,13 +171,27 @@ export default function App() {
     setCurrentTab('industrial');
   }, [setCurrentTab]);
 
-  const isMobile = useIsMobile();
+  const isAuthTab = currentTab === 'login' || currentTab === 'auth' || currentTab === 'register';
+  const isProfileTab = currentTab === 'profile' || currentTab === 'client';
+  const isStandaloneView = currentTab === 'admin' || isAuthTab || isProfileTab;
+
+  const handleAuthSuccess = useCallback((user: ClientProfile, isAdminUser?: boolean) => {
+    setClientProfile(user);
+    if (isAdminUser || user.role === 'admin') {
+      setIsAdmin(true);
+    }
+  }, []);
+
+  const handleClientLogout = useCallback(async () => {
+    await clientLogout();
+    setClientProfile(null);
+  }, []);
 
   return (
     <div className="min-h-screen bg-[#fdfaf5] text-[#4a3224] font-sans selection:bg-[#b05d2e] selection:text-white flex flex-col justify-between">
       
       {/* Top Admin Active Banner (Visible across site when logged in) */}
-      {isAdmin && currentTab !== 'admin' && (
+      {isAdmin && !isStandaloneView && (
         <div className="bg-[#1e140f] text-[#e8dcc4] text-xs py-2 px-4 flex items-center justify-between z-50 border-b border-[#3A1B12] shadow-md sticky top-0">
           <div className="flex items-center gap-2 font-semibold">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
@@ -189,7 +218,7 @@ export default function App() {
       )}
 
       {/* Fixed Main Navigation Header */}
-      {currentTab !== 'admin' && (
+      {!isStandaloneView && (
         <Navbar
           currentTab={currentTab}
           setCurrentTab={setCurrentTab}
@@ -197,11 +226,30 @@ export default function App() {
           onOpenAdmin={handleOpenAdmin}
           themeColor={headerThemeColor}
           isAdmin={isAdmin}
+          clientProfile={clientProfile}
         />
       )}
 
       {/* Main View Router Content */}
-      <main className={`flex-1 ${currentTab !== 'admin' ? 'pb-16 lg:pb-0' : ''}`}>
+      <main className={`flex-1 ${!isStandaloneView ? 'pb-16 lg:pb-0' : ''}`}>
+        {isAuthTab && (
+          <AuthView
+            setCurrentTab={setCurrentTab}
+            lang={lang}
+            onSuccess={handleAuthSuccess}
+            initialMode={currentTab === 'register' ? 'register' : 'login'}
+            siteContent={siteContent}
+          />
+        )}
+
+        {(currentTab === 'profile' || currentTab === 'client') && (
+          <ClientProfileView
+            setCurrentTab={setCurrentTab}
+            lang={lang}
+            onLogout={handleClientLogout}
+          />
+        )}
+
         {currentTab === 'home' && (
           <>
             <div className="block md:hidden">
@@ -341,12 +389,12 @@ export default function App() {
       </main>
 
       {/* Universal Footer */}
-      {currentTab !== 'admin' && (
+      {!isStandaloneView && (
         <Footer setCurrentTab={setCurrentTab} lang={lang} />
       )}
 
       {/* Fixed Mobile Bottom Navigation Bar */}
-      {currentTab !== 'admin' && (
+      {!isStandaloneView && (
         <BottomNav
           currentTab={currentTab}
           setCurrentTab={setCurrentTab}
@@ -355,12 +403,12 @@ export default function App() {
       )}
 
       {/* Interactive Floating WhatsApp Widget (+593 96 971 8045) */}
-      {currentTab !== 'admin' && (
+      {!isStandaloneView && (
         <WhatsAppWidget lang={lang} />
       )}
 
       {/* Cookie Privacy Consent Banner */}
-      <CookieBanner lang={lang} />
+      {!isStandaloneView && <CookieBanner lang={lang} />}
 
       {/* Product Detail / Technical Sheet Drawer */}
       <ProductDetailModal

@@ -12,6 +12,8 @@ import {
   adminLogin,
   adminLogout,
   getAdminSession,
+  getClientSession,
+  clientLogout,
   getStoredSiteContent,
   saveStoredSiteContent,
   uploadProductImage,
@@ -54,9 +56,11 @@ import {
   Check,
   Sliders,
   Upload,
-  ExternalLink
+  ExternalLink,
+  FileCheck
 } from 'lucide-react';
 import { AdminBannersTab } from '../components/admin/AdminBannersTab';
+import { AdminTermsTab } from '../components/admin/AdminTermsTab';
 
 interface AdminViewProps {
   setCurrentTab: (tab: string) => void;
@@ -81,17 +85,22 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentTab, products, r
   useEffect(() => {
     const checkSession = async () => {
       const { session } = await getAdminSession();
-      if (session) {
+      const clientSession = getClientSession();
+      
+      if (session || (clientSession && (clientSession.role === 'admin' || clientSession.email?.includes('admin')))) {
         setAuthenticated(true);
-        if (session.user?.email) {
-          setEmail(session.user.email);
-          setProfileForm(prev => ({ ...prev, email: session.user.email! }));
-        }
+        const adminEmail = session?.user?.email || clientSession?.email || 'admin@gustaff.ec';
+        setEmail(adminEmail);
+        setProfileForm(prev => ({ ...prev, email: adminEmail }));
+      } else {
+        setAuthenticated(false);
+        // Seamlessly redirect directly to the main login portal
+        setCurrentTab('login');
       }
       setIsCheckingAuth(false);
     };
     checkSession();
-  }, []);
+  }, [setCurrentTab]);
 
   useEffect(() => {
     const loadData = async () => {
@@ -102,7 +111,7 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentTab, products, r
     loadData();
   }, [authenticated]);
 
-  type AdminTab = 'products' | 'banners' | 'content' | 'profile' | 'security';
+  type AdminTab = 'products' | 'banners' | 'content' | 'terms' | 'profile' | 'security';
 
   const getActiveTab = (): AdminTab => {
     const hash = window.location.hash.replace('#', '');
@@ -249,9 +258,11 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentTab, products, r
 
   const handleLogout = async () => {
     await adminLogout();
+    await clientLogout();
     setAuthenticated(false);
     setEmail('');
     setPassword('');
+    setCurrentTab('home');
   };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -370,6 +381,7 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentTab, products, r
     { id: 'products', label: 'Gestión Catálogo', icon: Package, badge: products.length },
     { id: 'banners', label: 'Banners y Portada', icon: Sliders },
     { id: 'content', label: 'Textos de Páginas', icon: FileText },
+    { id: 'terms', label: 'Términos y Condiciones', icon: FileCheck },
     { id: 'profile', label: 'Perfil Administrador', icon: User },
     { id: 'security', label: 'Cambiar Contraseña', icon: Key }
   ];
@@ -387,73 +399,17 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentTab, products, r
 
   if (!authenticated) {
     return (
-      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4 font-sans relative overflow-hidden">
-        {/* Background decorative elements */}
-        <div className="absolute top-0 left-0 w-full h-full overflow-hidden pointer-events-none">
-          <div className="absolute -top-[20%] -right-[10%] w-[50%] h-[50%] rounded-full bg-amber-500/5 blur-[100px]" />
-          <div className="absolute -bottom-[20%] -left-[10%] w-[50%] h-[50%] rounded-full bg-amber-500/5 blur-[100px]" />
-        </div>
-
+      <div className="min-h-screen bg-[#fdfaf5] flex flex-col items-center justify-center p-6 text-center font-sans">
+        <RefreshCw className="w-10 h-10 text-[#b05d2e] animate-spin mb-4" />
+        <h2 className="text-xl font-bold text-[#3d2516]">Redirigiendo al Acceso Principal...</h2>
+        <p className="text-sm text-[#8d6e63] mt-2">Por favor inicia sesión con tu cuenta de administrador en el portal de acceso.</p>
         <button
-          onClick={() => setCurrentTab('home')}
-          className="absolute top-6 left-6 p-2 rounded-xl bg-white border border-slate-200 text-slate-500 hover:text-slate-900 shadow-sm flex items-center gap-2 transition-all hover:shadow"
+          type="button"
+          onClick={() => setCurrentTab('login')}
+          className="mt-6 px-6 py-2.5 bg-[#3d2516] hover:bg-[#e86014] text-white rounded-xl text-sm font-bold transition-colors cursor-pointer shadow-md"
         >
-          <ArrowLeft className="w-4 h-4" />
-          <span className="text-sm font-medium hidden sm:block">Volver al Sitio</span>
+          Ir a Iniciar Sesión
         </button>
-
-        <div className="w-full max-w-md bg-white rounded-3xl shadow-xl shadow-slate-200/50 border border-slate-100 p-8 sm:p-10 relative z-10 animate-fadeIn">
-          <div className="mx-auto flex items-center justify-center mb-8">
-            <img src="/images/bodegon/logo_gustaff_oficial.png" alt="Logo Gustaff S.A." className="h-20 w-auto object-contain drop-shadow-sm" />
-          </div>
-          
-          <div className="text-center mb-8">
-            <h2 className="text-2xl font-bold text-slate-900 tracking-tight">Acceso Administrador</h2>
-            <p className="text-slate-500 mt-2 text-sm">Ingrese sus credenciales de acceso seguro para administrar el catálogo y contenido.</p>
-          </div>
-
-          {authError && (
-            <div className="mb-6 p-3 rounded-xl bg-red-50 border border-red-100 text-red-600 text-sm font-medium text-center">
-              {authError}
-            </div>
-          )}
-
-          <form onSubmit={handleAdminLogin} className="space-y-5">
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">Correo Electrónico</label>
-              <input
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all placeholder:text-slate-400"
-                placeholder="admin@gustaff.ec"
-                required
-                autoFocus
-              />
-            </div>
-            <div>
-              <label className="block text-sm font-medium text-slate-700 mb-1.5">Contraseña</label>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-slate-50 border border-slate-200 rounded-xl p-3 text-slate-900 focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-500 transition-all placeholder:text-slate-400"
-                placeholder="••••••••"
-                required
-              />
-            </div>
-            <button
-              type="submit"
-              className="w-full bg-amber-500 hover:bg-amber-600 text-white font-bold py-3.5 rounded-xl transition-all shadow-md shadow-amber-500/20 flex items-center justify-center gap-2 mt-2"
-            >
-              Ingresar al Panel
-            </button>
-          </form>
-          
-          <div className="mt-8 text-center">
-            <p className="text-xs text-slate-400">© 2026 Gustaff S.A. Todos los derechos reservados.</p>
-          </div>
-        </div>
       </div>
     );
   }
@@ -1098,6 +1054,18 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentTab, products, r
                 </div>
               </form>
             </div>
+          )}
+
+          {/* TAB: TERMS & PRIVACY */}
+          {activeTab === 'terms' && (
+            <AdminTermsTab
+              siteContent={siteContent}
+              onUpdateSiteContent={(newContent) => {
+                setSiteContent(newContent);
+                saveStoredSiteContent(newContent);
+              }}
+              refreshSiteContent={refreshSiteContent}
+            />
           )}
 
           {/* TAB 3: PROFILE */}

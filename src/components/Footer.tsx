@@ -229,10 +229,20 @@ export const Footer: React.FC<FooterProps> = React.memo(({ setCurrentTab, lang }
           </div>
 
           {/* Bottom Legal Copyright */}
-          <div className="pt-[10px] pb-[68px] md:pb-6 flex flex-row justify-between items-center text-[11px] text-[#8d6e63]">
-            <p className="font-medium text-[#8d6e63] text-left">
-              © {new Date().getFullYear()} Gustaff S.A.
-            </p>
+          <div className="pt-[10px] pb-[68px] md:pb-6 flex flex-col sm:flex-row justify-between items-center gap-2 text-[11px] text-[#8d6e63]">
+            <div className="flex items-center gap-3">
+              <p className="font-medium text-[#8d6e63] text-left">
+                © {new Date().getFullYear()} Gustaff S.A. Todos los derechos reservados.
+              </p>
+              <span className="hidden sm:inline text-[#d4af37]">|</span>
+              <button
+                type="button"
+                onClick={() => setCurrentTab('login')}
+                className="hover:text-[#b05d2e] underline font-semibold cursor-pointer transition-colors"
+              >
+                Portal de Clientes
+              </button>
+            </div>
 
             <p className="font-medium text-[#8d6e63] text-right shrink-0">
               Desarrollado por <span className="font-bold text-[#b05d2e]">Kindev</span>
