@@ -1074,8 +1074,8 @@ export const AdminBannersTab: React.FC<AdminBannersTabProps> = ({ siteContent, o
                       <label className="block text-white/70 text-[10px] font-bold uppercase tracking-wider mb-1">
                         Etiqueta Superior (Badge)
                       </label>
-                      <div className="inline-flex items-center gap-2 bg-[#e86014] px-4 py-1.5 rounded-full border border-white/20 shadow-md">
-                        <Sparkles className="w-3.5 h-3.5 text-white shrink-0" />
+                      <div className="inline-flex items-center gap-2 bg-yellow-400 px-4 py-1.5 rounded-full border border-white/20 shadow-md">
+                        <Sparkles className="w-3.5 h-3.5 text-[#3d2516] shrink-0" />
                         <input
                           type="text"
                           value={activeSection === 'industrial' ? (currentSlide.badge || '') : (currentSlide.tagline || '')}
@@ -1086,7 +1086,7 @@ export const AdminBannersTab: React.FC<AdminBannersTabProps> = ({ siteContent, o
                             }
                           }}
                           placeholder="Etiqueta..."
-                          className="bg-transparent font-extrabold text-[11px] text-white uppercase tracking-wider outline-none w-64 sm:w-80"
+                          className="bg-transparent font-extrabold text-[11px] text-[#3d2516] uppercase tracking-wider outline-none w-64 sm:w-80 placeholder-[#3d2516]/60"
                         />
                       </div>
                     </div>

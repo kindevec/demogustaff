@@ -68,8 +68,8 @@ export const AboutView: React.FC<AboutViewProps> = React.memo(({ siteContent, la
         <div className="relative z-20 h-full max-w-7xl mx-auto px-6 sm:px-10 lg:px-16 flex flex-col justify-center text-left space-y-4 sm:space-y-5">
           
           {/* Badge */}
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[11px] font-extrabold tracking-wider uppercase w-fit border border-white/20 shadow-lg bg-[#e86014] text-white">
-            <Calendar className="w-4 h-4 text-white" />
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[11px] font-extrabold tracking-wider uppercase w-fit border border-white/20 shadow-lg bg-yellow-400 text-[#3d2516]">
+            <Calendar className="w-4 h-4 text-[#3d2516]" />
             <span>{t.bannerBadge}</span>
           </div>
 

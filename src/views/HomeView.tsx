@@ -701,8 +701,8 @@ export const HomeView: React.FC<HomeViewProps> = React.memo(({
                   /* Standard Rendered Slide Text Elements */
                   <>
                     {/* Tagline Badge */}
-                    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[11px] font-extrabold tracking-wider uppercase w-fit border border-white/20 shadow-lg bg-[#e86014] text-white">
-                      <Sparkles className="w-4 h-4 text-white" />
+                    <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[11px] font-extrabold tracking-wider uppercase w-fit border border-white/20 shadow-lg bg-yellow-400 text-[#3d2516]">
+                      <Sparkles className="w-4 h-4 text-[#3d2516]" />
                       <span>{slide.tagline}</span>
                     </div>
 
@@ -723,10 +723,10 @@ export const HomeView: React.FC<HomeViewProps> = React.memo(({
                     <div className="flex flex-wrap items-center gap-3 pt-2">
                       <button
                         onClick={() => setCurrentTab(slide.primaryTab)}
-                        className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-bold text-white bg-[#e86014] shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-0.5 w-fit cursor-pointer group/btn"
+                        className="inline-flex items-center gap-2 px-6 py-3 rounded-full text-sm font-bold text-[#3d2516] bg-yellow-400 hover:bg-yellow-300 shadow-xl hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-0.5 w-fit cursor-pointer group/btn"
                       >
                         <span>{slide.primaryBtnText}</span>
-                        <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform" />
+                        <ArrowRight className="w-4 h-4 group-hover/btn:translate-x-1 transition-transform text-[#3d2516]" />
                       </button>
                     </div>
                   </>

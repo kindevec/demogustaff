@@ -307,8 +307,8 @@ export const MobileHomeView: React.FC<MobileHomeViewProps> = React.memo(({
               <div className="relative z-20 h-full w-full px-5 sm:px-8 pt-[20px] flex flex-col justify-start text-left items-start space-y-3 max-w-lg">
                 
                 {/* Tagline Badge - Left Aligned */}
-                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-extrabold tracking-wider uppercase text-left border border-white/20 shadow-md bg-[#e86014] text-white">
-                  <Sparkles className="w-3.5 h-3.5 text-white shrink-0" />
+                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-extrabold tracking-wider uppercase text-left border border-white/20 shadow-md bg-yellow-400 text-[#3d2516]">
+                  <Sparkles className="w-3.5 h-3.5 text-[#3d2516] shrink-0" />
                   <span className="truncate">{slide.tagline}</span>
                 </div>
 
@@ -329,7 +329,7 @@ export const MobileHomeView: React.FC<MobileHomeViewProps> = React.memo(({
                 <div className="pt-0 -mt-[5px] text-left">
                   <button
                     onClick={() => setCurrentTab(slide.primaryTab)}
-                    className="inline-flex items-center gap-2 px-5 py-1.5 rounded-full text-xs font-bold text-white bg-[#e86014] shadow-lg hover:shadow-xl transition-all cursor-pointer active:scale-95"
+                    className="inline-flex items-center gap-2 px-5 py-1.5 rounded-full text-xs font-bold text-[#3d2516] bg-yellow-400 hover:bg-yellow-300 shadow-lg hover:shadow-xl transition-all cursor-pointer active:scale-95"
                   >
                     <span>Explorar</span>
                     <ArrowRight className="w-3.5 h-3.5" />
