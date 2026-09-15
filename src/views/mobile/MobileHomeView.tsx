@@ -517,7 +517,7 @@ export const MobileHomeView: React.FC<MobileHomeViewProps> = React.memo(({
         <div className="relative rounded-2xl shadow-md border border-[#e8dcc4]">
           <div className="relative rounded-2xl overflow-hidden">
             <img
-              src="/images/bodegon/rapichoc_chocobanano_variedad_sabores.jpg"
+              src="/images/bodegon/rapichoc_chocobanano_variedad_sabores.webp"
               alt="Fábrica Gustaff"
               className="w-full h-52 object-cover"
               loading="lazy"
@@ -560,7 +560,7 @@ export const MobileHomeView: React.FC<MobileHomeViewProps> = React.memo(({
         <div className="relative rounded-2xl shadow-md border border-[#e8dcc4]">
           <div className="relative rounded-2xl overflow-hidden">
             <img
-              src="/images/bodegon/crema_avellanas_con_chocolate_frasco.png"
+              src="/images/bodegon/crema_avellanas_con_chocolate_frasco.webp"
               alt="Maquila Gustaff"
               className="w-full h-52 object-cover"
               loading="lazy"

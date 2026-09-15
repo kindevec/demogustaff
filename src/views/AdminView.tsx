@@ -144,7 +144,7 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentTab, products, r
     email: 'admin@gustaff.ec',
     role: 'Director de CMS & Contenido',
     phone: '+593 96 971 8045',
-    avatar: '/images/bodegon/logo_gustaff_oficial.png'
+    avatar: '/images/bodegon/logo_gustaff_oficial.webp'
   });
   const [profileNotice, setProfileNotice] = useState('');
 
@@ -425,7 +425,7 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentTab, products, r
             onClick={() => setCurrentTab('home')}
             title="Volver al inicio"
           >
-            <img src="/images/bodegon/logo_gustaff_oficial.png" alt="Gustaff" className="h-9 object-contain drop-shadow-sm group-hover:scale-105 transition-transform" />
+            <img src="/images/bodegon/logo_gustaff_oficial.webp" alt="Gustaff" className="h-9 object-contain drop-shadow-sm group-hover:scale-105 transition-transform" />
             <div className="border-l-2 border-amber-500 pl-3 ml-1">
               <h1 className="font-bold text-slate-900 leading-tight text-lg group-hover:text-amber-600 transition-colors">Admin CMS</h1>
               <p className="text-[10px] text-slate-500 font-bold uppercase tracking-widest mt-0.5">Gestión Web</p>
@@ -498,7 +498,7 @@ export const AdminView: React.FC<AdminViewProps> = ({ setCurrentTab, products, r
             onClick={() => setCurrentTab('home')}
           >
             <div className="flex items-center gap-2.5">
-              <img src="/images/bodegon/logo_gustaff_oficial.png" alt="Gustaff" className="h-6 object-contain drop-shadow-sm group-hover:scale-105 transition-transform" />
+              <img src="/images/bodegon/logo_gustaff_oficial.webp" alt="Gustaff" className="h-6 object-contain drop-shadow-sm group-hover:scale-105 transition-transform" />
               <div className="h-4 w-px bg-slate-300"></div>
               <span className="font-bold text-slate-900 text-sm group-hover:text-amber-600 transition-colors">Admin CMS</span>
             </div>

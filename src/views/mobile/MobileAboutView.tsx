@@ -130,7 +130,7 @@ export const MobileAboutView: React.FC<MobileAboutViewProps> = React.memo(({ sit
       >
         {/* Full Width Image */}
         <img
-          src="/images/bodegon/Conocenos.png"
+          src="/images/bodegon/Conocenos.webp"
           alt="Planta Industrial Gustaff S.A."
           className="absolute inset-0 w-full h-full object-cover object-center transition-all duration-700"
         />
@@ -258,7 +258,7 @@ export const MobileAboutView: React.FC<MobileAboutViewProps> = React.memo(({ sit
             {/* Image with floating quote card — Relocated Below Normas HACCP */}
             <div className="relative rounded-2xl overflow-hidden shadow-lg border border-[#e8dcc4] my-2">
               <img
-                src="/images/bodegon/rapichoc_chocobanano_variedad_sabores.jpg"
+                src="/images/bodegon/rapichoc_chocobanano_variedad_sabores.webp"
                 alt="Historia Gustaff S.A."
                 className="w-full h-[260px] object-cover"
                 loading="lazy"
@@ -322,7 +322,7 @@ export const MobileAboutView: React.FC<MobileAboutViewProps> = React.memo(({ sit
           <div className="space-y-4 -mx-4">
             <div className="relative overflow-hidden h-[250px] shadow-lg bg-[#120703] w-full">
               <img
-                src="/images/bodegon/Conocenos.png"
+                src="/images/bodegon/Conocenos.webp"
                 alt="Planta Industrial Gustaff S.A."
                 className="absolute inset-0 w-full h-full object-cover object-center z-0"
                 loading="lazy"

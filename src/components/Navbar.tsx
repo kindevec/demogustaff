@@ -84,7 +84,7 @@ export const Navbar: React.FC<NavbarProps> = React.memo(({
           className="flex items-center shrink-0 group text-left cursor-pointer w-[140px] sm:w-[170px] h-[48px] justify-start overflow-visible"
         >
           <img 
-            src="/images/bodegon/logo_gustaff_oficial.png" 
+            src="/images/bodegon/logo_gustaff_oficial.webp" 
             alt="Gustaff S.A." 
             width={180}
             height={68}

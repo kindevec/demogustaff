@@ -177,7 +177,7 @@ export const AuthView: React.FC<AuthViewProps> = ({
 
         {/* Brand Image */}
         <img
-          src="/images/login_chocolate_bg.jpg"
+          src="/images/login_chocolate_bg.webp"
           alt="Gustaff S.A. - Coberturas y Chocolates Finos"
           className="w-full h-full object-cover select-none filter brightness-95"
         />
@@ -218,7 +218,7 @@ export const AuthView: React.FC<AuthViewProps> = ({
           {/* Logo Oficial Gustaff Maximizado y Centrado */}
           <div className="flex justify-center items-center mb-6">
             <img
-              src="/images/bodegon/logo_gustaff_oficial.png"
+              src="/images/bodegon/logo_gustaff_oficial.webp"
               alt="Gustaff S.A."
               className="h-20 sm:h-24 w-auto max-w-[260px] object-contain drop-shadow-xs transition-transform hover:scale-105 duration-200"
             />

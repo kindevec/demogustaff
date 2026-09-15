@@ -960,7 +960,7 @@ export const HomeView: React.FC<HomeViewProps> = React.memo(({
           <div className="lg:col-span-6 relative">
             <div className="relative rounded-3xl overflow-hidden shadow-xl border-2 border-[#e8dcc4]">
               <img
-                src="/images/bodegon/rapichoc_chocobanano_variedad_sabores.jpg"
+                src="/images/bodegon/rapichoc_chocobanano_variedad_sabores.webp"
                 alt="Nuestra Fábrica Gustaff"
                 className="w-full h-[420px] object-cover"
                 loading="lazy"
@@ -1061,7 +1061,7 @@ export const HomeView: React.FC<HomeViewProps> = React.memo(({
           <div className="lg:col-span-6 relative">
             <div className="relative rounded-3xl overflow-hidden shadow-xl border-2 border-[#e8dcc4]">
               <img
-                src="/images/bodegon/crema_avellanas_con_chocolate_frasco.png"
+                src="/images/bodegon/crema_avellanas_con_chocolate_frasco.webp"
                 alt="Maquila Industrial Gustaff"
                 className="w-full h-[420px] object-cover"
                 loading="lazy"

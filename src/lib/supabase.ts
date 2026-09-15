@@ -74,7 +74,8 @@ export const fetchProducts = async (): Promise<Product[]> => {
   }
   return (data || []).map(p => {
     const { display_order, ...rest } = p;
-    return { ...rest, order: display_order } as Product;
+    const image = rest.image ? rest.image.replace(/\/images\/bodegon\/(.+?)\.(png|jpg|jpeg)$/i, '/images/bodegon/$1.webp') : rest.image;
+    return { ...rest, image, order: display_order } as Product;
   });
 };
 
@@ -129,7 +130,11 @@ export const fetchSiteContent = async (): Promise<SiteContent> => {
       .maybeSingle();
 
     if (!error && data && data.content) {
-      const parsed = typeof data.content === 'string' ? JSON.parse(data.content) : data.content;
+      let parsed = typeof data.content === 'string' ? JSON.parse(data.content) : data.content;
+      try {
+        const jsonStr = JSON.stringify(parsed).replace(/(\/images\/[a-zA-Z0-9_\-/\s%]+?)\.(png|jpg|jpeg)/gi, '$1.webp');
+        parsed = JSON.parse(jsonStr);
+      } catch {}
       const merged = { ...INITIAL_SITE_CONTENT, ...parsed };
       localStorage.setItem(STORAGE_KEYS.SITE_CONTENT, JSON.stringify(merged));
       return merged;

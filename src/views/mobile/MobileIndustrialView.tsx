@@ -144,7 +144,7 @@ export const MobileIndustrialView: React.FC<MobileIndustrialViewProps> = React.m
   }, [filteredProducts, currentPage, itemsPerPage]);
 
   const getProductImage = (p: Product) => {
-    const img = p.image_url || p.image || '/images/placeholder.png';
+    const img = p.image_url || p.image || '/images/placeholder.webp';
     return encodeURI(img);
   };
 

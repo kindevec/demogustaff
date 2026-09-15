@@ -48,7 +48,7 @@ export const AboutView: React.FC<AboutViewProps> = React.memo(({ siteContent, la
       <div className="relative overflow-hidden transition-colors duration-700 ease-in-out h-[520px] sm:h-[620px] lg:h-[700px] bg-[#3A1B12]">
         {/* Background Image (Absolute Fill) with smooth page load zoom */}
         <img
-          src="/images/bodegon/Conocenos.png"
+          src="/images/bodegon/Conocenos.webp"
           alt="Planta Industrial Gustaff S.A."
           className="absolute inset-0 w-full h-full object-cover object-center z-0 animate-hero-zoom"
         />
@@ -110,7 +110,7 @@ export const AboutView: React.FC<AboutViewProps> = React.memo(({ siteContent, la
           <div className="lg:col-span-5 relative">
             <div className="relative rounded-3xl overflow-hidden shadow-xl border-2 border-[#e8dcc4]">
               <img
-                src="/images/bodegon/rapichoc_chocobanano_variedad_sabores.jpg"
+                src="/images/bodegon/rapichoc_chocobanano_variedad_sabores.webp"
                 alt="Historia Gustaff S.A."
                 className="w-full h-[440px] object-cover"
                 loading="lazy"
@@ -214,7 +214,7 @@ export const AboutView: React.FC<AboutViewProps> = React.memo(({ siteContent, la
           {/* Banner with Conocenos.png background photo & dark contrast overlay */}
           <div className="relative rounded-3xl overflow-hidden h-[340px] sm:h-[380px] shadow-2xl border border-[#e8dcc4] bg-[#120703]">
             <img
-              src="/images/bodegon/Conocenos.png"
+              src="/images/bodegon/Conocenos.webp"
               alt="Planta Industrial Gustaff S.A."
               className="absolute inset-0 w-full h-full object-cover object-center z-0"
               loading="lazy"

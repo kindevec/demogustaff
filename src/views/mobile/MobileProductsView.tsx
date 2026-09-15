@@ -271,7 +271,7 @@ export const MobileProductsView: React.FC<MobileProductsViewProps> = React.memo(
   }, [filteredProducts, currentPage, itemsPerPage]);
 
   const getProductImage = (p: Product) => {
-    const img = p.image_url || p.image || '/images/placeholder.png';
+    const img = p.image_url || p.image || '/images/placeholder.webp';
     return encodeURI(img);
   };
 

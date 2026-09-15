@@ -93,7 +93,7 @@ export const ClientProfileView: React.FC<ClientProfileViewProps> = ({
       <div className="md:hidden bg-white border-b border-[#e8dcc4] px-5 py-4 flex items-center justify-between shadow-xs sticky top-0 z-30">
         <div className="flex items-center gap-3">
           <img
-            src="/images/bodegon/logo_gustaff_oficial.png"
+            src="/images/bodegon/logo_gustaff_oficial.webp"
             alt="Gustaff S.A."
             className="h-10 w-auto object-contain cursor-pointer"
             onClick={() => setCurrentTab('home')}
@@ -128,7 +128,7 @@ export const ClientProfileView: React.FC<ClientProfileViewProps> = ({
             title="Ir a la página principal"
           >
             <img 
-              src="/images/bodegon/logo_gustaff_oficial.png" 
+              src="/images/bodegon/logo_gustaff_oficial.webp" 
               alt="Gustaff S.A." 
               className="h-12 w-auto object-contain transition-transform group-hover:scale-105" 
             />
